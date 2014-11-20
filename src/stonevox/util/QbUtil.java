@@ -1,0 +1,283 @@
+package stonevox.util;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import org.lwjgl.Sys;
+
+import stonevox.Program;
+import stonevox.data.Cube;
+import stonevox.data.QbMatrixDefination;
+import stonevox.data.QbModel;
+import stonevox.gui.Textbox;
+
+public class QbUtil
+{
+	public static long getUnsignedInt(DataInputStream in) throws IOException
+	{
+		byte[] b = new byte[4];
+		in.read(b, 0, 4);
+
+		ByteBuffer bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);
+
+		return (long) (bb.getInt() & 0xFFFFFFFFL);
+	}
+
+	public static byte[] longToBytes(long x)
+	{
+		ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+		buffer.putLong(x);
+		return buffer.array();
+	}
+
+	public static byte[] intToBytes(int x)
+	{
+		ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+		buffer.putInt(x);
+		return buffer.array();
+	}
+
+	public static byte[] intToLEndian(int x)
+	{
+		ByteBuffer buffer3 = ByteBuffer.allocate(Integer.BYTES);
+		buffer3.order(ByteOrder.LITTLE_ENDIAN);
+		buffer3.putInt(x);
+		buffer3 = (ByteBuffer) buffer3.flip();
+
+		return buffer3.array();
+	}
+
+	public static QbModel readQB(String path) throws Exception
+	{
+		System.out.print(String.format("Begining QB read : %s\n", path));
+		long time = Sys.getTime();
+		QbModel model = new QbModel();
+		model.filepath = path;
+
+		try
+		{
+			DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(path)));
+
+			model.version = (int) (getUnsignedInt(in));
+			model.colorFormat = (int) getUnsignedInt(in);
+			model.zAxisOrientation = (int) getUnsignedInt(in);
+			model.compressed = (int) getUnsignedInt(in);
+			model.visibilityMaskEncoded = (int) getUnsignedInt(in);
+			model.setMatrixListLength((int) getUnsignedInt(in));
+
+			for (int i = 0; i < model.numMatrices; i++)
+			{
+				QbMatrixDefination def = model.matrixList.get(i);
+
+				byte namelength = in.readByte();
+				byte[] namebytes = new byte[namelength];
+				in.read(namebytes, 0, namelength);
+				def.name = new String(namebytes);
+
+				def.setSize((int) (getUnsignedInt(in)), (int) (getUnsignedInt(in)), (int) (getUnsignedInt(in)));
+
+				def.setPosition(in.readInt(), in.readInt(), in.readInt());
+				def.setPosition(0, 0, 0);
+
+				if (def.name.equals("PAL"))
+				{
+					model.hasPAL = true;
+				}
+
+				if (i == 0)
+				{
+					// hacks
+					File f = new File(path);
+
+					Textbox textbox = (Textbox) GUI.get(GUI.PROJECTSETTINGS_NAME);
+					textbox.setText(f.getName().substring(0, f.getName().length() - 3));
+
+					Textbox textbox2 = (Textbox) GUI.get(GUI.PROJECTSETTINGS_SIZE);
+					textbox2.setText(def.sizeX + "_" + def.sizeY + "_" + def.sizeZ);
+				}
+
+				int r;
+				int g;
+				int b;
+				int a;
+
+				if (model.compressed == 0)
+				{
+
+					Cube cube = new Cube();
+					for (int z = 0; z < def.sizeZ; z++)
+						for (int y = 0; y < def.sizeY; y++)
+							for (int x = 0; x < def.sizeX; x++)
+							{
+								r = in.readUnsignedByte();
+								g = in.readUnsignedByte();
+								b = in.readUnsignedByte();
+								a = in.readUnsignedByte();
+
+								cube.setPos(x, y, z);
+								cube.setColor(r, g, b, a);
+
+								def.cubes[z][y][x] = cube;
+
+								cube = new Cube();
+							}
+				}
+				else
+				{
+					throw new Exception("qb compression not implemented");
+				}
+			}
+
+			in.close();
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		long ntime = Sys.getTime();
+		ntime = Math.abs(ntime - time);
+
+		System.out.print(String.format("End Qb read : %s mil \n", ntime));
+
+		return model;
+	}
+
+	public static void writeQB()
+	{
+		long time = Sys.getTime();
+		QbModel model = Program.model;
+		System.out.print("Begining QB write\n");
+
+		Textbox textbox = (Textbox) GUI.get(GUI.PROJECTSETTINGS_NAME);
+		String name = textbox.text;
+
+		model.encodeVisibilityMask();
+		System.out.print("	Encoding Visiblity Mask \n");
+
+		String path = GetPath.getPath("");
+
+		File folder = new File(path + "\\export");
+		folder.mkdirs();
+
+		File file = new File(path + "\\export\\" + name + ".qb");
+		try
+		{
+			file.createNewFile();
+		}
+		catch (IOException e1)
+		{
+			e1.printStackTrace();
+		}
+
+		try
+		{
+			DataOutputStream out =
+					new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path + "\\export\\" + name
+							+ ".qb")));
+
+			System.out.print("	Beginning write \n");
+
+			out.write(intToLEndian(model.version));
+			out.write(intToLEndian(model.colorFormat));
+			out.write(intToLEndian(model.zAxisOrientation));
+			out.write(intToLEndian(model.compressed));
+			out.write(intToLEndian(model.visibilityMaskEncoded));
+			out.write(intToLEndian(model.matrixList.size()));
+
+			for (int i = 0; i < model.matrixList.size(); i++)
+			{
+				QbMatrixDefination m = model.matrixList.get(i);
+				System.out.print(String.format("	writting : %s \n", m.name));
+				out.writeByte((byte) m.name.length());
+				out.writeBytes(m.name);
+				out.write(intToLEndian(m.sizeX));
+				out.write(intToLEndian(m.sizeY));
+				out.write(intToLEndian(m.sizeZ));
+				out.write(intToLEndian(m.posX));
+				out.write(intToLEndian(m.posY));
+				out.write(intToLEndian(m.posZ));
+
+				for (int z = 0; z < m.sizeZ; z++)
+					for (int y = 0; y < m.sizeY; y++)
+						for (int x = 0; x < m.sizeX; x++)
+						{
+							org.lwjgl.util.Color c = m.cubes[z][y][x].color;
+
+							int r = c.getRed();
+							int g = c.getGreen();
+							int b = c.getBlue();
+							int a = c.getAlpha();
+
+							if (z == 7 && y == 11 && x == 9)
+							{
+								boolean t = false;
+							}
+
+							out.writeByte((byte) r);
+							out.writeByte((byte) g);
+							out.writeByte((byte) b);
+							out.writeByte((byte) a);
+						}
+
+				System.out.print(String.format("	writting : %s \n", "success"));
+			}
+
+			out.close();
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		long netime = Sys.getTime();
+
+		System.out.print("Save : model encoded and saved - " + (netime - time + " mil" + System.lineSeparator()));
+	}
+
+	public static QbModel GetDefault()
+	{
+		QbModel model = new QbModel();
+		model.filepath = "\\untitled.qb";
+
+		model.zAxisOrientation = 1;
+		model.visibilityMaskEncoded = 1;
+		model.version = 257;
+
+		model.setMatrixListLength(1);
+		model.GetActiveMatrix().setSize(10, 10, 10);
+		model.GetActiveMatrix().setPosition(0, 0, 0);
+
+		model.GetActiveMatrix().name = "default";
+
+		for (int z = 0; z < 10; z++)
+			for (int y = 0; y < 10; y++)
+				for (int x = 0; x < 10; x++)
+				{
+					Cube c = new Cube();
+					c.setPos(x, y, z);
+					c.setColor(0, 0, 0, 0);
+					model.GetActiveMatrix().cubes[z][y][x] = c;
+				}
+
+		model.generateMeshs();
+		return model;
+	}
+}

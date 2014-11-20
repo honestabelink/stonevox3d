@@ -1,0 +1,1465 @@
+package stonevox.data;
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
+import org.lwjgl.BufferUtils;
+import org.lwjgl.Sys;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.util.Color;
+
+import stonevox.Program;
+import stonevox.util.RaycastingUtil;
+import stonevox.util.SideUtil;
+
+public class QbMatrixDefination
+{
+	float				cubesizex	= 0.5f;
+	float				cubesizey	= 0.5f;
+	float				cubesizez	= 0.5f;
+
+	public String		name;
+	public int			sizeX;
+	public int			sizeY;
+	public int			sizeZ;
+	public int			posX;
+	public int			posY;
+	public int			posZ;
+	public Vector3		pos;
+	public Vector3		hackpos;
+	public Vector3		pos_size;
+
+	private int			facecount;
+	private int			vertexobjectarrayid;
+	private int			vertexbufferid;
+	private int			indexbufferid;
+	private Matrix		transform;
+	private Matrix		final_transform;
+
+	private RayHitPoint	rayhit;
+
+	public Cube[][][]	cubes;
+	float[]				vertexdata;
+	int[]				indexdata;
+
+	public void setSize(int x, int y, int z)
+	{
+		cubes = new Cube[z][y][x];
+		this.sizeX = x;
+		this.sizeY = y;
+		this.sizeZ = z;
+
+		vertexdata = new float[sizeX * sizeY * sizeZ * 28 * 6];
+		indexdata = new int[sizeX * sizeY * sizeZ * 12 * 6];
+	}
+
+	public void setPosition(int x, int y, int z)
+	{
+		this.posX = (int) x;
+		this.posY = (int) y;
+		this.posZ = (int) z;
+
+		hackpos = new Vector3();
+		pos = new Vector3(x * .5f, y * .5f, z * .5f);
+		pos_size = new Vector3((float) (sizeX) * .5f - .5f, (float) (sizeY) * .5f - .5f, (float) (sizeZ) * .5f - .5f);
+
+		transform = Matrix.CreateTranslation(0, 0, 0);
+	}
+
+	public Cube getCube(Vector3 v)
+	{
+		return cubes[(int) v.z][(int) v.y][(int) v.x];
+	}
+
+	public Cube getCubeSaftly(int x, int y, int z)
+	{
+		if (z > sizeZ - 1)
+			return null;
+		if (z < 0)
+			return null;
+
+		if (y > sizeY - 1)
+			return null;
+		if (y < 0)
+			return null;
+
+		if (x > sizeX - 1)
+			return null;
+		if (x < 0)
+			return null;
+
+		return cubes[z][y][x];
+	}
+
+	public Cube getCubeSaftly(Vector3 l)
+	{
+		int x = (int) l.x;
+		int y = (int) l.y;
+		int z = (int) l.z;
+		if (z > sizeZ - 1)
+			return null;
+		if (z < 0)
+			return null;
+
+		if (y > sizeY - 1)
+			return null;
+		if (y < 0)
+			return null;
+
+		if (x > sizeX - 1)
+			return null;
+		if (x < 0)
+			return null;
+
+		return cubes[z][y][x];
+	}
+
+	public void generateMesh()
+	{
+		long time = Sys.getTime();
+		Cube cube = null;
+		Color color = null;
+		int index = 0;
+
+		facecount = 0;
+
+		for (int z = 0; z < sizeZ; z++)
+		{
+			for (int y = 0; y < sizeY; y++)
+			{
+				for (int x = 0; x < sizeX; x++)
+				{
+					cube = cubes[z][y][x];
+					color = cube.color;
+					if (color.getAlpha() != 0)
+					{
+						if (z + 1 < sizeZ)
+						{
+							if (cubes[z + 1][y][x].color.getAlpha() == 0)
+							{
+								updateLightMapRelative(cube, Side.FRONT, x, y, z);
+								index = cube.front.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							updateLightMapRelative(cube, Side.FRONT, x, y, z);
+							index = cube.front.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (z - 1 >= 0)
+						{
+							if (cubes[z - 1][y][x].color.getAlpha() == 0)
+							{
+								updateLightMapRelative(cube, Side.BACK, x, y, z);
+								index = cube.back.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							updateLightMapRelative(cube, Side.BACK, x, y, z);
+							index = cube.back.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (y + 1 < sizeY)
+						{
+							if (cubes[z][y + 1][x].color.getAlpha() == 0)
+							{
+								updateLightMapRelative(cube, Side.TOP, x, y, z);
+								index = cube.top.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							updateLightMapRelative(cube, Side.TOP, x, y, z);
+							index = cube.top.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (y - 1 >= 0)
+						{
+							if (cubes[z][y - 1][x].color.getAlpha() == 0)
+							{
+								updateLightMapRelative(cube, Side.BOTTOM, x, y, z);
+								index = cube.bottom.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							updateLightMapRelative(cube, Side.BOTTOM, x, y, z);
+							index = cube.bottom.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (x + 1 < sizeX)
+						{
+							if (cubes[z][y][x + 1].color.getAlpha() == 0)
+							{
+								updateLightMapRelative(cube, Side.RIGHT, x, y, z);
+								index = cube.right.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							updateLightMapRelative(cube, Side.RIGHT, x, y, z);
+							index = cube.right.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (x - 1 >= 0)
+						{
+							if (cubes[z][y][x - 1].color.getAlpha() == 0)
+							{
+								updateLightMapRelative(cube, Side.LEFT, x, y, z);
+								index = cube.left.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							updateLightMapRelative(cube, Side.LEFT, x, y, z);
+							index = cube.left.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+					}
+				}
+			}
+		}
+
+		FloatBuffer vertexbuff = BufferUtils.createFloatBuffer(facecount * 28);
+
+		vertexbuff.put(vertexdata, 0, facecount * 28);
+		vertexbuff.flip();
+
+		vertexbufferid = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexbufferid);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexbuff, GL15.GL_DYNAMIC_DRAW);
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+
+		IntBuffer indexbuff = BufferUtils.createIntBuffer(facecount * 6);
+
+		for (int i = 0; i < facecount; i++)
+		{
+			indexdata[i * 6] = i * 4;
+			indexdata[i * 6 + 1] = i * 4 + 1;
+			indexdata[i * 6 + 2] = i * 4 + 2;
+
+			indexdata[i * 6 + 3] = i * 4;
+			indexdata[i * 6 + 4] = i * 4 + 2;
+			indexdata[i * 6 + 5] = i * 4 + 3;
+		}
+
+		indexbuff.put(indexdata, 0, facecount * 6);
+		indexbuff.flip();
+
+		indexbufferid = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indexbufferid);
+		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indexbuff, GL15.GL_DYNAMIC_DRAW);
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		vertexobjectarrayid = GL30.glGenVertexArrays();
+
+		GL30.glBindVertexArray(vertexobjectarrayid);
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexbufferid);
+		GL20.glEnableVertexAttribArray(0);
+		GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 7 << 2, 0l);
+		GL20.glEnableVertexAttribArray(1);
+		GL20.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 7 << 2, 3 << 2);
+		GL20.glEnableVertexAttribArray(2);
+		GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 7 << 2, 6 << 2);
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indexbufferid);
+		GL30.glBindVertexArray(0);
+
+		long netime = Sys.getTime();
+
+		if (Program.debug)
+			System.out.print(this.name + " : Mesh Generation with lighting - "
+					+ (netime - time + " mil" + System.lineSeparator()));
+	}
+
+	public void updateMesh()
+	{
+		long time = Program.getTime();
+
+		Cube cube = null;
+		Color color = null;
+		int index = 0;
+
+		facecount = 0;
+
+		for (int z = 0; z < sizeZ; z++)
+		{
+			for (int y = 0; y < sizeY; y++)
+			{
+				for (int x = 0; x < sizeX; x++)
+				{
+					cube = cubes[z][y][x];
+					color = cube.color;
+					if (color.getAlpha() != 0)
+					{
+						if (z + 1 < sizeZ)
+						{
+							if (cubes[z + 1][y][x].color.getAlpha() == 0)
+							{
+								index = cube.front.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							index = cube.front.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (z - 1 >= 0)
+						{
+							if (cubes[z - 1][y][x].color.getAlpha() == 0)
+							{
+								index = cube.back.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							index = cube.back.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (y + 1 < sizeY)
+						{
+							if (cubes[z][y + 1][x].color.getAlpha() == 0)
+							{
+								index = cube.top.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							index = cube.top.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (y - 1 >= 0)
+						{
+							if (cubes[z][y - 1][x].color.getAlpha() == 0)
+							{
+								index = cube.bottom.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							index = cube.bottom.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (x + 1 < sizeX)
+						{
+							if (cubes[z][y][x + 1].color.getAlpha() == 0)
+							{
+								index = cube.right.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							index = cube.right.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+
+						if (x - 1 >= 0)
+						{
+							if (cubes[z][y][x - 1].color.getAlpha() == 0)
+							{
+								index = cube.left.setDataIntoBuffer(index, vertexdata);
+								facecount++;
+							}
+						}
+						else
+						{
+							index = cube.left.setDataIntoBuffer(index, vertexdata);
+							facecount++;
+						}
+					}
+				}
+			}
+		}
+
+		FloatBuffer vertexbuff = BufferUtils.createFloatBuffer(facecount * 28);
+
+		vertexbuff.put(vertexdata, 0, facecount * 28);
+		vertexbuff.flip();
+
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexbufferid);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexbuff, GL15.GL_DYNAMIC_DRAW);
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+
+		IntBuffer indexbuff = BufferUtils.createIntBuffer(facecount * 6);
+
+		for (int i = 0; i < facecount; i++)
+		{
+			indexdata[i * 6] = i * 4;
+			indexdata[i * 6 + 1] = i * 4 + 1;
+			indexdata[i * 6 + 2] = i * 4 + 2;
+
+			indexdata[i * 6 + 3] = i * 4;
+			indexdata[i * 6 + 4] = i * 4 + 2;
+			indexdata[i * 6 + 5] = i * 4 + 3;
+		}
+
+		indexbuff.put(indexdata, 0, facecount * 6);
+		indexbuff.flip();
+
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indexbufferid);
+		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indexbuff, GL15.GL_DYNAMIC_DRAW);
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		long netime = Program.getTime();
+
+		if (Program.debug)
+			System.out.print(netime - time + System.lineSeparator());
+	}
+
+	public void clean()
+	{
+		for (int z = 0; z < sizeZ; z++)
+		{
+			for (int y = 0; y < sizeY; y++)
+			{
+				for (int x = 0; x < sizeX; x++)
+				{
+					cubes[z][y][x].isDirty = false;
+				}
+			}
+		}
+	}
+
+	public void render()
+	{
+		final_transform = Matrix.Multiply(Program.camera.modelview, transform);
+
+		Program.shader.WriteUniformMatrix4("modelview\0", final_transform.GetBuffer());
+
+		GL30.glBindVertexArray(vertexobjectarrayid);
+		GL11.glDrawElements(GL11.GL_TRIANGLES, facecount * 6, GL11.GL_UNSIGNED_INT, 0l);
+		GL30.glBindVertexArray(0);
+	}
+
+	// SPAGHETTI
+	public RayHitPoint rayTest(Vector3 origin, Vector3 projection)
+	{
+		Cube cube = null;
+		Color color = null;
+
+		float dis = 0;
+		boolean allowdirt = Program.rayCaster.raycast_dirt;
+		RayHitPoint hit = new RayHitPoint();
+		hit.distance = 100000;
+
+		if (allowdirt)
+		{
+			for (int z = 0; z < sizeZ; z++)
+			{
+				for (int y = 0; y < sizeY; y++)
+				{
+					for (int x = 0; x < sizeX; x++)
+					{
+						cube = cubes[z][y][x];
+						color = cube.color;
+
+						if (cube.isDirty || color.getAlpha() != 0)
+						{
+							if (z + 1 < sizeZ)
+							{
+								if (cubes[z + 1][y][x].color.getAlpha() == 0)
+								{
+									if (cube.front.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.front.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.front.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.front.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (z - 1 >= 0)
+							{
+								if (cubes[z - 1][y][x].color.getAlpha() == 0)
+								{
+									if (cube.back.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.back.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.back.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.back.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (y + 1 < sizeY)
+							{
+								if (cubes[z][y + 1][x].color.getAlpha() == 0)
+								{
+									if (cube.top.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.top.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.top.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.top.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (y - 1 >= 0)
+							{
+								if (cubes[z][y - 1][x].color.getAlpha() == 0)
+								{
+									if (cube.bottom.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.bottom.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.bottom.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.bottom.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (x + 1 < sizeX)
+							{
+								if (cubes[z][y][x + 1].color.getAlpha() == 0)
+								{
+									if (cube.right.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.right.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.right.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.right.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (x - 1 >= 0)
+							{
+								if (cubes[z][y][x - 1].color.getAlpha() == 0)
+								{
+									if (cube.left.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.left.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.left.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.left.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			for (int z = 0; z < sizeZ; z++)
+			{
+				for (int y = 0; y < sizeY; y++)
+				{
+					for (int x = 0; x < sizeX; x++)
+					{
+						cube = cubes[z][y][x];
+						color = cube.color;
+
+						if (cube.isDirty)
+							continue;
+
+						if (color.getAlpha() != 0)
+						{
+							if (z + 1 < sizeZ)
+							{
+								if (cubes[z + 1][y][x].color.getAlpha() == 0 || cubes[z + 1][y][x].isDirty)
+								{
+									if (cube.front.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.front.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.front.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.front.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (z - 1 >= 0)
+							{
+								if (cubes[z - 1][y][x].color.getAlpha() == 0 || cubes[z - 1][y][x].isDirty)
+								{
+									if (cube.back.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.back.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.back.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.back.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (y + 1 < sizeY)
+							{
+								if (cubes[z][y + 1][x].color.getAlpha() == 0 || cubes[z][y + 1][x].isDirty)
+								{
+									if (cube.top.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.top.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.top.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.top.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (y - 1 >= 0)
+							{
+								if (cubes[z][y - 1][x].color.getAlpha() == 0 || cubes[z][y - 1][x].isDirty)
+								{
+									if (cube.bottom.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.bottom.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.bottom.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.bottom.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (x + 1 < sizeX)
+							{
+								if (cubes[z][y][x + 1].color.getAlpha() == 0 || cubes[z][y][x + 1].isDirty)
+								{
+									if (cube.right.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.right.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.right.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.right.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+
+							if (x - 1 >= 0)
+							{
+								if (cubes[z][y][x - 1].color.getAlpha() == 0 || cubes[z][y][x - 1].isDirty)
+								{
+									if (cube.left.RayTest(origin, projection))
+									{
+										dis = RaycastingUtil.Distance(origin, x, y, z);
+
+										if (dis < hit.distance)
+										{
+											hit.cubelocation.x = x;
+											hit.cubelocation.y = y;
+											hit.cubelocation.z = z;
+											hit.cubenormal = cube.left.normal;
+
+											hit.distance = dis;
+										}
+									}
+								}
+							}
+							else
+							{
+								if (cube.left.RayTest(origin, projection))
+								{
+									dis = RaycastingUtil.Distance(origin, x, y, z);
+
+									if (dis < hit.distance)
+									{
+										hit.cubelocation.x = x;
+										hit.cubelocation.y = y;
+										hit.cubelocation.z = z;
+										hit.cubenormal = cube.left.normal;
+
+										hit.distance = dis;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return hit.distance == 100000 ? null : hit;
+	}
+
+	public void encodeVisibilityMask()
+	{
+		Cube cube = null;
+		Color color = null;
+
+		int mask = 1;
+
+		for (int z = 0; z < sizeZ; z++)
+		{
+			for (int y = 0; y < sizeY; y++)
+			{
+				for (int x = 0; x < sizeX; x++)
+				{
+					cube = cubes[z][y][x];
+					color = cube.color;
+					mask = 1;
+					if (color.getAlpha() != 0)
+					{
+						if (z + 1 < sizeZ)
+						{
+							if (cubes[z + 1][y][x].color.getAlpha() == 0)
+							{
+								mask += SideUtil.getVisibilityMask(Side.FRONT);
+							}
+						}
+						else
+						{
+							mask += SideUtil.getVisibilityMask(Side.FRONT);
+						}
+
+						if (z - 1 >= 0)
+						{
+							if (cubes[z - 1][y][x].color.getAlpha() == 0)
+							{
+								mask += SideUtil.getVisibilityMask(Side.BACK);
+							}
+						}
+						else
+						{
+							mask += SideUtil.getVisibilityMask(Side.BACK);
+						}
+
+						if (y + 1 < sizeY)
+						{
+							if (cubes[z][y + 1][x].color.getAlpha() == 0)
+							{
+								mask += SideUtil.getVisibilityMask(Side.TOP);
+							}
+						}
+						else
+						{
+							mask += SideUtil.getVisibilityMask(Side.TOP);
+						}
+
+						if (y - 1 >= 0)
+						{
+							if (cubes[z][y - 1][x].color.getAlpha() == 0)
+							{
+								mask += SideUtil.getVisibilityMask(Side.BOTTOM);
+							}
+						}
+						else
+						{
+							mask += SideUtil.getVisibilityMask(Side.BOTTOM);
+						}
+
+						if (x + 1 < sizeX)
+						{
+							if (cubes[z][y][x + 1].color.getAlpha() == 0)
+							{
+								mask += SideUtil.getVisibilityMask(Side.RIGHT);
+							}
+						}
+						else
+						{
+							mask += SideUtil.getVisibilityMask(Side.RIGHT);
+						}
+
+						if (x - 1 >= 0)
+						{
+							if (cubes[z][y][x - 1].color.getAlpha() == 0)
+							{
+								mask += SideUtil.getVisibilityMask(Side.LEFT);
+							}
+						}
+						else
+						{
+							mask += SideUtil.getVisibilityMask(Side.LEFT);
+						}
+
+						cube.setAlpha(mask);
+					}
+					else
+					{
+						cube.setAlpha(0);
+					}
+				}
+			}
+		}
+	}
+
+	public float getLightValue(int z, int y, int x)
+	{
+		if (z > sizeZ - 1)
+			return 1f;
+		if (z < 0)
+			return 1f;
+
+		if (y > sizeY - 1)
+			return 1f;
+		if (y < 0)
+			return 1f;
+
+		if (x > sizeX - 1)
+			return 1f;
+		if (x < 0)
+			return 1f;
+
+		return cubes[z][y][x].color.getAlpha() > 0 ? .65f : 1f;
+	}
+
+	float[][]	ld	= new float[3][3];
+	int			px;
+	int			py;
+	int			pz;
+
+	public void updateLightMapRelative(Cube cube, Side side, int x, int y, int z)
+	{
+		switch (side)
+		{
+			case FRONT:
+				px = (int) (x + cube.front.normal.x);
+				py = (int) (y + cube.front.normal.y);
+				pz = (int) (z + cube.front.normal.z);
+
+				ld[0][0] = getLightValue(pz, py - 1, px - 1);
+				ld[0][1] = getLightValue(pz, py - 1, px);
+				ld[0][2] = getLightValue(pz, py - 1, px + 1);
+
+				ld[1][0] = getLightValue(pz, py, px - 1);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz, py, px + 1);
+
+				ld[2][0] = getLightValue(pz, py + 1, px - 1);
+				ld[2][1] = getLightValue(pz, py + 1, px);
+				ld[2][2] = getLightValue(pz, py + 1, px + 1);
+
+				cube.front.lightmap[0] = (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f;
+				cube.front.lightmap[1] = (ld[1][1] + ld[0][1] + ld[0][2] + ld[1][2]) / 4f;
+				cube.front.lightmap[2] = (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f;
+				cube.front.lightmap[3] = (ld[1][1] + ld[1][0] + ld[2][0] + ld[2][1]) / 4f;
+				break;
+
+			case BACK:
+				px = (int) (x + cube.back.normal.x);
+				py = (int) (y + cube.back.normal.y);
+				pz = (int) (z + cube.back.normal.z);
+
+				ld[0][0] = getLightValue(pz, py - 1, px - 1);
+				ld[0][1] = getLightValue(pz, py - 1, px);
+				ld[0][2] = getLightValue(pz, py - 1, px + 1);
+
+				ld[1][0] = getLightValue(pz, py, px - 1);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz, py, px + 1);
+
+				ld[2][0] = getLightValue(pz, py + 1, px - 1);
+				ld[2][1] = getLightValue(pz, py + 1, px);
+				ld[2][2] = getLightValue(pz, py + 1, px + 1);
+
+				cube.back.lightmap[0] = (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f;
+				cube.back.lightmap[1] = (ld[1][1] + ld[0][1] + ld[0][2] + ld[1][2]) / 4f;
+				cube.back.lightmap[2] = (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f;
+				cube.back.lightmap[3] = (ld[1][1] + ld[1][0] + ld[2][0] + ld[2][1]) / 4f;
+				break;
+
+			case TOP:
+				px = (int) (x + cube.top.normal.x);
+				py = (int) (y + cube.top.normal.y);
+				pz = (int) (z + cube.top.normal.z);
+
+				ld[0][0] = getLightValue(pz + 1, py, px - 1);
+				ld[0][1] = getLightValue(pz + 1, py, px);
+				ld[0][2] = getLightValue(pz + 1, py, px + 1);
+
+				ld[1][0] = getLightValue(pz, py, px - 1);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz, py, px + 1);
+
+				ld[2][0] = getLightValue(pz - 1, py, px - 1);
+				ld[2][1] = getLightValue(pz - 1, py, px);
+				ld[2][2] = getLightValue(pz - 1, py, px + 1);
+
+				cube.top.lightmap[0] = (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f;
+				cube.top.lightmap[1] = (ld[1][1] + ld[0][1] + ld[0][2] + ld[1][2]) / 4f;
+				cube.top.lightmap[2] = (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f;
+				cube.top.lightmap[3] = (ld[1][1] + ld[1][0] + ld[2][0] + ld[2][1]) / 4f;
+				break;
+
+			case BOTTOM:
+				px = (int) (x + cube.bottom.normal.x);
+				py = (int) (y + cube.bottom.normal.y);
+				pz = (int) (z + cube.bottom.normal.z);
+
+				ld[0][0] = getLightValue(pz + 1, py, px - 1);
+				ld[0][1] = getLightValue(pz + 1, py, px);
+				ld[0][2] = getLightValue(pz + 1, py, px + 1);
+
+				ld[1][0] = getLightValue(pz, py, px - 1);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz, py, px + 1);
+
+				ld[2][0] = getLightValue(pz - 1, py, px - 1);
+				ld[2][1] = getLightValue(pz - 1, py, px);
+				ld[2][2] = getLightValue(pz - 1, py, px + 1);
+
+				cube.bottom.lightmap[0] = (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f;
+				cube.bottom.lightmap[1] = (ld[1][1] + ld[0][1] + ld[0][2] + ld[1][2]) / 4f;
+				cube.bottom.lightmap[2] = (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f;
+				cube.bottom.lightmap[3] = (ld[1][1] + ld[1][0] + ld[2][0] + ld[2][1]) / 4f;
+				break;
+
+			case LEFT:
+				px = (int) (x + cube.left.normal.x);
+				py = (int) (y + cube.left.normal.y);
+				pz = (int) (z + cube.left.normal.z);
+
+				ld[0][0] = getLightValue(pz - 1, py - 1, px);
+				ld[0][1] = getLightValue(pz, py - 1, px);
+				ld[0][2] = getLightValue(pz + 1, py - 1, px);
+
+				ld[1][0] = getLightValue(pz - 1, py, px);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz + 1, py, px);
+
+				ld[2][0] = getLightValue(pz - 1, py + 1, px);
+				ld[2][1] = getLightValue(pz, py + 1, px);
+				ld[2][2] = getLightValue(pz + 1, py + 1, px);
+
+				cube.left.lightmap[0] = (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f;
+				cube.left.lightmap[1] = (ld[1][1] + ld[0][1] + ld[0][2] + ld[1][2]) / 4f;
+				cube.left.lightmap[2] = (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f;
+				cube.left.lightmap[3] = (ld[1][1] + ld[1][0] + ld[2][0] + ld[2][1]) / 4f;
+				break;
+
+			case RIGHT:
+				px = (int) (x + cube.right.normal.x);
+				py = (int) (y + cube.right.normal.y);
+				pz = (int) (z + cube.right.normal.z);
+				float[][] ld = new float[3][3];
+
+				ld[0][0] = getLightValue(pz - 1, py - 1, px);
+				ld[0][1] = getLightValue(pz, py - 1, px);
+				ld[0][2] = getLightValue(pz + 1, py - 1, px);
+
+				ld[1][0] = getLightValue(pz - 1, py, px);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz + 1, py, px);
+
+				ld[2][0] = getLightValue(pz - 1, py + 1, px);
+				ld[2][1] = getLightValue(pz, py + 1, px);
+				ld[2][2] = getLightValue(pz + 1, py + 1, px);
+
+				cube.right.lightmap[0] = (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f;
+				cube.right.lightmap[1] = (ld[1][1] + ld[0][1] + ld[0][2] + ld[1][2]) / 4f;
+				cube.right.lightmap[2] = (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f;
+				cube.right.lightmap[3] = (ld[1][1] + ld[1][0] + ld[2][0] + ld[2][1]) / 4f;
+				break;
+		}
+	}
+
+	public void updateLightMap(Vector3 location)
+	{
+		updateLightMap((int) location.x, (int) location.y, (int) location.z);
+	}
+
+	public void updateLightMap(int x, int y, int z)
+	{
+		int minx = x - 3 > -1 ? x - 3 : 0;
+		int maxx = x + 3 < sizeX - 1 ? x + 3 : (sizeX - x) + x;
+
+		int miny = y - 3 > -1 ? y - 3 : 0;
+		int maxy = y + 3 < sizeY - 1 ? y + 3 : (sizeY - y) + y;
+
+		int minz = z - 3 > -1 ? z - 3 : 0;
+		int maxz = z + 3 < sizeZ - 1 ? z + 3 : (sizeZ - z) + z;
+
+		Cube cube = null;
+
+		for (int z2 = minz; z2 < maxz; z2++)
+			for (int y2 = miny; y2 < maxy; y2++)
+				for (int x2 = minx; x2 < maxx; x2++)
+				{
+					cube = cubes[z2][y2][x2];
+					updateLightMapRelative(cube, Side.FRONT, x2, y2, z2);
+					updateLightMapRelative(cube, Side.BACK, x2, y2, z2);
+					updateLightMapRelative(cube, Side.LEFT, x2, y2, z2);
+					updateLightMapRelative(cube, Side.RIGHT, x2, y2, z2);
+					updateLightMapRelative(cube, Side.TOP, x2, y2, z2);
+					updateLightMapRelative(cube, Side.BOTTOM, x2, y2, z2);
+				}
+
+	}
+
+	public byte[][][] getBoundingData(byte[][][] d, boolean outerOnly)
+	{
+		Cube cube = null;
+		Color color = null;
+
+		if (!outerOnly)
+		{
+			for (int z = 0; z < sizeZ; z++)
+			{
+				for (int y = 0; y < sizeY; y++)
+				{
+					for (int x = 0; x < sizeX; x++)
+					{
+						cube = cubes[z][y][x];
+						color = cube.color;
+						if (color.getAlpha() != 0)
+						{
+							d[z][y][x] = 1;
+						}
+						else
+							d[z][y][x] = 0;
+					}
+				}
+			}
+
+			return d;
+		}
+		else
+		{
+			// 1 is edit
+			// 0 not edit
+
+			for (int z = 0; z < sizeZ; z++)
+			{
+				for (int y = 0; y < sizeY; y++)
+				{
+					for (int x = 0; x < sizeX; x++)
+					{
+						cube = cubes[z][y][x];
+						color = cube.color;
+						if (color.getAlpha() != 0)
+						{
+							if (z + 1 < sizeZ)
+							{
+								if (cubes[z + 1][y][x].color.getAlpha() == 0)
+								{
+									d[z][y][x] = 1;
+									continue;
+								}
+							}
+							else
+							{
+								d[z][y][x] = 1;
+								continue;
+							}
+
+							if (z - 1 >= 0)
+							{
+								if (cubes[z - 1][y][x].color.getAlpha() == 0)
+								{
+									d[z][y][x] = 1;
+									continue;
+								}
+							}
+							else
+							{
+								d[z][y][x] = 1;
+								continue;
+							}
+
+							if (y + 1 < sizeY)
+							{
+								if (cubes[z][y + 1][x].color.getAlpha() == 0)
+								{
+									d[z][y][x] = 1;
+									continue;
+								}
+							}
+							else
+							{
+								d[z][y][x] = 1;
+								continue;
+							}
+
+							if (y - 1 >= 0)
+							{
+								if (cubes[z][y - 1][x].color.getAlpha() == 0)
+								{
+									d[z][y][x] = 1;
+									continue;
+								}
+							}
+							else
+							{
+								d[z][y][x] = 1;
+								continue;
+							}
+
+							if (x + 1 < sizeX)
+							{
+								if (cubes[z][y][x + 1].color.getAlpha() == 0)
+								{
+									d[z][y][x] = 1;
+									continue;
+								}
+							}
+							else
+							{
+								d[z][y][x] = 1;
+								continue;
+							}
+
+							if (x - 1 >= 0)
+							{
+								if (cubes[z][y][x - 1].color.getAlpha() == 0)
+								{
+									d[z][y][x] = 1;
+									continue;
+								}
+							}
+							else
+							{
+								d[z][y][x] = 1;
+								continue;
+							}
+
+							d[z][y][x] = 0;
+						}
+					}
+				}
+			}
+			return d;
+		}
+	}
+
+	public void reSize(int x1, int y1, int z1)
+	{
+		Cube[][][] cubes = new Cube[z1][y1][x1];
+		Color color = new Color();
+
+		for (int z = 0; z < z1; z++)
+		{
+			for (int y = 0; y < y1; y++)
+			{
+				for (int x = 0; x < x1; x++)
+				{
+					cubes[z][y][x] = new Cube();
+					cubes[z][y][x].setPos(x, y, z);
+					cubes[z][y][x].setColor(0, 0, 0, 0);
+					cubes[z][y][x].setAlpha(0);
+				}
+			}
+		}
+
+		for (int z = 0; z < sizeZ; z++)
+		{
+			for (int y = 0; y < sizeY; y++)
+			{
+				for (int x = 0; x < sizeX; x++)
+				{
+					if (z > z1 - 1)
+						continue;
+					if (y > y1 - 1)
+						continue;
+					if (x > x1 - 1)
+						continue;
+
+					color = this.cubes[z][y][x].color;
+					cubes[z][y][x].setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+				}
+			}
+		}
+
+		this.cubes = cubes;
+
+		dispose();
+		this.sizeX = x1;
+		this.sizeY = y1;
+		this.sizeZ = z1;
+		vertexdata = new float[sizeX * sizeY * sizeZ * 28 * 6];
+		indexdata = new int[sizeX * sizeY * sizeZ * 12 * 6];
+		this.setPosition(0, 0, 0);
+		generateMesh();
+
+		this.clean();
+
+		Program.floor.updatemesh();
+	}
+
+	public void dispose()
+	{
+		GL30.glDeleteVertexArrays(vertexobjectarrayid);
+		GL15.glDeleteBuffers(vertexbufferid);
+		GL15.glDeleteBuffers(indexbufferid);
+	}
+}
