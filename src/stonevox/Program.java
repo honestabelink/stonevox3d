@@ -44,7 +44,7 @@ public class Program
 
 	// (float) (720.0 * (System.currentTimeMillis() & 0x3FFFL) / 0x3FFFL))
 
-	String							windowtitle					= "StoneVox";
+	String							windowtitle					= "StoneVox 3D";
 	boolean							running						= true;
 	long							lastLoopTime;
 	long							lastFpsTime;
@@ -95,6 +95,7 @@ public class Program
 		new Program().execute(args);
 		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 		frame.dispose();
+		Display.destroy();
 		System.exit(0);
 	}
 
@@ -108,22 +109,22 @@ public class Program
 	void init(String[] args)
 	{
 		openglSurface = new Canvas();
+		openglSurface.setSize(1280, 800);
+		openglSurface.setVisible(true);
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(1280, 800);
-		frame.add(openglSurface);
-		// frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		frame.setVisible(true);
 		frame.setTransferHandler(new DNDHandler(list));
-		openglSurface.setSize(1280, 800);
-
+		// frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		frame.add(openglSurface);
+		frame.setVisible(true);
 		try
 		{
 			Display.setParent(openglSurface);
 		}
-		catch (LWJGLException e)
+		catch (LWJGLException e1)
 		{
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
 
 		setDisplayMode();
@@ -154,6 +155,7 @@ public class Program
 		{
 			e.printStackTrace();
 		}
+
 	}
 
 	void loadContent()
@@ -265,10 +267,8 @@ public class Program
 		}
 		catch (LWJGLException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Display.destroy();
 	}
 
 	void frameRendering()
@@ -340,13 +340,8 @@ public class Program
 
 		if (Display.wasResized() && !Display.isCloseRequested())
 		{
-			// GUI.BeginWindowSizeChange();
-
 			int w = Display.getWidth();
 			int h = Display.getHeight();
-
-			// GUI.RescaleWindowChange((float) width, (float) height, (float) w,
-			// (float) h);
 
 			width = w;
 			height = h;
@@ -354,10 +349,8 @@ public class Program
 			GL11.glViewport(0, 0, width, height);
 			Scale.SetHScaling(0, width);
 			Scale.SetVScaling(0, height);
-			// Scale.SetAspectRatio((float) width, (float) height);
 
-			// GUI.EndWindowSizeChange();
-
+			// dirt
 			if (width > 1500)
 			{
 				GUI.Hacked1080pGUI();
@@ -391,7 +384,6 @@ public class Program
 		}
 		else if (Mouse.isButtonDown(1) && !Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 		{
-
 			Vector3 right = Vector3.cross(camera.direction, UP);
 			Vector3 up = Vector3.cross(right, camera.direction);
 

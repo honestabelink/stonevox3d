@@ -25,6 +25,7 @@ import stonevox.gui.ColorOption;
 import stonevox.gui.Label;
 import stonevox.gui.SpriteButton;
 import stonevox.gui.Textbox;
+import stonevox.gui.VerticalScrollbar;
 import stonevox.tools.ToolEdit;
 
 public class GUI
@@ -229,7 +230,7 @@ public class GUI
 
 	static boolean isMouseWith(float x, float y, GUIelement el)
 	{
-		if (!el.hasParent())
+		if (el.enabled && !el.hasParent())
 			return x >= el.x && x <= el.x + el.width && y >= el.y && y <= el.y + el.height;
 		else
 		{
@@ -405,6 +406,13 @@ public class GUI
 						/ 2f), true));
 		projectSettingsBG.transitions.put("offtrans", new GUItransition((float) Scale.hPosScale(width - 70f), true));
 		GUI.AddElement(projectSettingsBG);
+
+		VerticalScrollbar projectSettingsVS = new VerticalScrollbar(GUI.getNextID(), 35, 300)
+		{
+
+		};
+		projectSettingsVS.setParent(projectSettingsVS);
+		projectSettingsVS.setPositon(, y);
 
 		GUIelement projectButton = new GUIelement(GUI.PROJECTSETTINGS_BUTTON)
 		{

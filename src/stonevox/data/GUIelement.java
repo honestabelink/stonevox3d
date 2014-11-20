@@ -51,6 +51,8 @@ public class GUIelement
 
 	public int								ID				= -1;
 
+	public boolean							enabled			= true;
+
 	public GUIelement(int ID)
 	{
 		this.ID = ID;
@@ -281,7 +283,7 @@ public class GUIelement
 	public void render()
 	{
 		// so trash, all i needed for now...
-		if (parent != null)
+		if (enabled && parent != null)
 		{
 			if (parent.parent != null)
 				appearence.render(parent.parent.x + parent.x + x, parent.parent.y + parent.y + y, width, height);
