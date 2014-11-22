@@ -2,34 +2,37 @@ package stonevox.gui;
 
 import java.util.ArrayList;
 
-import org.newdawn.slick.Color;
-
 import stonevox.data.GUIelement;
-import stonevox.decorator.PlainBackground;
-import stonevox.decorator.PlainBorder;
-import stonevox.util.GUI;
 
 public class Tab extends GUIelement
 {
-	private ArrayList<Integer>	controls	= new ArrayList<Integer>();
-	private boolean				controlsEnabled;
+	private ArrayList<GUIelement>	elements	= new ArrayList<GUIelement>();
+	private boolean					elementsEnabled;
 
-	public Tab(int ID, boolean enabled, int... controlIDs)
+	public Tab(int ID, boolean enabled, GUIelement... controlElements)
 	{
 		super(ID);
 
-		controlsEnabled = enabled;
+		elementsEnabled = enabled;
 
-		for (int i = 0; i < controlIDs.length; i++)
+		for (int i = 0; i < controlElements.length; i++)
 		{
-			controls.add(i);
-			GUI.get(controlIDs[i]).enabled = enabled;
+			elements.add(i, controlElements[i]);
+			controlElements[i].setEnable(enabled);
 		}
+	}
 
-		// need artwork
-		// this.appearence.Add("bg", new Sprite());
-		this.appearence.Add("bg", new PlainBackground(Color.black.brighter(.7f)));
-		this.appearence.Add("border", new PlainBorder(3f, Color.yellow));
+	public Tab(int ID, boolean enabled, ArrayList<GUIelement> controlElements)
+	{
+		super(ID);
+
+		elementsEnabled = enabled;
+
+		for (int i = 0; i < controlElements.size(); i++)
+		{
+			elements.add(i, controlElements.get(i));
+			controlElements.get(i).setEnable(enabled);
+		}
 	}
 
 	public void select()
@@ -44,16 +47,20 @@ public class Tab extends GUIelement
 
 	public boolean controlsEnabled()
 	{
-		return controlsEnabled;
+		return elementsEnabled;
+	}
+
+	public void addControl(GUIelement el)
+	{
+		elements.add(el);
 	}
 
 	private void setControlsEnabled(boolean enabled)
 	{
-		controlsEnabled = enabled;
-		for (int i = 0; i < controls.size(); i++)
+		elementsEnabled = enabled;
+		for (int i = 0; i < elements.size(); i++)
 		{
-			controls.add(i);
-			GUI.get(controls.get(i)).enabled = enabled;
+			elements.get(i).setEnable(enabled);
 		}
 	}
 }

@@ -1,7 +1,6 @@
 package stonevox;
 
 import java.awt.Canvas;
-import java.awt.event.WindowEvent;
 import java.io.File;
 
 import javax.swing.JFrame;
@@ -93,8 +92,14 @@ public class Program
 	public static void main(String[] args)
 	{
 		new Program().execute(args);
-		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-		frame.dispose();
+		try
+		{
+			Display.setParent(null);
+		}
+		catch (LWJGLException e)
+		{
+			e.printStackTrace();
+		}
 		Display.destroy();
 		System.exit(0);
 	}
@@ -224,30 +229,14 @@ public class Program
 			}
 		});
 
-		Thread t = new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					Thread.sleep(1000);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				int cores = Runtime.getRuntime().availableProcessors();
+		int cores = Runtime.getRuntime().availableProcessors();
 
-				if (multithreading_raycasting && cores > 1)
-					rayCaster.Start();
-				if (cores <= 1)
-				{
-					multithreading_raycasting = false;
-				}
-			}
-		});
-		t.run();
+		if (multithreading_raycasting && cores > 1)
+			rayCaster.Start();
+		if (cores <= 1)
+		{
+			multithreading_raycasting = false;
+		}
 	}
 
 	void programLoop()
@@ -507,6 +496,8 @@ public class Program
 			camera.LookAtModel();
 			rayCaster.enableRaycaster();
 			floor.updatemesh();
+
+			GUI.Broadcast(GUI.MESSAGE_QB_LOADED, path, 10000);
 		}
 		catch (Exception e)
 		{

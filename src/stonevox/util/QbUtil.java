@@ -81,28 +81,16 @@ public class QbUtil
 				byte namelength = in.readByte();
 				byte[] namebytes = new byte[namelength];
 				in.read(namebytes, 0, namelength);
-				def.name = new String(namebytes);
+				def.setName(new String(namebytes));
 
 				def.setSize((int) (getUnsignedInt(in)), (int) (getUnsignedInt(in)), (int) (getUnsignedInt(in)));
 
 				def.setPosition(in.readInt(), in.readInt(), in.readInt());
 				def.setPosition(0, 0, 0);
 
-				if (def.name.equals("PAL"))
+				if (def.getName().equals("PAL"))
 				{
 					model.hasPAL = true;
-				}
-
-				if (i == 0)
-				{
-					// hacks
-					File f = new File(path);
-
-					Textbox textbox = (Textbox) GUI.get(GUI.PROJECTSETTINGS_NAME);
-					textbox.setText(f.getName().substring(0, f.getName().length() - 3));
-
-					Textbox textbox2 = (Textbox) GUI.get(GUI.PROJECTSETTINGS_SIZE);
-					textbox2.setText(def.sizeX + "_" + def.sizeY + "_" + def.sizeZ);
 				}
 
 				int r;
@@ -201,9 +189,9 @@ public class QbUtil
 			for (int i = 0; i < model.matrixList.size(); i++)
 			{
 				QbMatrixDefination m = model.matrixList.get(i);
-				System.out.print(String.format("	writting : %s \n", m.name));
-				out.writeByte((byte) m.name.length());
-				out.writeBytes(m.name);
+				System.out.print(String.format("	writting : %s \n", m.getName()));
+				out.writeByte((byte) m.getName().length());
+				out.writeBytes(m.getName());
 				out.write(intToLEndian(m.sizeX));
 				out.write(intToLEndian(m.sizeY));
 				out.write(intToLEndian(m.sizeZ));
@@ -265,7 +253,7 @@ public class QbUtil
 		model.GetActiveMatrix().setSize(10, 10, 10);
 		model.GetActiveMatrix().setPosition(0, 0, 0);
 
-		model.GetActiveMatrix().name = "default";
+		model.GetActiveMatrix().setName("default");
 
 		for (int z = 0; z < 10; z++)
 			for (int y = 0; y < 10; y++)

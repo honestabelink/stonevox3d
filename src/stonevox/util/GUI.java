@@ -1,5 +1,6 @@
 package stonevox.util;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -23,29 +24,46 @@ import stonevox.decorator.PlainMarker;
 import stonevox.decorator.Sprite;
 import stonevox.gui.ColorOption;
 import stonevox.gui.Label;
+import stonevox.gui.Listbox;
 import stonevox.gui.SpriteButton;
+import stonevox.gui.Tab;
+import stonevox.gui.TabGroup;
 import stonevox.gui.Textbox;
-import stonevox.gui.VerticalScrollbar;
 import stonevox.tools.ToolEdit;
 
 public class GUI
 {
-	public static int						COLOR_PICKER_BACKGROUND		= 100;
-	public static int						PAINTER_BACKGROUND			= 101;
-	public static int						EDITER_BACKGROUND			= 102;
-	public static int						SAVE_BACKGROUND				= 103;
-	public static int						PROJECTSETTINGS_BACKGROUND	= 104;
-	public static int						PROJECTSETTINGS_BUTTON		= 105;
-	public static int						PROJECTSETTINGS_NAME		= 106;
-	public static int						PROJECTSETTINGS_SIZE		= 107;
-	public static int						STATUS_LABEL				= 108;
-	public static int						COLOR_PICKER_COLORSQARE		= 109;
-	public static int						COLOR_PICKER_HUESLIDER		= 110;
+	public static int						COLOR_PICKER_BACKGROUND		= 900;
+	public static int						PAINTER_BACKGROUND			= 901;
+	public static int						EDITER_BACKGROUND			= 902;
+	public static int						SAVE_BACKGROUND				= 903;
+	public static int						PROJECTSETTINGS_BACKGROUND	= 904;
+	public static int						PROJECTSETTINGS_BUTTON		= 905;
+	public static int						PROJECTSETTINGS_NAME		= 906;
+	public static int						MATRIX_NAME					= 907;
+	public static int						MATRIX_SIZE					= 908;
+	public static int						STATUS_LABEL				= 909;
+	public static int						COLOR_PICKER_COLORSQARE		= 910;
+	public static int						COLOR_PICKER_HUESLIDER		= 911;
+	public static int						MAINTAB						= 912;
+	public static int						MATRIXTAB					= 913;
+	public static int						MATRIXLISTBOX				= 914;
 
 	public static float						hackscalex					= 1.0f;
 	public static float						hackscaley					= 1.0f;
 
 	public static String					MESSAGE_GUI_MENU_TRANS_ON	= "gui_menu_trans_on";
+	public static String					MESSAGE_GUI_MENU_TRANS_OFF	= "gui_menu_trans_off";
+	public static String					MESSAGE_MOUSE_CLICK			= "gui_mouse_click";
+	public static String					MESSAGE_MOUSE_UP			= "gui_mouse_up";
+	public static String					MESSAGE_MOUSE_DOUBLE_CLICK	= "gui_mouse_double_click";
+	public static String					MESSAGE_MOUSE_ENTER			= "gui_mouse_enter";
+	public static String					MESSAGE_MOUSE_LEAVE			= "gui_mouse_leave";
+	public static String					MESSAGE_QB_LOADED			= "qb_loaded";
+	public static String					MESSAGE_QB_MATRIX_RENAMED	= "qb_matrix_renamed";
+	public static String					MESSAGE_QB_MATRIX_RESIZED	= "qb_matrix_resized";
+	public static String					MESSAGE_QB_MATRIX_ADDED		= "qb_matrix_added";
+	public static String					MESSAGE_QB_MATRIX_REMOVED	= "qb_matrix_removed";
 
 	static int								lastControlOver				= -1;
 	static int								lastControlFocused			= -1;
@@ -118,8 +136,10 @@ public class GUI
 			{
 				if (isMouseWith(x, y, elements.get(i)))
 				{
-					if (lastControlOver != i || lastControlOver == -1)
+					if (lastControlOver != i)
 					{
+						elements.get(lastControlOver).mouseLeave();
+
 						lastControlOver = i;
 						elements.get(i).mouseEnter();
 						elements.get(i).mouseOver();
@@ -230,19 +250,17 @@ public class GUI
 
 	static boolean isMouseWith(float x, float y, GUIelement el)
 	{
-		if (el.enabled && !el.hasParent())
+		if (el.getEnabled() && !el.hasParent())
 			return x >= el.x && x <= el.x + el.width && y >= el.y && y <= el.y + el.height;
-		else
+		else if (el.getEnabled() && el.hasParent())
 		{
-			if (el.getParent().getParent() != null)
-				return x >= el.getParent().getParent().x + el.getParent().x + el.x
-						&& x <= el.getParent().getParent().x + el.getParent().x + el.x + el.width
-						&& y >= el.getParent().getParent().y + el.getParent().y + el.y
-						&& y <= el.getParent().getParent().y + el.getParent().y + el.y + el.height;
-			else
-				return x >= el.getParent().x + el.x && x <= el.getParent().x + el.x + el.width
-						&& y >= el.getParent().y + el.y && y <= el.getParent().y + el.y + el.height;
+			float parsX = el.getParentsX();
+			float parsY = el.getParentsY();
+			return x >= parsX + el.x && x <= parsX + el.x + el.width && y >= parsY + el.y
+					&& y <= parsY + el.y + el.height;
 		}
+		else
+			return false;
 	}
 
 	public static int getNextID()
@@ -284,6 +302,10 @@ public class GUI
 
 	public static void dispose()
 	{
+		lastControlFocused = -1;
+		lastButton = -1;
+		lastControlOver = -1;
+
 		for (int i = 0; i < elements.size(); i++)
 		{
 			elements.get(i).dispose();
@@ -353,7 +375,7 @@ public class GUI
 
 		Textbox proTextbox = (Textbox) GUI.get(GUI.PROJECTSETTINGS_NAME);
 		String proName = "";
-		Textbox proSizeTextbox = (Textbox) GUI.get(GUI.PROJECTSETTINGS_SIZE);
+		Textbox proSizeTextbox = (Textbox) GUI.get(GUI.MATRIX_SIZE);
 		String proSize = "";
 
 		if (proTextbox != null)
@@ -406,13 +428,6 @@ public class GUI
 						/ 2f), true));
 		projectSettingsBG.transitions.put("offtrans", new GUItransition((float) Scale.hPosScale(width - 70f), true));
 		GUI.AddElement(projectSettingsBG);
-
-		VerticalScrollbar projectSettingsVS = new VerticalScrollbar(GUI.getNextID(), 35, 300)
-		{
-
-		};
-		projectSettingsVS.setParent(projectSettingsVS);
-		projectSettingsVS.setPositon(, y);
 
 		GUIelement projectButton = new GUIelement(GUI.PROJECTSETTINGS_BUTTON)
 		{
@@ -491,23 +506,202 @@ public class GUI
 		projectButton.setPositon(.03f, .838f, true);
 		GUI.AddElement(projectButton);
 
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// MAIN TAB
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 		Label projectname = new Label(getNextID(), "File Name :", Color.white);
 		projectname.setParent(projectSettingsBG);
 		projectname.setPositon(.2f, .90f, true);
 		GUI.AddElement(projectname);
 
-		Textbox projectnametextbox = new Textbox(GUI.PROJECTSETTINGS_NAME, 350f);
+		Label matrixlistlabel = new Label(getNextID(), "Matrix List :", Color.white);
+		matrixlistlabel.setParent(projectSettingsBG);
+		matrixlistlabel.setPositon(.2f, .77f, true);
+		GUI.AddElement(matrixlistlabel);
+
+		SpriteButton addmatrixbutton =
+				new SpriteButton(GUI.getNextID(), "/data/matrix_add.png", "/data/matrix_add_highlight.png")
+				{
+					@Override
+					public void mouseClick(int button)
+					{
+						Program.model.addMatrix();
+						super.mouseClick(button);
+					}
+				};
+		addmatrixbutton.statusTip = Tips.addnewmatrix;
+		addmatrixbutton.setParent(projectSettingsBG);
+		addmatrixbutton.setPositon(.75f, .028f, true);
+		GUI.AddElement(addmatrixbutton);
+
+		SpriteButton removematrixbutton =
+				new SpriteButton(GUI.getNextID(), "/data/matrix_remove.png", "/data/matrix_remove_highlight.png")
+				{
+					@Override
+					public void mouseClick(int button)
+					{
+						Program.model.removeActiveMatrix();
+						super.mouseClick(button);
+					}
+				};
+		removematrixbutton.statusTip = Tips.removeselectedmatrix;
+		removematrixbutton.setParent(projectSettingsBG);
+		removematrixbutton.setPositon(.85f, .028f, true);
+		GUI.AddElement(removematrixbutton);
+
+		Textbox projectnametextbox = new Textbox(GUI.PROJECTSETTINGS_NAME, 350f)
+		{
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					File f = new File((String) args[0]);
+					this.setText(f.getName().substring(0, f.getName().length() - 3));
+				}
+				super.onMessageRecieved(message, args);
+			}
+		};
+		projectnametextbox.statusTip = Tips.filename;
 		projectnametextbox.setParent(projectSettingsBG);
 		projectnametextbox.setPositon(.2f, .845f, true);
 		projectnametextbox.setText("untitled");
 		GUI.AddElement(projectnametextbox);
 
-		Label projectsize = new Label(getNextID(), "Size : (xyz)", Color.white);
-		projectsize.setParent(projectSettingsBG);
-		projectsize.setPositon(.2f, .785f, true);
-		GUI.AddElement(projectsize);
+		if (proName != "")
+		{
+			projectnametextbox.setText(proName);
+		}
 
-		Textbox projectsizetextbox = new Textbox(GUI.PROJECTSETTINGS_SIZE, 350f)
+		float fontheight = FontUtil.GetFont("default").font.getHeight("T");
+		Listbox matrixlistbox = new Listbox(GUI.MATRIXLISTBOX, 350, fontheight * 14f)
+		{
+			@Override
+			public void mouseClick(int button)
+			{
+
+				super.mouseClick(button);
+			}
+
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED || message == GUI.MESSAGE_QB_MATRIX_RENAMED
+						|| message == GUI.MESSAGE_QB_MATRIX_ADDED || message == GUI.MESSAGE_QB_MATRIX_REMOVED)
+				{
+					this.updateNames();
+				}
+
+				super.onMessageRecieved(message, args);
+			}
+
+			@Override
+			public void render()
+			{
+				super.render();
+			}
+		};
+		matrixlistbox.setParent(projectSettingsBG);
+		matrixlistbox.setPositon(.2f, .15f, true);
+		matrixlistbox.updateNames();
+		GUI.AddElement(matrixlistbox);
+
+		// the hacks...
+		ArrayList<GUIelement> maintabelements = new ArrayList<GUIelement>();
+		maintabelements.add(projectname);
+		maintabelements.add(projectnametextbox);
+		maintabelements.add(matrixlistbox);
+		maintabelements.add(matrixlistlabel);
+		maintabelements.add(addmatrixbutton);
+		maintabelements.add(removematrixbutton);
+		// maintabelements.add(matrixlistbox.vs);
+		// maintabelements.add(matrixlistbox.vs.getScrollbar());
+
+		for (int i = 0; i < matrixlistbox.elements.size(); i++)
+		{
+			maintabelements.add(matrixlistbox.elements.get(i));
+		}
+
+		Tab maintab = new Tab(MAINTAB, true, maintabelements)
+		{
+			@Override
+			public void mouseEnter()
+			{
+				getSprite("low_bg").setEnabled(false);
+				getSprite("high_bg").setEnabled(true);
+
+				super.mouseEnter();
+			}
+
+			@Override
+			public void mouseLeave()
+			{
+				getSprite("low_bg").setEnabled(true);
+				getSprite("high_bg").setEnabled(false);
+
+				super.mouseLeave();
+			}
+		};
+		maintab.setParent(projectSettingsBG);
+		maintab.appearence.Add("low_bg", new Sprite("/data/tab_main.png", maintab));
+		maintab.appearence.Add("high_bg", new Sprite("/data/tab_main_highlight.png"));
+		maintab.getSprite("high_bg").setEnabled(false);
+		maintab.setPositon(.2f, .95f, true);
+		maintab.transitions.put("offtabs", new GUItransition(maintab.y, false));
+		maintab.transitions.put("ontabs", new GUItransition(maintab.y + maintab.height * .25f, false));
+		GUI.AddElement(maintab);
+
+		GUI.layout.add(new GUIlayout(GUI.PROJECTSETTINGS_BACKGROUND, false));
+		GUI.layout.add(new GUIlayout(MAINTAB, false));
+		GUI.layout.add(new GUIlayout(GUI.PROJECTSETTINGS_BUTTON, true));
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// MATRIX TAB
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		Label matrixSize = new Label(getNextID(), "Size : (xyz)", Color.white);
+		matrixSize.setParent(projectSettingsBG);
+		matrixSize.setPositon(.2f, .785f, true);
+		GUI.AddElement(matrixSize);
+
+		Label matrixName = new Label(getNextID(), "Name :", Color.white);
+		matrixName.setParent(projectSettingsBG);
+		matrixName.setPositon(.2f, .90f, true);
+		GUI.AddElement(matrixName);
+
+		Textbox matrixNameTextbox = new Textbox(GUI.MATRIX_NAME, 350f)
+		{
+			public void OnReturnKey()
+			{
+				Program.model.GetActiveMatrix().setName(this.text);
+				super.OnReturnKey();
+			}
+
+			public void focusLost()
+			{
+				Program.model.GetActiveMatrix().setName(this.text);
+				super.focusLost();
+			}
+
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					File f = new File((String) args[0]);
+					this.setText(f.getName().substring(0, f.getName().length() - 3));
+				}
+				super.onMessageRecieved(message, args);
+			}
+		};
+		matrixNameTextbox.statusTip = Tips.matrixname;
+		matrixNameTextbox.setParent(projectSettingsBG);
+		matrixNameTextbox.setPositon(.2f, .845f, true);
+		matrixNameTextbox.setText(Program.model.GetActiveMatrix().getName());
+		GUI.AddElement(matrixNameTextbox);
+
+		Textbox matrixSizeTextbox = new Textbox(GUI.MATRIX_SIZE, 350f)
 		{
 			public void OnReturnKey()
 			{
@@ -545,23 +739,101 @@ public class GUI
 				Program.model.GetActiveMatrix().reSize(x, y, z);
 				super.focusLost();
 			}
+
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					this.setText(Program.model.GetActiveMatrix().getSizeString());
+				}
+				super.onMessageRecieved(message, args);
+			}
 		};
-		projectsizetextbox.setParent(projectSettingsBG);
-		projectsizetextbox.setPositon(.2f, .730f, true);
-		projectsizetextbox.setText("10_10_10");
-		GUI.AddElement(projectsizetextbox);
+		matrixSizeTextbox.statusTip = Tips.martixsize;
+		matrixSizeTextbox.setParent(projectSettingsBG);
+		matrixSizeTextbox.setPositon(.2f, .730f, true);
+		matrixSizeTextbox.setText("10_10_10");
+		GUI.AddElement(matrixSizeTextbox);
 
-		GUI.layout.add(new GUIlayout(GUI.PROJECTSETTINGS_BACKGROUND, false));
-		GUI.layout.add(new GUIlayout(GUI.PROJECTSETTINGS_BUTTON, true));
-
-		if (proName != "")
-		{
-			projectnametextbox.setText(proName);
-		}
 		if (proSize != "")
 		{
-			projectsizetextbox.setText(proSize);
+			matrixSizeTextbox.setText(proSize);
 		}
+
+		Tab matrixtab = new Tab(MATRIXTAB, false, matrixSizeTextbox, matrixNameTextbox, matrixSize, matrixName)
+		{
+			@Override
+			public void mouseEnter()
+			{
+				getSprite("low_bg").setEnabled(false);
+				getSprite("high_bg").setEnabled(true);
+
+				super.mouseEnter();
+			}
+
+			@Override
+			public void mouseLeave()
+			{
+				getSprite("low_bg").setEnabled(true);
+				getSprite("high_bg").setEnabled(false);
+
+				super.mouseLeave();
+			}
+		};
+		matrixtab.setParent(projectSettingsBG);
+		matrixtab.appearence.Add("low_bg", new Sprite("/data/tab_matrix.png", matrixtab));
+		matrixtab.appearence.Add("high_bg", new Sprite("/data/tab_matrix_highlight.png"));
+		matrixtab.getSprite("high_bg").setEnabled(false);
+		matrixtab.setPositon(.43f, .95f, true);
+		matrixtab.transitions.put("offtabs", new GUItransition(matrixtab.y, false));
+		matrixtab.transitions.put("ontabs", new GUItransition(matrixtab.y + matrixtab.height * .25f, false));
+		GUI.AddElement(matrixtab);
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// TAB GROUP
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		TabGroup tabgroup = new TabGroup(GUI.getNextID(), maintab, matrixtab)
+		{
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_MOUSE_CLICK)
+				{
+					if ((Integer) args[1] == GUI.MAINTAB)
+					{
+						this.select((Integer) args[1]);
+					}
+					else if ((Integer) args[1] == GUI.MATRIXTAB)
+					{
+						this.select((Integer) args[1]);
+					}
+				}
+				super.onMessageRecieved(message, args);
+			}
+
+			@Override
+			public void select(int id)
+			{
+				for (int i = 0; i < tabs.size(); i++)
+				{
+					if (tabs.get(i).ID == id)
+					{
+						tabs.get(i).doTrans("ontabs");
+					}
+					else
+					{
+						tabs.get(i).doTrans("offtabs");
+					}
+				}
+
+				super.select(id);
+			}
+		};
+		tabgroup.select(maintab.ID);
+		GUI.AddElement(tabgroup);
+		GUI.layout.add(new GUIlayout(MATRIXTAB, false));
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// BACKGROUNDS
@@ -635,6 +907,7 @@ public class GUI
 				super.mouseMove(x, y);
 			}
 		};
+		colorpickerSwatches.statusTip = Tips.colorpickswatches;
 		colorpickerSwatches.setParent(colorpickerBG);
 		colorpickerSwatches.setPositon(0, 0, true);
 		colorpickerSwatches.appearence.Add("bg2", new Sprite("/data/colorpicker_swatches.png", colorpickerSwatches));
@@ -694,6 +967,7 @@ public class GUI
 				super.mouseUp(button);
 			}
 		};
+		colorpickerColorSquare.statusTip = Tips.colorpick;
 		colorpickerColorSquare.setParent(colorpickerBG);
 		colorpickerColorSquare.setSize(colorpickerBG.getUnScaleWidth() / 2f * .63f,
 				colorpickerBG.getUnScaleHeight() / 2f * .72f);
@@ -730,6 +1004,7 @@ public class GUI
 				super.mouseMove(x, y);
 			}
 		};
+		colorpickerHueSlider.statusTip = Tips.colorpick;
 		colorpickerHueSlider.setSize(27, colorpickerBG.getUnScaleHeight() / 2f * .72f);
 		colorpickerHueSlider.appearence.Add("gradientBG", new GradientBackground(new GradientStop(.45f, Color.red),
 				new GradientStop(.15f, Color.green), new GradientStop(.35f, Color.blue), new GradientStop(.05f,
@@ -1051,6 +1326,8 @@ public class GUI
 				colorpickerBG.y = t.y + t.height / 2f - colorpickerBG.height / 2f;
 				t.select();
 
+				t.statusTip = "Color Option : shortcut " + 1;
+
 				KeyboardUtil.Add(2, new Keyhook(t)
 				{
 					@Override
@@ -1087,6 +1364,7 @@ public class GUI
 			}
 			else
 			{
+				t.statusTip = "Color Option : shortcut " + (i == 9 ? 0 : i);
 				KeyboardUtil.Add(i + 2, new Keyhook(t)
 				{
 					@Override
@@ -1142,7 +1420,7 @@ public class GUI
 
 		Textbox proTextbox = (Textbox) GUI.get(GUI.PROJECTSETTINGS_NAME);
 		String proName = "";
-		Textbox proSizeTextbox = (Textbox) GUI.get(GUI.PROJECTSETTINGS_SIZE);
+		Textbox proSizeTextbox = (Textbox) GUI.get(GUI.MATRIX_SIZE);
 		String proSize = "";
 
 		if (proTextbox != null)
@@ -1172,7 +1450,8 @@ public class GUI
 				if (message == MESSAGE_GUI_MENU_TRANS_ON)
 				{
 					GUIelement button = GUI.get(PROJECTSETTINGS_BUTTON);
-					if (!(Boolean) button.data.get("buttonstate"))
+					if (button != null && button.data.containsKey("buttonstate")
+							&& !(Boolean) button.data.get("buttonstate"))// somesort of a problem here
 					{
 						button.data.replace("buttonstate", true);
 
@@ -1191,7 +1470,7 @@ public class GUI
 		projectSettingsBG.transitions.put(
 				"ontrans",
 				new GUItransition((float) Scale.hPosScale(width - (float) Scale.hUnSizeScale(projectSettingsBG.width)
-						/ 2f), true));
+						/ 2f - .5f), true));
 		projectSettingsBG.transitions.put("offtrans", new GUItransition((float) Scale.hPosScale(width - 65f), true));
 		GUI.AddElement(projectSettingsBG);
 
@@ -1238,6 +1517,7 @@ public class GUI
 				}
 
 				super.mouseEnter();
+
 			}
 
 			public void mouseLeave()
@@ -1268,26 +1548,204 @@ public class GUI
 		projectButton.getSprite("off_bg").setEnabled(false);
 		projectButton.getSprite("off_bg_high").setEnabled(false);
 		projectButton.setParent(projectSettingsBG);
-		projectButton.setPositon(.0286f, .838f, true);
+		projectButton.setPositon(.03f, .838f, true);
 		GUI.AddElement(projectButton);
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// MAIN TAB
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		Label projectname = new Label(getNextID(), "File Name :", Color.white);
 		projectname.setParent(projectSettingsBG);
 		projectname.setPositon(.2f, .90f, true);
 		GUI.AddElement(projectname);
 
-		Textbox projectnametextbox = new Textbox(GUI.PROJECTSETTINGS_NAME, 350f);
+		Label matrixlistlabel = new Label(getNextID(), "Matrix List :", Color.white);
+		matrixlistlabel.setParent(projectSettingsBG);
+		matrixlistlabel.setPositon(.2f, .77f, true);
+		GUI.AddElement(matrixlistlabel);
+
+		SpriteButton addmatrixbutton =
+				new SpriteButton(GUI.getNextID(), "/data/matrix_add.png", "/data/matrix_add_highlight.png")
+				{
+					@Override
+					public void mouseClick(int button)
+					{
+						Program.model.addMatrix();
+						super.mouseClick(button);
+					}
+				};
+		addmatrixbutton.statusTip = Tips.addnewmatrix;
+		addmatrixbutton.setParent(projectSettingsBG);
+		addmatrixbutton.setPositon(.75f, .028f, true);
+		GUI.AddElement(addmatrixbutton);
+
+		SpriteButton removematrixbutton =
+				new SpriteButton(GUI.getNextID(), "/data/matrix_remove.png", "/data/matrix_remove_highlight.png")
+				{
+					@Override
+					public void mouseClick(int button)
+					{
+						Program.model.removeActiveMatrix();
+						super.mouseClick(button);
+					}
+				};
+		removematrixbutton.statusTip = Tips.removeselectedmatrix;
+		removematrixbutton.setParent(projectSettingsBG);
+		removematrixbutton.setPositon(.85f, .028f, true);
+		GUI.AddElement(removematrixbutton);
+
+		Textbox projectnametextbox = new Textbox(GUI.PROJECTSETTINGS_NAME, 350f)
+		{
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					File f = new File((String) args[0]);
+					this.setText(f.getName().substring(0, f.getName().length() - 3));
+				}
+				super.onMessageRecieved(message, args);
+			}
+		};
+		projectnametextbox.statusTip = Tips.filename;
 		projectnametextbox.setParent(projectSettingsBG);
 		projectnametextbox.setPositon(.2f, .845f, true);
 		projectnametextbox.setText("untitled");
+		projectnametextbox.getPlainText("text").yoffset = 2;
 		GUI.AddElement(projectnametextbox);
 
-		Label projectsize = new Label(getNextID(), "Size : (xyz)", Color.white);
-		projectsize.setParent(projectSettingsBG);
-		projectsize.setPositon(.2f, .785f, true);
-		GUI.AddElement(projectsize);
+		if (proName != "")
+		{
+			projectnametextbox.setText(proName);
+		}
 
-		Textbox projectsizetextbox = new Textbox(GUI.PROJECTSETTINGS_SIZE, 350f)
+		float fontheight = FontUtil.GetFont("default").font.getHeight("T");
+		Listbox matrixlistbox = new Listbox(GUI.MATRIXLISTBOX, 350, fontheight * 14f)
+		{
+			@Override
+			public void mouseClick(int button)
+			{
+
+				super.mouseClick(button);
+			}
+
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					this.updateNames();
+				}
+				else if (message == GUI.MESSAGE_QB_MATRIX_RENAMED)
+				{
+					this.updateNames();
+				}
+
+				super.onMessageRecieved(message, args);
+			}
+		};
+		matrixlistbox.setParent(projectSettingsBG);
+		matrixlistbox.setPositon(.2f, .15f, true);
+		matrixlistbox.updateNames();
+		GUI.AddElement(matrixlistbox);
+
+		// the hacks...
+		ArrayList<GUIelement> maintabelements = new ArrayList<GUIelement>();
+		maintabelements.add(projectname);
+		maintabelements.add(projectnametextbox);
+		maintabelements.add(matrixlistbox);
+		maintabelements.add(matrixlistlabel);
+		maintabelements.add(addmatrixbutton);
+		maintabelements.add(removematrixbutton);
+		// maintabelements.add(matrixlistbox.vs);
+		// maintabelements.add(matrixlistbox.vs.getScrollbar());
+
+		for (int i = 0; i < matrixlistbox.elements.size(); i++)
+		{
+			maintabelements.add(matrixlistbox.elements.get(i));
+		}
+
+		Tab maintab = new Tab(MAINTAB, true, maintabelements)
+		{
+			@Override
+			public void mouseEnter()
+			{
+				getSprite("low_bg").setEnabled(false);
+				getSprite("high_bg").setEnabled(true);
+
+				super.mouseEnter();
+			}
+
+			@Override
+			public void mouseLeave()
+			{
+				getSprite("low_bg").setEnabled(true);
+				getSprite("high_bg").setEnabled(false);
+
+				super.mouseLeave();
+			}
+		};
+		maintab.setParent(projectSettingsBG);
+		maintab.appearence.Add("low_bg", new Sprite("/data/tab_main.png", maintab));
+		maintab.appearence.Add("high_bg", new Sprite("/data/tab_main_highlight.png"));
+		maintab.getSprite("high_bg").setEnabled(false);
+		maintab.setPositon(.2f, .95f, true);
+		maintab.transitions.put("offtabs", new GUItransition(maintab.y, false));
+		maintab.transitions.put("ontabs", new GUItransition(maintab.y + maintab.height * .25f, false));
+		GUI.AddElement(maintab);
+
+		GUI.layout.add(new GUIlayout(GUI.PROJECTSETTINGS_BACKGROUND, false));
+		GUI.layout.add(new GUIlayout(MAINTAB, false));
+		GUI.layout.add(new GUIlayout(GUI.PROJECTSETTINGS_BUTTON, true));
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// MATRIX TAB
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		Label matrixSize = new Label(getNextID(), "Size : (xyz)", Color.white);
+		matrixSize.setParent(projectSettingsBG);
+		matrixSize.setPositon(.2f, .785f, true);
+		GUI.AddElement(matrixSize);
+
+		Label matrixName = new Label(getNextID(), "Name :", Color.white);
+		matrixName.setParent(projectSettingsBG);
+		matrixName.setPositon(.2f, .90f, true);
+		GUI.AddElement(matrixName);
+
+		Textbox matrixNameTextbox = new Textbox(GUI.MATRIX_NAME, 350f)
+		{
+			public void OnReturnKey()
+			{
+				Program.model.GetActiveMatrix().setName(this.text);
+				super.OnReturnKey();
+			}
+
+			public void focusLost()
+			{
+				Program.model.GetActiveMatrix().setName(this.text);
+				super.focusLost();
+			}
+
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					File f = new File((String) args[0]);
+					this.setText(f.getName().substring(0, f.getName().length() - 3));
+				}
+				super.onMessageRecieved(message, args);
+			}
+		};
+		matrixNameTextbox.statusTip = Tips.matrixname;
+		matrixNameTextbox.setParent(projectSettingsBG);
+		matrixNameTextbox.setPositon(.2f, .845f, true);
+		matrixNameTextbox.setText(Program.model.GetActiveMatrix().getName());
+		matrixNameTextbox.getPlainText("text").yoffset = 2;
+		GUI.AddElement(matrixNameTextbox);
+
+		Textbox matrixSizeTextbox = new Textbox(GUI.MATRIX_SIZE, 350f)
 		{
 			public void OnReturnKey()
 			{
@@ -1325,23 +1783,102 @@ public class GUI
 				Program.model.GetActiveMatrix().reSize(x, y, z);
 				super.focusLost();
 			}
+
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					this.setText(Program.model.GetActiveMatrix().getSizeString());
+				}
+				super.onMessageRecieved(message, args);
+			}
 		};
-		projectsizetextbox.setParent(projectSettingsBG);
-		projectsizetextbox.setPositon(.2f, .730f, true);
-		projectsizetextbox.setText("10_10_10");
-		GUI.AddElement(projectsizetextbox);
+		matrixSizeTextbox.statusTip = Tips.martixsize;
+		matrixSizeTextbox.setParent(projectSettingsBG);
+		matrixSizeTextbox.setPositon(.2f, .730f, true);
+		matrixSizeTextbox.setText("10_10_10");
+		matrixSizeTextbox.getPlainText("text").yoffset = 2;
+		GUI.AddElement(matrixSizeTextbox);
 
-		GUI.layout.add(new GUIlayout(GUI.PROJECTSETTINGS_BACKGROUND, false));
-		GUI.layout.add(new GUIlayout(GUI.PROJECTSETTINGS_BUTTON, true));
-
-		if (proName != "")
-		{
-			projectnametextbox.setText(proName);
-		}
 		if (proSize != "")
 		{
-			projectsizetextbox.setText(proSize);
+			matrixSizeTextbox.setText(proSize);
 		}
+
+		Tab matrixtab = new Tab(MATRIXTAB, false, matrixSizeTextbox, matrixNameTextbox, matrixSize, matrixName)
+		{
+			@Override
+			public void mouseEnter()
+			{
+				getSprite("low_bg").setEnabled(false);
+				getSprite("high_bg").setEnabled(true);
+
+				super.mouseEnter();
+			}
+
+			@Override
+			public void mouseLeave()
+			{
+				getSprite("low_bg").setEnabled(true);
+				getSprite("high_bg").setEnabled(false);
+
+				super.mouseLeave();
+			}
+		};
+		matrixtab.setParent(projectSettingsBG);
+		matrixtab.appearence.Add("low_bg", new Sprite("/data/tab_matrix.png", matrixtab));
+		matrixtab.appearence.Add("high_bg", new Sprite("/data/tab_matrix_highlight.png"));
+		matrixtab.getSprite("high_bg").setEnabled(false);
+		matrixtab.setPositon(.43f, .95f, true);
+		matrixtab.transitions.put("offtabs", new GUItransition(matrixtab.y, false));
+		matrixtab.transitions.put("ontabs", new GUItransition(matrixtab.y + matrixtab.height * .25f, false));
+		GUI.AddElement(matrixtab);
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// TAB GROUP
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		TabGroup tabgroup = new TabGroup(GUI.getNextID(), maintab, matrixtab)
+		{
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_MOUSE_CLICK)
+				{
+					if ((Integer) args[1] == GUI.MAINTAB)
+					{
+						this.select((Integer) args[1]);
+					}
+					else if ((Integer) args[1] == GUI.MATRIXTAB)
+					{
+						this.select((Integer) args[1]);
+					}
+				}
+				super.onMessageRecieved(message, args);
+			}
+
+			@Override
+			public void select(int id)
+			{
+				for (int i = 0; i < tabs.size(); i++)
+				{
+					if (tabs.get(i).ID == id)
+					{
+						tabs.get(i).doTrans("ontabs");
+					}
+					else
+					{
+						tabs.get(i).doTrans("offtabs");
+					}
+				}
+
+				super.select(id);
+			}
+		};
+		tabgroup.select(maintab.ID);
+		GUI.AddElement(tabgroup);
+		GUI.layout.add(new GUIlayout(MATRIXTAB, false));
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// BACKGROUNDS
@@ -1414,6 +1951,7 @@ public class GUI
 				super.mouseMove(x, y);
 			}
 		};
+		colorpickerSwatches.statusTip = Tips.colorpickswatches;
 		colorpickerSwatches.setParent(colorpickerBG);
 		colorpickerSwatches.setPositon(0, 0, true);
 		colorpickerSwatches.appearence.Add("bg2", new Sprite("/data/colorpicker_swatches.png", colorpickerSwatches));
@@ -1473,6 +2011,7 @@ public class GUI
 				super.mouseUp(button);
 			}
 		};
+		colorpickerColorSquare.statusTip = Tips.colorpick;
 		colorpickerColorSquare.setParent(colorpickerBG);
 		colorpickerColorSquare.setSize(colorpickerBG.getUnScaleWidth() / 2f * .63f,
 				colorpickerBG.getUnScaleHeight() / 2f * .72f);
@@ -1509,6 +2048,7 @@ public class GUI
 				super.mouseMove(x, y);
 			}
 		};
+		colorpickerHueSlider.statusTip = Tips.colorpick;
 		colorpickerHueSlider.setSize(27, colorpickerBG.getUnScaleHeight() / 2f * .72f);
 		colorpickerHueSlider.appearence.Add("gradientBG", new GradientBackground(new GradientStop(.45f, Color.red),
 				new GradientStop(.15f, Color.green), new GradientStop(.35f, Color.blue), new GradientStop(.05f,
@@ -1692,7 +2232,6 @@ public class GUI
 		};
 		editbutton.setPositon(width / 2f - (float) Scale.hUnSizeScale(editbutton.width * .25f), 0f);
 		GUI.AddElement(editbutton);
-
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SAVE TOOL
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1749,7 +2288,7 @@ public class GUI
 		savebutton.setPositon(width / 2f + 1f * 75f - (float) Scale.hUnSizeScale(savebutton.width * .25f), 0f);
 		GUI.AddElement(savebutton);
 
-		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SETTINGS TOOL
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		SpriteButton settingsbutton =
@@ -1831,6 +2370,11 @@ public class GUI
 
 			if (i == 0)
 			{
+				colorpickerBG.y = t.y + t.height / 2f - colorpickerBG.height / 2f;
+				t.select();
+
+				t.statusTip = "Color Option : shortcut " + 1;
+
 				KeyboardUtil.Add(2, new Keyhook(t)
 				{
 					@Override
@@ -1867,6 +2411,8 @@ public class GUI
 			}
 			else
 			{
+				t.statusTip = "Color Option : shortcut " + (i == 9 ? 0 : i);
+
 				KeyboardUtil.Add(i + 2, new Keyhook(t)
 				{
 					@Override

@@ -33,6 +33,7 @@ public class ToolPainter implements Tool
 	{
 		this.active = true;
 		this.paintColor = ColorOption.lastOption.getBackground().color;
+		Program.model.GetActiveMatrix().clean();
 		Program.rayCaster.raycast_dirt = true;
 	}
 

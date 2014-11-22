@@ -23,10 +23,23 @@ public class GUIappearence
 		return decs.get(name);
 	}
 
+	public int getSize()
+	{
+		return decs.size();
+	}
+
 	public GUIdecorator Add(String name, GUIdecorator dec)
 	{
 		decs.put(name, dec);
 		return dec;
+	}
+
+	public void SetEnabled(boolean enabled)
+	{
+		for (GUIdecorator value : decs.values())
+		{
+			value.setEnabled(enabled);
+		}
 	}
 
 	public void SetEnabled(String name, boolean value)

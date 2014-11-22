@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.Color;
 
 import stonevox.Program;
+import stonevox.util.GUI;
 import stonevox.util.RaycastingUtil;
 import stonevox.util.SideUtil;
 
@@ -21,7 +22,7 @@ public class QbMatrixDefination
 	float				cubesizey	= 0.5f;
 	float				cubesizez	= 0.5f;
 
-	public String		name;
+	private String		name;
 	public int			sizeX;
 	public int			sizeY;
 	public int			sizeZ;
@@ -44,6 +45,8 @@ public class QbMatrixDefination
 	public Cube[][][]	cubes;
 	float[]				vertexdata;
 	int[]				indexdata;
+
+	public boolean		visible		= true;
 
 	public void setSize(int x, int y, int z)
 	{
@@ -446,13 +449,16 @@ public class QbMatrixDefination
 
 	public void render()
 	{
-		final_transform = Matrix.Multiply(Program.camera.modelview, transform);
+		if (visible)
+		{
+			final_transform = Matrix.Multiply(Program.camera.modelview, transform);
 
-		Program.shader.WriteUniformMatrix4("modelview\0", final_transform.GetBuffer());
+			Program.shader.WriteUniformMatrix4("modelview\0", final_transform.GetBuffer());
 
-		GL30.glBindVertexArray(vertexobjectarrayid);
-		GL11.glDrawElements(GL11.GL_TRIANGLES, facecount * 6, GL11.GL_UNSIGNED_INT, 0l);
-		GL30.glBindVertexArray(0);
+			GL30.glBindVertexArray(vertexobjectarrayid);
+			GL11.glDrawElements(GL11.GL_TRIANGLES, facecount * 6, GL11.GL_UNSIGNED_INT, 0l);
+			GL30.glBindVertexArray(0);
+		}
 	}
 
 	// SPAGHETTI
@@ -465,6 +471,9 @@ public class QbMatrixDefination
 		boolean allowdirt = Program.rayCaster.raycast_dirt;
 		RayHitPoint hit = new RayHitPoint();
 		hit.distance = 100000;
+
+		if (!visible)
+			return hit;
 
 		if (allowdirt)
 		{
@@ -1084,6 +1093,22 @@ public class QbMatrixDefination
 		return cubes[z][y][x].color.getAlpha() > 0 ? .65f : 1f;
 	}
 
+	public String getSizeString()
+	{
+		return sizeX + "_" + sizeY + "_" + sizeZ;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+		GUI.Broadcast(GUI.MESSAGE_QB_MATRIX_RENAMED, name, 100000);
+	}
+
 	float[][]	ld	= new float[3][3];
 	int			px;
 	int			py;
@@ -1454,6 +1479,23 @@ public class QbMatrixDefination
 		this.clean();
 
 		Program.floor.updatemesh();
+		GUI.Broadcast(GUI.MESSAGE_QB_MATRIX_RESIZED, this.getSizeString(), 100000);
+	}
+
+	public void CREATEZEROEDCUBES()
+	{
+		for (int z = 0; z < sizeZ; z++)
+		{
+			for (int y = 0; y < sizeY; y++)
+			{
+				for (int x = 0; x < sizeX; x++)
+				{
+					cubes[z][y][x] = new Cube();
+					cubes[z][y][x].setPos(x, y, z);
+					cubes[z][y][x].setAlpha(0);
+				}
+			}
+		}
 	}
 
 	public void dispose()

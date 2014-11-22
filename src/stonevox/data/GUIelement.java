@@ -38,6 +38,8 @@ public class GUIelement
 	public float							transY;
 	public boolean							isTransY;
 
+	public String							statusTip		= "";
+
 	private int								lastClickButton	= -1;
 	private long							lastClickTime;
 	public boolean							dragged;
@@ -51,7 +53,7 @@ public class GUIelement
 
 	public int								ID				= -1;
 
-	public boolean							enabled			= true;
+	private boolean							enabled			= true;
 
 	public GUIelement(int ID)
 	{
@@ -70,12 +72,13 @@ public class GUIelement
 
 	public void mouseDoubleClick(int button)
 	{
-
+		Broadcast(GUI.MESSAGE_MOUSE_DOUBLE_CLICK);
 	}
 
 	public void mouseUp(int button)
 	{
 		dragged = false;
+		Broadcast(GUI.MESSAGE_MOUSE_UP);
 	}
 
 	public void mouseClick(int button)
@@ -83,10 +86,12 @@ public class GUIelement
 		long time = Program.getTime();
 		dragged = true;
 
-		if (Math.abs(time - lastClickTime) < 250)// && (lastClickButton ==
-													// button || lastClickButton
-													// == -1))
+		if (Math.abs(time - lastClickTime) < 250)
+		{
 			mouseDoubleClick(button);
+		}
+		else
+			Broadcast(GUI.MESSAGE_MOUSE_CLICK);
 
 		lastClickTime = time;
 		lastClickButton = button;
@@ -98,14 +103,16 @@ public class GUIelement
 
 	public void mouseLeave()
 	{
-		// System.out.print("mouse leave : " + ID + "\n");
+		Broadcast(GUI.MESSAGE_MOUSE_LEAVE);
 		Program.rayCaster.enableRaycaster();
+		GUI.setStatus("");
 	}
 
 	public void mouseEnter()
 	{
-		// System.out.print("mouse enter : " + ID + "\n");
+		Broadcast(GUI.MESSAGE_MOUSE_ENTER);
 		Program.rayCaster.disableRaycaster();
+		GUI.setStatus(statusTip);
 	}
 
 	public void mouseOver()
@@ -148,7 +155,7 @@ public class GUIelement
 
 				Boolean state = (Boolean) data.get("state");
 
-				if (state)
+				if (state != null && state)
 					data.replace("state", false);
 			}
 		}
@@ -283,14 +290,13 @@ public class GUIelement
 	public void render()
 	{
 		// so trash, all i needed for now...
-		if (enabled && parent != null)
+		if (enabled && hasParent())
 		{
-			if (parent.parent != null)
-				appearence.render(parent.parent.x + parent.x + x, parent.parent.y + parent.y + y, width, height);
-			else
-				appearence.render(parent.x + x, parent.y + y, width, height);
+			float parx = getParentsX();
+			float pary = getParentsY();
+			appearence.render(parx + x, pary + y, width, height);
 		}
-		else
+		else if (enabled)
 			appearence.render(x, y, width, height);
 	}
 
@@ -306,8 +312,14 @@ public class GUIelement
 			setPositon(x, y);
 		else
 		{
-			this.x = (float) Scale.scale(x, 0, 1f, 0f, parent.width);
-			this.y = (float) Scale.scale(y, 0, 1f, 0f, parent.height);
+			if (hasParent())
+			{
+				float parsWidth = getParentsWidth();
+				float parsHeight = getParentsHeight();
+
+				this.x = (float) Scale.scale(x, 0, 1f, 0f, parsWidth);
+				this.y = (float) Scale.scale(y, 0, 1f, 0f, parsHeight);
+			}
 		}
 	}
 
@@ -323,9 +335,88 @@ public class GUIelement
 		this.parent = el;
 	}
 
+	public void setEnable(boolean enabled)
+	{
+		this.enabled = enabled;
+		this.appearence.SetEnabled(enabled);
+	}
+
 	public GUIelement getParent()
 	{
 		return parent;
+	}
+
+	public float getParentsX()
+	{
+		float value = 0;
+		return getparentx(this, value);
+	}
+
+	private float getparentx(GUIelement par, float value)
+	{
+		if (par.hasParent())
+		{
+			value += par.getParent().x / 2f;
+			value += getparentx(par.getParent(), value);
+		}
+
+		return value;
+	}
+
+	public float getParentsY()
+	{
+		float value = 0;
+		return getparenty(this, value);
+	}
+
+	private float getparenty(GUIelement par, float value)
+	{
+		if (par.hasParent())
+		{
+			value += par.getParent().y / 2f;
+			value += getparenty(par.getParent(), value);
+		}
+
+		return value;
+	}
+
+	public float getParentsWidth()
+	{
+		float value = 0;
+		return getparentwidth(this, value);
+	}
+
+	private float getparentwidth(GUIelement par, float value)
+	{
+		if (par.hasParent())
+		{
+			value += par.getParent().width / 2f;
+			value += getparentwidth(par.getParent(), value);
+		}
+
+		return value;
+	}
+
+	public float getParentsHeight()
+	{
+		float value = 0;
+		return getparentheight(this, value);
+	}
+
+	private float getparentheight(GUIelement par, float value)
+	{
+		if (par.hasParent())
+		{
+			value += par.getParent().height / 2f;
+			value += getparentheight(par.getParent(), value);
+		}
+
+		return value;
+	}
+
+	public boolean getEnabled()
+	{
+		return enabled;
 	}
 
 	public boolean hasParent()

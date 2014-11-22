@@ -11,7 +11,7 @@ public class Label extends GUIelement
 	public Label(int ID, String text, Color color)
 	{
 		super(ID);
-		this.appearence.Add("text", new PlainText("default", "", color));
+		this.appearence.Add("text", new PlainText("default", text, color));
 		setText(text);
 	}
 

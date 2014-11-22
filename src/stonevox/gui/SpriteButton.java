@@ -38,4 +38,16 @@ public class SpriteButton extends GUIelement
 	{
 		return (Sprite) appearence.Get("background_highlight");
 	}
+
+	@Override
+	public void setEnable(boolean enabled)
+	{
+		super.setEnable(enabled);
+
+		if (enabled)
+		{
+			getBackground().setEnabled(true);
+			getBackgroundH().setEnabled(false);
+		}
+	}
 }

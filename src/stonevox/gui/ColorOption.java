@@ -57,9 +57,13 @@ public class ColorOption extends GUIelement
 		GUIelement colorsquare = GUI.get(GUI.COLOR_PICKER_COLORSQARE);
 		if (colorsquare != null)
 		{
-			colorsquare.getPlainMarker("marker").setPosition(colorsquarelocation.x, colorsquarelocation.y);
-			colorsquare.getMultiColorBackground("mcBG").setColor(2, huecolor);
-			colorsquare.getMultiColorBackground("mcBG").updateGradient();
+			if (colorsquare.getPlainMarker("marker") != null)
+				colorsquare.getPlainMarker("marker").setPosition(colorsquarelocation.x, colorsquarelocation.y);
+			if (colorsquare.getMultiColorBackground("mcBG") != null)
+			{
+				colorsquare.getMultiColorBackground("mcBG").setColor(2, huecolor);
+				colorsquare.getMultiColorBackground("mcBG").updateGradient();
+			}
 		}
 
 		lastOption = this;

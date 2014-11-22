@@ -23,6 +23,9 @@ public class Textbox extends GUIelement
 		this.appearence.Add("text", new PlainText("default", "", Color.white));
 		this.appearence.Add("border", new PlainBorder(3, new Color(122f / 256f, 106f / 256f, 70f / 256f)));
 
+		this.getPlainText("text").xoffset = 3;
+		this.getPlainText("text").yoffset = 1;
+
 		float[] textsize = this.getPlainText("text").measureString("W");
 		this.setSize(width, textsize[1]);
 	}
