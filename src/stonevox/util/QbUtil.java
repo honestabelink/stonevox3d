@@ -210,11 +210,6 @@ public class QbUtil
 							int b = c.getBlue();
 							int a = c.getAlpha();
 
-							if (z == 7 && y == 11 && x == 9)
-							{
-								boolean t = false;
-							}
-
 							out.writeByte((byte) r);
 							out.writeByte((byte) g);
 							out.writeByte((byte) b);

@@ -185,9 +185,9 @@ public class Floor
 
 		if (result != null)
 		{
-			hit.cubelocation.x = (int) (result.x);
+			hit.cubelocation.x = Math.round(result.x);
 			hit.cubelocation.y = -1;
-			hit.cubelocation.z = (int) (result.z);
+			hit.cubelocation.z = Math.round(result.z);
 			hit.cubenormal = up;
 			return hit;
 		}

@@ -202,7 +202,7 @@ public class Program
 
 		FontUtil.loadFont("default", "/data/fonts/Bigfish.ttf");
 
-		GUI.Hacked720pGUI();
+		GUI.StandardGUI(width < 1500);
 
 		KeyboardUtil.Add(Keyboard.KEY_LMENU, new Keyhook(null)
 		{
@@ -276,7 +276,7 @@ public class Program
 			fps = 0;
 		}
 
-		GL11.glClearColor(0, 0, 0, 1);
+		GL11.glClearColor(0, 0, 0, 0);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		shader.UseShader();
@@ -339,14 +339,7 @@ public class Program
 			Scale.SetHScaling(0, width);
 			Scale.SetVScaling(0, height);
 
-			// dirt
-			if (width > 1500)
-			{
-				GUI.Hacked1080pGUI();
-			}
-			else
-				GUI.Hacked720pGUI();
-			// end dirt
+			GUI.StandardGUI(width > 1500);
 
 			camera.projection =
 					Matrix.CreatePerspectiveFieldOfView((float) Math.toRadians(fov), (float) width / (float) height,
@@ -396,9 +389,12 @@ public class Program
 			pos = model.GetActiveMatrix().pos_size;
 
 			camera.position = Vector3.mul(focus, length);
-			// this is the junk line - below
 			camera.position.add(model.GetActiveMatrix().pos_size);
-			camera.direction = Vector3.sub(pos, camera.position);
+			// camera.direction = Vector3.sub(pos, camera.position);
+			// camera.direction.noramlize();
+
+			RotateVector3(rotY2, camera.direction, up);
+			RotateVector3(rotX2, camera.direction, right);
 			camera.direction.noramlize();
 		}
 		else if (Mouse.isButtonDown(2))
@@ -433,6 +429,11 @@ public class Program
 			boolean buttonState = Mouse.getEventButtonState();
 
 			GUI.handleMouseInput(button, buttonState);
+			//
+			// if (button == 0 && buttonState)
+			// {
+			// ScreenShot.screenShot(0, 0, width, height);
+			// }
 		}
 
 		while (Keyboard.next())

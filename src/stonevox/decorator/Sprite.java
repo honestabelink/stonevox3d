@@ -11,8 +11,6 @@ public class Sprite implements GUIdecorator
 {
 	private int		texHandleID;
 
-	public boolean	visible	= true;
-
 	private int		twidth;
 	private int		theight;
 
