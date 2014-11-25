@@ -8,11 +8,11 @@ import stonevox.util.Scale;
 
 public class PlainBorder implements GUIdecorator
 {
-	private float bodersize;
-	private float borderscale;
-	public Color color;
+	private float	bodersize;
+	private float	borderscale;
+	public Color	color;
 
-	private boolean enabled = true;
+	private boolean	enabled	= true;
 
 	public PlainBorder(float boderSize, Color c)
 	{

@@ -2,9 +2,9 @@ package stonevox.data;
 
 public class RayHitPoint
 {
-	public Vector3 cubelocation;
-	public Vector3 cubenormal;
-	public float distance;
+	public Vector3	cubelocation;
+	public Vector3	cubenormal;
+	public float	distance;
 
 	public RayHitPoint()
 	{

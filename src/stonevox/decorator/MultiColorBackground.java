@@ -18,20 +18,20 @@ import stonevox.data.Shader;
 public class MultiColorBackground implements GUIdecorator
 {
 
-	private boolean enabled = true;
-	private Color[] color = new Color[4];
+	private boolean		enabled		= true;
+	private Color[]		color		= new Color[4];
 
-	private int vertexbufferID;
-	private FloatBuffer vertexbuffer;
+	private int			vertexbufferID;
+	private FloatBuffer	vertexbuffer;
 
-	private int aobufferID;
+	private int			aobufferID;
 
-	private int indexID;
+	private int			indexID;
 
-	private boolean firstPaint = true;
+	private boolean		firstPaint	= true;
 
-	private float lastwidth = 0;
-	private float lastheight = 0;
+	private float		lastwidth	= 0;
+	private float		lastheight	= 0;
 
 	public MultiColorBackground(Color color1, Color color2, Color color3, Color color4)
 	{

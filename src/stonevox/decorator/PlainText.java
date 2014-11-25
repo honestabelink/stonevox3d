@@ -10,11 +10,11 @@ import stonevox.util.Scale;
 
 public class PlainText implements GUIdecorator
 {
-	public boolean enabled = true;
-	private TextDisplay td;
+	public boolean		enabled	= true;
+	private TextDisplay	td;
 
-	public float xoffset;
-	public float yoffset;
+	public float		xoffset;
+	public float		yoffset;
 
 	public PlainText(String fontID, String text, Color color)
 	{

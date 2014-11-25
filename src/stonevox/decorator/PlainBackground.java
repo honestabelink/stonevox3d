@@ -7,9 +7,9 @@ import stonevox.data.GUIdecorator;
 
 public class PlainBackground implements GUIdecorator
 {
-	public Color color;
+	public Color	color;
 
-	private boolean enabled = true;
+	private boolean	enabled	= true;
 
 	public PlainBackground(Color c)
 	{

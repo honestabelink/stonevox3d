@@ -18,18 +18,18 @@ public class Listbox extends GUIelement
 	// needs just a bit more work for scrolling the vbar and updating the name and indexs
 	// whats here now should be enough for a while
 
-	public ArrayList<GUIelement> elements = new ArrayList<GUIelement>();
+	public ArrayList<GUIelement>	elements	= new ArrayList<GUIelement>();
 
 	// public VerticalScrollbar vs;
 
-	private PlainBackground highlight;
-	private PlainBorder border;
-	private int activeIndex;
-	private float fontHeight;
-	private float maxelements;
+	private PlainBackground			highlight;
+	private PlainBorder				border;
+	private int						activeIndex;
+	private float					fontHeight;
+	private float					maxelements;
 
 	// hacks
-	private int startvisibility;
+	private int						startvisibility;
 
 	public Listbox(int ID, float width, float height)
 	{

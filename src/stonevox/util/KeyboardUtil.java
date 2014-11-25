@@ -6,7 +6,7 @@ import stonevox.data.Keyhook;
 
 public class KeyboardUtil
 {
-	static HashMap<Integer, Keyhook> keyboardhook = new HashMap<Integer, Keyhook>();
+	static HashMap<Integer, Keyhook>	keyboardhook	= new HashMap<Integer, Keyhook>();
 
 	public static boolean handleKeyboardInput(int key, boolean keystate)
 	{

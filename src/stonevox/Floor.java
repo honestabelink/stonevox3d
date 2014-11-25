@@ -17,22 +17,22 @@ import stonevox.util.RaycastingUtil;
 
 public class Floor
 {
-	private int[] index;
-	private Color color;
+	private int[]		index;
+	private Color		color;
 
-	private Vector3[] vertex = new Vector3[4];
-	private FloatBuffer vertexbuffer;
-	private IntBuffer indexbuffer;
+	private Vector3[]	vertex	= new Vector3[4];
+	private FloatBuffer	vertexbuffer;
+	private IntBuffer	indexbuffer;
 
-	private int vertexarrayobjectID;
-	private int vertexbufferID;
-	private int indexbufferID;
+	private int			vertexarrayobjectID;
+	private int			vertexbufferID;
+	private int			indexbufferID;
 
-	private Matrix final_transform;
-	private Matrix transform;
-	private Vector3 up = new Vector3(0f, 1f, 0f);
+	private Matrix		final_transform;
+	private Matrix		transform;
+	private Vector3		up		= new Vector3(0f, 1f, 0f);
 
-	public boolean visible = true;
+	public boolean		visible	= true;
 
 	public Floor()
 	{

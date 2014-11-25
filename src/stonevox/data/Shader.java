@@ -15,14 +15,14 @@ import org.lwjgl.opengl.GL20;
 
 public class Shader
 {
-	public String vertexshader_path;
-	public String fragmentshader_path;
+	public String				vertexshader_path;
+	public String				fragmentshader_path;
 
-	public Map<String, Integer> uniforms;
+	public Map<String, Integer>	uniforms;
 
-	public int programID;
-	public int vertexShaderID;
-	public int fragmentShaderID;
+	public int					programID;
+	public int					vertexShaderID;
+	public int					fragmentShaderID;
 
 	public Shader()
 	{

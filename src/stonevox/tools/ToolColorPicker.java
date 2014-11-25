@@ -15,7 +15,7 @@ import stonevox.util.GUI;
 
 public class ToolColorPicker implements Tool
 {
-	public boolean active = false;
+	public boolean	active	= false;
 
 	public boolean isActive()
 	{

@@ -17,8 +17,8 @@ import stonevox.util.GetPath;
 
 public class TTFFont
 {
-	public UnicodeFont font;
-	public float height;
+	public UnicodeFont	font;
+	public float		height;
 
 	public TTFFont(String path)
 	{

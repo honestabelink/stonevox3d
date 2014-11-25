@@ -1,12 +1,13 @@
 package stonevox.data;
 
+
 public class Quaternion
 {
-	public float X;
-	public float Y;
-	public float Z;
-	public float W;
-	public static Quaternion identity = new Quaternion(0f, 0f, 0f, 1f);
+	public float				X;
+	public float				Y;
+	public float				Z;
+	public float				W;
+	public static Quaternion	identity	= new Quaternion(0f, 0f, 0f, 1f);
 
 	public Quaternion()
 	{
@@ -28,7 +29,8 @@ public class Quaternion
 		this.W = scalarPart;
 	}
 
-	public static void CreateFromYawPitchRoll(float yaw, float pitch, float roll, Quaternion dist)
+	public static void CreateFromYawPitchRoll(float yaw, float pitch,
+			float roll, Quaternion dist)
 	{
 		float num = roll * 0.5f;
 		float num2 = (float) Math.sin((double) num);

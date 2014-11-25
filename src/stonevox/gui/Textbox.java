@@ -12,9 +12,9 @@ import stonevox.util.Scale;
 
 public class Textbox extends GUIelement
 {
-	public String text = "";
-	public String lasttext = "";
-	private String renderText = "";
+	public String	text		= "";
+	public String	lasttext	= "";
+	private String	renderText	= "";
 
 	public Textbox(int ID, float width)
 	{

@@ -16,44 +16,44 @@ import stonevox.util.Scale;
 
 public class GUIelement
 {
-	public static float baseTransSpeedX = (float) Scale.hSizeScale(4f);
-	public static float baseTransSpeedY = (float) Scale.vSizeScale(4f);
+	public static float						baseTransSpeedX	= (float) Scale.hSizeScale(4f);
+	public static float						baseTransSpeedY	= (float) Scale.vSizeScale(4f);
 
-	public float x;
-	public float y;
+	public float							x;
+	public float							y;
 
-	public float width;
-	public float height;
-	public boolean isInit = false;
-	public boolean focused = false;
+	public float							width;
+	public float							height;
+	public boolean							isInit			= false;
+	public boolean							focused			= false;
 
-	public float transSpeedX = baseTransSpeedX;
-	public float transSpeedY = baseTransSpeedY;
-	public float transDirectionX = 0;
-	public float transDirectionY = 0;
+	public float							transSpeedX		= baseTransSpeedX;
+	public float							transSpeedY		= baseTransSpeedY;
+	public float							transDirectionX	= 0;
+	public float							transDirectionY	= 0;
 
-	public float transX;
-	public boolean isTransX;
+	public float							transX;
+	public boolean							isTransX;
 
-	public float transY;
-	public boolean isTransY;
+	public float							transY;
+	public boolean							isTransY;
 
-	public String statusTip = "";
+	public String							statusTip		= "";
 
-	private int lastClickButton = -1;
-	private long lastClickTime;
-	public boolean dragged;
+	private int								lastClickButton	= -1;
+	private long							lastClickTime;
+	public boolean							dragged;
 
-	public GUIappearence appearence = new GUIappearence();
+	public GUIappearence					appearence		= new GUIappearence();
 
-	private GUIelement parent;
-	public ArrayList<GUIelement> children = new ArrayList<GUIelement>();
-	public HashMap<String, Object> data = new HashMap<String, Object>();
-	public HashMap<String, GUItransition> transitions = new HashMap<String, GUItransition>();
+	private GUIelement						parent;
+	public ArrayList<GUIelement>			children		= new ArrayList<GUIelement>();
+	public HashMap<String, Object>			data			= new HashMap<String, Object>();
+	public HashMap<String, GUItransition>	transitions		= new HashMap<String, GUItransition>();
 
-	public int ID = -1;
+	public int								ID				= -1;
 
-	private boolean enabled = true;
+	private boolean							enabled			= true;
 
 	public GUIelement(int ID)
 	{

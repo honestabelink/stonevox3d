@@ -2,7 +2,7 @@ package stonevox.data;
 
 public class Keyhook
 {
-	public Object obj;
+	public Object	obj;
 
 	public Keyhook()
 	{

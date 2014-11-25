@@ -7,7 +7,7 @@ import stonevox.data.GUIelement;
 public class TabGroup extends GUIelement
 {
 
-	public ArrayList<Tab> tabs = new ArrayList<Tab>();
+	public ArrayList<Tab>	tabs	= new ArrayList<Tab>();
 
 	public TabGroup(int ID, Tab... tabs)
 	{

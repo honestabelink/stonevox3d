@@ -7,13 +7,13 @@ import stonevox.util.FontUtil;
 
 public class TextDisplay
 {
-	public TTFFont font;
+	public TTFFont	font;
 
-	public float x;
-	public float y;
+	public float	x;
+	public float	y;
 
-	public Color color;
-	public String text;
+	public Color	color;
+	public String	text;
 
 	public TextDisplay(String fontID, String displayText, float x, float y, Color color)
 	{

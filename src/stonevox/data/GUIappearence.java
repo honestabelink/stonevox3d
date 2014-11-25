@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 public class GUIappearence
 {
-	HashMap<String, GUIdecorator> decs = new HashMap<String, GUIdecorator>();
-	float z = .9f;
+	HashMap<String, GUIdecorator>	decs	= new HashMap<String, GUIdecorator>();
+	float							z		= .9f;
 
 	public void render(float x, float y, float width, float height)
 	{

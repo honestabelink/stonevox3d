@@ -12,16 +12,16 @@ import stonevox.util.Scale;
 
 public class VerticalScrollbar extends GUIelement
 {
-	private GUIelement button;
+	private GUIelement	button;
 
-	private float maxValue = 10;
-	private float barStep;
-	private float valueStep;
-	private float currentPos;
-	private float startValue;
-	private float maxTextShow;
+	private float		maxValue	= 10;
+	private float		barStep;
+	private float		valueStep;
+	private float		currentPos;
+	private float		startValue;
+	private float		maxTextShow;
 
-	public float value;
+	public float		value;
 
 	public VerticalScrollbar(int ID, int maxvalue, float width, float height)
 	{

@@ -15,8 +15,8 @@ import stonevox.Program;
 
 public class DNDHandler extends TransferHandler
 {
-	private static final long serialVersionUID = 1L;
-	private JList<File> list;
+	private static final long	serialVersionUID	= 1L;
+	private JList<File>			list;
 
 	public DNDHandler(JList<File> list)
 	{

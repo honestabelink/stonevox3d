@@ -4,29 +4,29 @@ import org.lwjgl.util.Color;
 
 public class Cube
 {
-	final float sizex = 0.5f;
-	final float sizey = 0.5f;
-	final float sizez = 0.5f;
+	final float						sizex		= 0.5f;
+	final float						sizey		= 0.5f;
+	final float						sizez		= 0.5f;
 
-	static final Vector3 UP = new Vector3(0, 1, 0);
-	static final Vector3 DOWN = new Vector3(0, -1, 0);
-	static final Vector3 LEFT = new Vector3(-1, 0, 0);
-	static final Vector3 RIGHT = new Vector3(1, 0, 0);
-	static final Vector3 FORWARD = new Vector3(0, 0, 1);
-	static final Vector3 BACKWARD = new Vector3(0, 0, -1);
+	static final Vector3			UP			= new Vector3(0, 1, 0);
+	static final Vector3			DOWN		= new Vector3(0, -1, 0);
+	static final Vector3			LEFT		= new Vector3(-1, 0, 0);
+	static final Vector3			RIGHT		= new Vector3(1, 0, 0);
+	static final Vector3			FORWARD		= new Vector3(0, 0, 1);
+	static final Vector3			BACKWARD	= new Vector3(0, 0, -1);
 
-	public Vector3 pos;
-	public Color color;
-	public org.newdawn.slick.Color fcolor;
+	public Vector3					pos;
+	public Color					color;
+	public org.newdawn.slick.Color	fcolor;
 
-	public CubeSide top;
-	public CubeSide bottom;
-	public CubeSide left;
-	public CubeSide right;
-	public CubeSide front;
-	public CubeSide back;
+	public CubeSide					top;
+	public CubeSide					bottom;
+	public CubeSide					left;
+	public CubeSide					right;
+	public CubeSide					front;
+	public CubeSide					back;
 
-	public boolean isDirty;
+	public boolean					isDirty;
 
 	public Cube()
 	{

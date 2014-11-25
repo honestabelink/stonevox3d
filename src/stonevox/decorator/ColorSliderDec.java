@@ -9,13 +9,13 @@ import stonevox.util.Scale;
 public class ColorSliderDec implements GUIdecorator
 {
 
-	public boolean enabled = true;
+	public boolean	enabled	= true;
 
-	private Color bg;
-	private Color border;
+	private Color	bg;
+	private Color	border;
 
-	private float w;
-	private float h;
+	private float	w;
+	private float	h;
 
 	public ColorSliderDec(Color bg, Color border, float width, float height)
 	{
