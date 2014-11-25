@@ -2,11 +2,24 @@
 ## Eclipse
 #################
 
-stonevox3d/bin/
-stonevox3d/build/
-stonevox3d/.settings/
-.gradle/
-stonevox3d/.gitignore
+/stonevox3d/bin/
+/stonevox3d/build/
+/stonevox3d/.settings/
+/stonevox3d/.gradle/
+/stonevox3d/.gitignore
+
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
 
 *.pydevproject
 .project
