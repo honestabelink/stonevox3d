@@ -5,7 +5,7 @@
 /stonevox3d/bin/
 /stonevox3d/build/
 /stonevox3d/.settings/
-/stonevox3d/.gradle/
+/stonevox3d/.gradle/*
 /stonevox3d/.gitignore
 
 *.class
