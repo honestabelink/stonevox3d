@@ -52,52 +52,52 @@ public class Program
 
 	// (float) (720.0 * (System.currentTimeMillis() & 0x3FFFL) / 0x3FFFL))
 
-	String							windowtitle					= "StoneVox 3D";
-	boolean							running						= true;
-	long							lastLoopTime;
-	long							lastFpsTime;
-	int								mousedx;
-	int								mousedy;
-	boolean							firstRun					= true;
+	String windowtitle = "StoneVox 3D";
+	boolean running = true;
+	long lastLoopTime;
+	long lastFpsTime;
+	int mousedx;
+	int mousedy;
+	boolean firstRun = true;
 
-	public static QbModel			model;
-	public static float				fov							= 45f;
-	public static float				nearPlane					= 1f;
-	public static float				farPlane					= 300f;
-	public static int				fps;
-	public static int				height						= 800;
-	public static int				width						= 800;
-	public static long				delta						= 1l;
+	public static QbModel model;
+	public static float fov = 45f;
+	public static float nearPlane = 1f;
+	public static float farPlane = 300f;
+	public static int fps;
+	public static int height = 800;
+	public static int width = 800;
+	public static long delta = 1l;
 
-	public static Camera			camera;
-	public static Shader			shader;
-	public static Raycaster			rayCaster;
-	public static Floor				floor;
-	public static boolean			multithreading_raycasting	= true;
+	public static Camera camera;
+	public static Shader shader;
+	public static Raycaster rayCaster;
+	public static Floor floor;
+	public static boolean multithreading_raycasting = true;
 
-	public static ToolPainter		toolpainter;
-	public static ToolColorPicker	toolcolorpicker;
-	public static ToolSelection		toolselection;
-	public static ToolRemove		toolremove;
-	public static ToolAdd			tooladd;
-	public static ToolSave			toolsave;
-	public static ToolSettings		toolsettings;
+	public static ToolPainter toolpainter;
+	public static ToolColorPicker toolcolorpicker;
+	public static ToolSelection toolselection;
+	public static ToolRemove toolremove;
+	public static ToolAdd tooladd;
+	public static ToolSave toolsave;
+	public static ToolSettings toolsettings;
 
-	public static Tool				lastTool;
-	public static Tool				currentTool;
+	public static Tool lastTool;
+	public static Tool currentTool;
 
-	public static String			filepath					= "";
+	public static String filepath = "";
 
-	static Canvas					openglSurface;
-	static JFrame					frame;
-	static JList<File>				list						= new JList<File>();
+	static Canvas openglSurface;
+	static JFrame frame;
+	static JList<File> list = new JList<File>();
 
 	// to get rid of
-	boolean							wasLeftClickDown;
-	int								lastkey;
-	boolean							lastkeystate;
+	boolean wasLeftClickDown;
+	int lastkey;
+	boolean lastkeystate;
 
-	public static boolean			debug						= false;
+	public static boolean debug = false;
 
 	public static void main(String[] args)
 	{
@@ -628,11 +628,11 @@ public class Program
 		GL11.glLoadIdentity();
 	}
 
-	static Matrix4f	rtransMat;
-	static Vector4f	rvecPosMod	= new Vector4f();
-	static Vector3	UP			= new Vector3(0, 1, 0);
-	static Vector3	FORWARD		= new Vector3(0, 0, 1);
-	static Vector3	RIGHT		= new Vector3(1, 0, 0);
+	static Matrix4f rtransMat;
+	static Vector4f rvecPosMod = new Vector4f();
+	static Vector3 UP = new Vector3(0, 1, 0);
+	static Vector3 FORWARD = new Vector3(0, 0, 1);
+	static Vector3 RIGHT = new Vector3(1, 0, 0);
 
 	Vector3 RotateVector3(float angle, Vector3 vec, Vector3 up)
 	{

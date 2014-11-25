@@ -5,7 +5,7 @@ import java.net.URLDecoder;
 
 public class GetPath
 {
-	public static GetPath	get	= new GetPath();
+	public static GetPath get = new GetPath();
 
 	public static String getPath(String path)
 	{

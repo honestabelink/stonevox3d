@@ -11,7 +11,7 @@ import stonevox.gui.ColorOption;
 
 public class PaletteUtil
 {
-	public static String	extension	= ".scp";
+	public static String extension = ".scp";
 
 	public static void WritePalette()
 	{

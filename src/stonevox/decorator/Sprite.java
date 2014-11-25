@@ -9,12 +9,12 @@ import stonevox.util.TextureUtil;
 
 public class Sprite implements GUIdecorator
 {
-	private int		texHandleID;
+	private int texHandleID;
 
-	private int		twidth;
-	private int		theight;
+	private int twidth;
+	private int theight;
 
-	private boolean	enabled	= true;
+	private boolean enabled = true;
 
 	public Sprite(String path)
 	{

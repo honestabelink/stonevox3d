@@ -6,18 +6,18 @@ import stonevox.util.GUI;
 
 public class QbModel
 {
-	public int								version;
-	public int								colorFormat;
-	public int								zAxisOrientation;
-	public int								compressed;
-	public int								visibilityMaskEncoded;
-	public int								numMatrices;
-	public boolean							hasPAL;
-	public String							filepath;
+	public int version;
+	public int colorFormat;
+	public int zAxisOrientation;
+	public int compressed;
+	public int visibilityMaskEncoded;
+	public int numMatrices;
+	public boolean hasPAL;
+	public String filepath;
 
-	public ArrayList<QbMatrixDefination>	matrixList;
+	public ArrayList<QbMatrixDefination> matrixList;
 
-	private int								activeMatrixIndex;
+	private int activeMatrixIndex;
 
 	public void setMatrixListLength(int length)
 	{

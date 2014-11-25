@@ -4,7 +4,7 @@ import stonevox.data.RayHitPoint;
 
 public class ToolSelection implements Tool
 {
-	public boolean	active;
+	public boolean active;
 
 	public boolean isActive()
 	{
