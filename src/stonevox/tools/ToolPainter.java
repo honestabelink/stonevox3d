@@ -11,10 +11,10 @@ import stonevox.gui.ColorOption;
 
 public class ToolPainter implements Tool
 {
-	public Color		paintColor;
-	private boolean		active;
+	public Color paintColor;
+	private boolean active;
 
-	private RayHitPoint	lasthitpoint	= new RayHitPoint();
+	private RayHitPoint lasthitpoint = new RayHitPoint();
 
 	public boolean isActive()
 	{

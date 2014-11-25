@@ -5,16 +5,16 @@ import stonevox.data.Vector3;
 
 public class Camera
 {
-	public Vector3	position	= new Vector3(0f, 1f, -1f);
-	public Vector3	direction	= new Vector3(0f, 0f, 1f);
-	public Vector3	up			= Vector3.up;
+	public Vector3 position = new Vector3(0f, 1f, -1f);
+	public Vector3 direction = new Vector3(0f, 0f, 1f);
+	public Vector3 up = Vector3.up;
 
-	public Matrix	projection;
-	public Matrix	lookat;
-	public Matrix	modelview;
-	public Matrix	ortho2d;
+	public Matrix projection;
+	public Matrix lookat;
+	public Matrix modelview;
+	public Matrix ortho2d;
 
-	public Matrix	raycast_lookat;
+	public Matrix raycast_lookat;
 
 	public Camera()
 	{

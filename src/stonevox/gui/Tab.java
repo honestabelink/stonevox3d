@@ -6,8 +6,8 @@ import stonevox.data.GUIelement;
 
 public class Tab extends GUIelement
 {
-	private ArrayList<GUIelement>	elements	= new ArrayList<GUIelement>();
-	private boolean					elementsEnabled;
+	private ArrayList<GUIelement> elements = new ArrayList<GUIelement>();
+	private boolean elementsEnabled;
 
 	public Tab(int ID, boolean enabled, GUIelement... controlElements)
 	{

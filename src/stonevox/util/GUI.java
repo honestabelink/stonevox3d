@@ -30,58 +30,58 @@ import stonevox.gui.Textbox;
 
 public class GUI
 {
-	public static int						COLOR_PICKER_BACKGROUND		= 900;
-	public static int						PAINTER_BACKGROUND			= 901;
-	public static int						EDITER_ADD_BACKGROUND		= 902;
-	public static int						EDITER_REMVOE_BACKGROUND	= 903;
-	public static int						SAVE_BACKGROUND				= 904;
-	public static int						PROJECTSETTINGS_BACKGROUND	= 905;
-	public static int						PROJECTSETTINGS_BUTTON		= 906;
-	public static int						PROJECTSETTINGS_NAME		= 907;
-	public static int						MATRIX_NAME					= 908;
-	public static int						MATRIX_SIZE					= 909;
-	public static int						STATUS_LABEL				= 910;
-	public static int						COLOR_PICKER_COLORSQARE		= 911;
-	public static int						COLOR_PICKER_HUESLIDER		= 912;
-	public static int						MAINTAB						= 913;
-	public static int						MATRIXTAB					= 914;
-	public static int						MATRIXLISTBOX				= 915;
-	public static int						SCREENSHOT_BACKGROUND		= 916;
-	public static int						SCREENSHOT_CAMERA_BOUNDS	= 917;
-	public static int						SCREENSHOT_WIDTH			= 918;
-	public static int						SCREENSHOT_HEIGHT			= 919;
+	public static int COLOR_PICKER_BACKGROUND = 900;
+	public static int PAINTER_BACKGROUND = 901;
+	public static int EDITER_ADD_BACKGROUND = 902;
+	public static int EDITER_REMVOE_BACKGROUND = 903;
+	public static int SAVE_BACKGROUND = 904;
+	public static int PROJECTSETTINGS_BACKGROUND = 905;
+	public static int PROJECTSETTINGS_BUTTON = 906;
+	public static int PROJECTSETTINGS_NAME = 907;
+	public static int MATRIX_NAME = 908;
+	public static int MATRIX_SIZE = 909;
+	public static int STATUS_LABEL = 910;
+	public static int COLOR_PICKER_COLORSQARE = 911;
+	public static int COLOR_PICKER_HUESLIDER = 912;
+	public static int MAINTAB = 913;
+	public static int MATRIXTAB = 914;
+	public static int MATRIXLISTBOX = 915;
+	public static int SCREENSHOT_BACKGROUND = 916;
+	public static int SCREENSHOT_CAMERA_BOUNDS = 917;
+	public static int SCREENSHOT_WIDTH = 918;
+	public static int SCREENSHOT_HEIGHT = 919;
 
-	public static float						hackscalex					= 1.0f;
-	public static float						hackscaley					= 1.0f;
+	public static float hackscalex = 1.0f;
+	public static float hackscaley = 1.0f;
 
-	public static String					MESSAGE_GUI_MENU_TRANS_ON	= "gui_menu_trans_on";
-	public static String					MESSAGE_GUI_MENU_TRANS_OFF	= "gui_menu_trans_off";
-	public static String					MESSAGE_MOUSE_CLICK			= "gui_mouse_click";
-	public static String					MESSAGE_MOUSE_UP			= "gui_mouse_up";
-	public static String					MESSAGE_MOUSE_DOUBLE_CLICK	= "gui_mouse_double_click";
-	public static String					MESSAGE_MOUSE_ENTER			= "gui_mouse_enter";
-	public static String					MESSAGE_MOUSE_LEAVE			= "gui_mouse_leave";
-	public static String					MESSAGE_QB_LOADED			= "qb_loaded";
-	public static String					MESSAGE_QB_MATRIX_RENAMED	= "qb_matrix_renamed";
-	public static String					MESSAGE_QB_MATRIX_RESIZED	= "qb_matrix_resized";
-	public static String					MESSAGE_QB_MATRIX_ADDED		= "qb_matrix_added";
-	public static String					MESSAGE_QB_MATRIX_REMOVED	= "qb_matrix_removed";
-	public static String					MESSAGE_TEXTBOX_CHANGED		= "textbox_changed";
-	public static String					MESSAGE_TEXTBOX_COMMITED	= "textbox_commited";
+	public static String MESSAGE_GUI_MENU_TRANS_ON = "gui_menu_trans_on";
+	public static String MESSAGE_GUI_MENU_TRANS_OFF = "gui_menu_trans_off";
+	public static String MESSAGE_MOUSE_CLICK = "gui_mouse_click";
+	public static String MESSAGE_MOUSE_UP = "gui_mouse_up";
+	public static String MESSAGE_MOUSE_DOUBLE_CLICK = "gui_mouse_double_click";
+	public static String MESSAGE_MOUSE_ENTER = "gui_mouse_enter";
+	public static String MESSAGE_MOUSE_LEAVE = "gui_mouse_leave";
+	public static String MESSAGE_QB_LOADED = "qb_loaded";
+	public static String MESSAGE_QB_MATRIX_RENAMED = "qb_matrix_renamed";
+	public static String MESSAGE_QB_MATRIX_RESIZED = "qb_matrix_resized";
+	public static String MESSAGE_QB_MATRIX_ADDED = "qb_matrix_added";
+	public static String MESSAGE_QB_MATRIX_REMOVED = "qb_matrix_removed";
+	public static String MESSAGE_TEXTBOX_CHANGED = "textbox_changed";
+	public static String MESSAGE_TEXTBOX_COMMITED = "textbox_commited";
 
-	static int								lastControlOver				= -1;
-	static int								lastControlFocused			= -1;
-	static int								lastButton					= -1;
+	static int lastControlOver = -1;
+	static int lastControlFocused = -1;
+	static int lastButton = -1;
 
-	static int								lastelementid				= -1;
-	static ArrayList<GUIelement>			elements					= new ArrayList<GUIelement>();
-	public static ArrayList<GUIlayout>		layout						= new ArrayList<GUIlayout>();
-	public static ArrayList<TextDisplay>	text						= new ArrayList<TextDisplay>();
+	static int lastelementid = -1;
+	static ArrayList<GUIelement> elements = new ArrayList<GUIelement>();
+	public static ArrayList<GUIlayout> layout = new ArrayList<GUIlayout>();
+	public static ArrayList<TextDisplay> text = new ArrayList<TextDisplay>();
 
-	private static float					tooloffset;
-	private static float					clocationscale;
+	private static float tooloffset;
+	private static float clocationscale;
 
-	public static int						coloroptionStartID;
+	public static int coloroptionStartID;
 
 	public static void logic(float x, float y, float dx, float dy)
 	{

@@ -4,14 +4,14 @@ import stonevox.util.RaycastingUtil;
 
 public class CubeSide
 {
-	public Vector3[]	vertex;
-	public float[]		lightmap;
-	public Vector3		normal;
+	public Vector3[] vertex;
+	public float[] lightmap;
+	public Vector3 normal;
 
-	private Cube		parent;
+	private Cube parent;
 
-	public int			bufferindex;
-	public float		lightscale;
+	public int bufferindex;
+	public float lightscale;
 
 	public CubeSide(Cube parent, float lightscale)
 	{

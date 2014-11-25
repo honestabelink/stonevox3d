@@ -11,10 +11,10 @@ import stonevox.util.GUI;
 
 public class ColorOption extends GUIelement
 {
-	public static ColorOption	lastOption;
-	public Color				color				= Color.white;
-	public Color				huecolor			= Color.white;
-	public Vector3				colorsquarelocation	= new Vector3(-10, -10, -10);
+	public static ColorOption lastOption;
+	public Color color = Color.white;
+	public Color huecolor = Color.white;
+	public Vector3 colorsquarelocation = new Vector3(-10, -10, -10);
 
 	public ColorOption(int id, float y, Color color)
 	{

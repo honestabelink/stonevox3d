@@ -8,14 +8,14 @@ import stonevox.util.Scale;
 
 public class PlainMarker implements GUIdecorator
 {
-	static float	s		= (float) Scale.hSizeScale(10f);
-	static float	ss		= (float) Scale.vSizeScale(10f);
+	static float s = (float) Scale.hSizeScale(10f);
+	static float ss = (float) Scale.vSizeScale(10f);
 
-	private boolean	enabled	= true;
+	private boolean enabled = true;
 
-	private float	x;
-	private float	y;
-	private Color	color	= Color.black;
+	private float x;
+	private float y;
+	private Color color = Color.black;
 
 	public PlainMarker()
 	{

@@ -5,18 +5,18 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class Vector3
 {
-	public static final Vector3	zero		= new Vector3(0f, 0f, 0f);
-	public static final Vector3	one			= new Vector3(1f, 1f, 1f);
-	public static final Vector3	up			= new Vector3(0f, 1f, 0f);
-	public static final Vector3	down		= new Vector3(0f, -1f, 0f);
-	public static final Vector3	right		= new Vector3(1f, 0f, 0f);
-	public static final Vector3	left		= new Vector3(-1f, 0f, 0f);
-	public static final Vector3	forward		= new Vector3(0f, 0f, -1f);
-	public static final Vector3	backward	= new Vector3(0f, 0f, 1f);
+	public static final Vector3 zero = new Vector3(0f, 0f, 0f);
+	public static final Vector3 one = new Vector3(1f, 1f, 1f);
+	public static final Vector3 up = new Vector3(0f, 1f, 0f);
+	public static final Vector3 down = new Vector3(0f, -1f, 0f);
+	public static final Vector3 right = new Vector3(1f, 0f, 0f);
+	public static final Vector3 left = new Vector3(-1f, 0f, 0f);
+	public static final Vector3 forward = new Vector3(0f, 0f, -1f);
+	public static final Vector3 backward = new Vector3(0f, 0f, 1f);
 
-	public float				x;
-	public float				y;
-	public float				z;
+	public float x;
+	public float y;
+	public float z;
 
 	public Vector3()
 	{

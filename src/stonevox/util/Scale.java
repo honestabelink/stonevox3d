@@ -2,16 +2,16 @@ package stonevox.util;
 
 public class Scale
 {
-	static float	minh;
-	static float	maxh;
+	static float minh;
+	static float maxh;
 
-	static float	minv;
-	static float	maxv;
+	static float minv;
+	static float maxv;
 
-	static float	aspect;
+	static float aspect;
 
-	static float	screenN1	= -1.0f;
-	static float	screen1		= 1.0f;
+	static float screenN1 = -1.0f;
+	static float screen1 = 1.0f;
 
 	public static void SetHScaling(float min, float max)
 	{

@@ -11,12 +11,12 @@ import stonevox.gui.ColorOption;
 
 public class ToolAdd implements Tool
 {
-	private boolean		active;
-	private RayHitPoint	lasthitpoint	= new RayHitPoint();
+	private boolean active;
+	private RayHitPoint lasthitpoint = new RayHitPoint();
 
-	public int			state			= 0;
+	public int state = 0;
 
-	private boolean		wasmousedown	= false;
+	private boolean wasmousedown = false;
 
 	public boolean isActive()
 	{

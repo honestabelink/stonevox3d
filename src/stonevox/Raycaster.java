@@ -18,28 +18,28 @@ import stonevox.util.RaycastingUtil;
 
 public class Raycaster
 {
-	private float		size				= 0.5f;
+	private float size = 0.5f;
 
-	public RayHitPoint	rayhitpoint			= new RayHitPoint();
-	private boolean		allow_raycasting	= true;
-	public boolean		raycast_dirt		= false;				// true removal : false
-																	// adding
-	private int			vertexobjectarrayid;
-	private int			vertexbufferid;
-	private int			indexbufferid;
-	private Matrix		transform;
-	private Camera		camera;
-	private int			index;
-	Vector3				projection			= new Vector3(0, 0, 0);
+	public RayHitPoint rayhitpoint = new RayHitPoint();
+	private boolean allow_raycasting = true;
+	public boolean raycast_dirt = false; // true removal : false
+											// adding
+	private int vertexobjectarrayid;
+	private int vertexbufferid;
+	private int indexbufferid;
+	private Matrix transform;
+	private Camera camera;
+	private int index;
+	Vector3 projection = new Vector3(0, 0, 0);
 
-	float[]				vertexdata;
-	int[]				indexdata;
+	float[] vertexdata;
+	int[] indexdata;
 
-	private Thread		thread;
-	private boolean		needsupdate;
+	private Thread thread;
+	private boolean needsupdate;
 
-	FloatBuffer			vertexbuff;
-	IntBuffer			indexbuff;
+	FloatBuffer vertexbuff;
+	IntBuffer indexbuff;
 
 	public void Setup(Camera camera)
 	{

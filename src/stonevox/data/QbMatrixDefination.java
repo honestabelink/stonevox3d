@@ -18,35 +18,35 @@ import stonevox.util.SideUtil;
 
 public class QbMatrixDefination
 {
-	float				cubesizex	= 0.5f;
-	float				cubesizey	= 0.5f;
-	float				cubesizez	= 0.5f;
+	float cubesizex = 0.5f;
+	float cubesizey = 0.5f;
+	float cubesizez = 0.5f;
 
-	private String		name;
-	public int			sizeX;
-	public int			sizeY;
-	public int			sizeZ;
-	public int			posX;
-	public int			posY;
-	public int			posZ;
-	public Vector3		pos;
-	public Vector3		hackpos;
-	public Vector3		pos_size;
+	private String name;
+	public int sizeX;
+	public int sizeY;
+	public int sizeZ;
+	public int posX;
+	public int posY;
+	public int posZ;
+	public Vector3 pos;
+	public Vector3 hackpos;
+	public Vector3 pos_size;
 
-	private int			facecount;
-	private int			vertexobjectarrayid;
-	private int			vertexbufferid;
-	private int			indexbufferid;
-	private Matrix		transform;
-	private Matrix		final_transform;
+	private int facecount;
+	private int vertexobjectarrayid;
+	private int vertexbufferid;
+	private int indexbufferid;
+	private Matrix transform;
+	private Matrix final_transform;
 
-	private RayHitPoint	rayhit;
+	private RayHitPoint rayhit;
 
-	public Cube[][][]	cubes;
-	float[]				vertexdata;
-	int[]				indexdata;
+	public Cube[][][] cubes;
+	float[] vertexdata;
+	int[] indexdata;
 
-	public boolean		visible		= true;
+	public boolean visible = true;
 
 	public void setSize(int x, int y, int z)
 	{
@@ -1109,10 +1109,10 @@ public class QbMatrixDefination
 		GUI.Broadcast(GUI.MESSAGE_QB_MATRIX_RENAMED, name, 100000);
 	}
 
-	float[][]	ld	= new float[3][3];
-	int			px;
-	int			py;
-	int			pz;
+	float[][] ld = new float[3][3];
+	int px;
+	int py;
+	int pz;
 
 	public void updateLightMapRelative(Cube cube, Side side, int x, int y, int z)
 	{

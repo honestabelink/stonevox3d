@@ -12,8 +12,8 @@ import stonevox.data.Vector3;
 
 public class RaycastingUtil
 {
-	public static Vector3	near	= new Vector3();
-	public static Vector3	far		= new Vector3();
+	public static Vector3 near = new Vector3();
+	public static Vector3 far = new Vector3();
 
 	public static Vector3 unproject(int mouseX, int mouseY)
 	{
@@ -46,22 +46,22 @@ public class RaycastingUtil
 		return result;
 	}
 
-	static float		dot;
-	static float		t;
-	static float		coordRatio;
-	static Vector3		intPoint;
-	static float		intX;
-	static float		intY;
-	static float		intZ;
-	static final float	accuraty	= 0.0008f;
+	static float dot;
+	static float t;
+	static float coordRatio;
+	static Vector3 intPoint;
+	static float intX;
+	static float intY;
+	static float intZ;
+	static final float accuraty = 0.0008f;
 	// static final float accuraty = 0.0008f;
 	// static final float accuraty = 0.0005f;
 
-	static float		fullArea;
-	static float		subTriangle1;
-	static float		subTriangle2;
-	static float		subTriangle3;
-	static float		totalSubAreas;
+	static float fullArea;
+	static float subTriangle1;
+	static float subTriangle2;
+	static float subTriangle3;
+	static float totalSubAreas;
 
 	public static Vector3 rayTest(Vector3 rayOrigin, Vector3 rayDirection, Vector3 planeNormal, Vector3 trianglePoint1,
 			Vector3 trianglePoint2, Vector3 trianglePoint3)

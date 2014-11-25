@@ -6,7 +6,7 @@ import stonevox.data.TTFFont;
 
 public class FontUtil
 {
-	static HashMap<String, TTFFont>	fonts	= new HashMap<String, TTFFont>();
+	static HashMap<String, TTFFont> fonts = new HashMap<String, TTFFont>();
 
 	public static void loadFont(String fontID, String fontPath)
 	{

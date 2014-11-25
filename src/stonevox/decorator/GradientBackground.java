@@ -18,18 +18,18 @@ import stonevox.data.Shader;
 public class GradientBackground implements GUIdecorator
 {
 
-	private boolean			enabled			= true;
+	private boolean enabled = true;
 
-	private int				bufferID;
-	private FloatBuffer		buffer;
+	private int bufferID;
+	private FloatBuffer buffer;
 
-	private int				aobufferID;
-	private int				indexID;
+	private int aobufferID;
+	private int indexID;
 
-	private GradientStop[]	grads;
+	private GradientStop[] grads;
 
-	private boolean			firstRun		= true;
-	private boolean			isHorizontal	= false;
+	private boolean firstRun = true;
+	private boolean isHorizontal = false;
 
 	public GradientBackground(GradientStop... grads)
 	{

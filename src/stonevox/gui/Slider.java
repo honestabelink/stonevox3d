@@ -11,8 +11,8 @@ import stonevox.util.Scale;
 
 public class Slider extends GUIelement
 {
-	public float		value;
-	private GUIelement	button;
+	public float value;
+	private GUIelement button;
 
 	public Slider(int ID, float width, float height, Color background)
 	{
