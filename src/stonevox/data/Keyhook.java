@@ -4,6 +4,11 @@ public class Keyhook
 {
 	public Object	obj;
 
+	public Keyhook()
+	{
+
+	}
+
 	public Keyhook(Object obj)
 	{
 		this.obj = obj;

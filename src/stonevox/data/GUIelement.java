@@ -65,9 +65,9 @@ public class GUIelement
 		isInit = true;
 	}
 
-	public void keyPress(int key)
+	public boolean keyPress(int key)
 	{
-
+		return false;
 	}
 
 	public void mouseDoubleClick(int button)

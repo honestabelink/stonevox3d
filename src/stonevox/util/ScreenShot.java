@@ -13,6 +13,8 @@ import javax.imageio.ImageIO;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
+import stonevox.gui.Textbox;
+
 public class ScreenShot
 {
 
@@ -49,7 +51,7 @@ public class ScreenShot
 		int bindex;
 
 		GL11.glReadBuffer(GL11.GL_FRONT);
-		GL11.glReadPixels(0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, fb);
+		GL11.glReadPixels(x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, fb);
 
 		for (int i = 0; i < pixels.length; i++)
 		{
@@ -72,7 +74,11 @@ public class ScreenShot
 
 		try
 		{
-			File file = new File("temp.png");
+			Textbox projectnametextbox = (Textbox) GUI.get(GUI.PROJECTSETTINGS_NAME);
+			String path = GetPath.getPath("");
+			File folder = new File(path + "\\export");
+			folder.mkdirs();
+			File file = new File(path + "\\export\\" + projectnametextbox.text + ".png");
 			String format = "PNG";
 			ImageIO.write(image, format, file);
 		}

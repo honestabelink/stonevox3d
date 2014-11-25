@@ -32,6 +32,8 @@ public class Floor
 	private Matrix		transform;
 	private Vector3		up		= new Vector3(0f, 1f, 0f);
 
+	public boolean		visible	= true;
+
 	public Floor()
 	{
 		color = Color.cyan;
@@ -197,12 +199,15 @@ public class Floor
 
 	public void render()
 	{
-		final_transform = Matrix.Multiply(Program.camera.modelview, transform);
+		if (visible)
+		{
+			final_transform = Matrix.Multiply(Program.camera.modelview, transform);
 
-		Program.shader.WriteUniformMatrix4("modelview\0", final_transform.GetBuffer());
+			Program.shader.WriteUniformMatrix4("modelview\0", final_transform.GetBuffer());
 
-		GL30.glBindVertexArray(vertexarrayobjectID);
-		GL11.glDrawElements(GL11.GL_TRIANGLES, 6, GL11.GL_UNSIGNED_INT, 0l);
-		GL30.glBindVertexArray(0);
+			GL30.glBindVertexArray(vertexarrayobjectID);
+			GL11.glDrawElements(GL11.GL_TRIANGLES, 6, GL11.GL_UNSIGNED_INT, 0l);
+			GL30.glBindVertexArray(0);
+		}
 	}
 }

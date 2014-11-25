@@ -7,6 +7,7 @@ import stonevox.data.GUIelement;
 import stonevox.decorator.PlainBackground;
 import stonevox.decorator.PlainBorder;
 import stonevox.decorator.PlainText;
+import stonevox.util.GUI;
 import stonevox.util.Scale;
 
 public class Textbox extends GUIelement
@@ -52,11 +53,12 @@ public class Textbox extends GUIelement
 	public void focusLost()
 	{
 		Keyboard.enableRepeatEvents(false);
+		Broadcast(GUI.MESSAGE_TEXTBOX_COMMITED);
 		super.focusLost();
 	}
 
 	@Override
-	public void keyPress(int key)
+	public boolean keyPress(int key)
 	{
 		if (focused)
 		{
@@ -66,6 +68,7 @@ public class Textbox extends GUIelement
 				{
 					text = removeLastChar(text);
 					setText(text);
+					Broadcast(GUI.MESSAGE_TEXTBOX_CHANGED);
 				}
 			}
 			else if (key == Keyboard.KEY_RETURN || key == Keyboard.KEY_NUMPADENTER)
@@ -75,14 +78,17 @@ public class Textbox extends GUIelement
 			else
 			{
 				setText(text + keytoString(key));
+				Broadcast(GUI.MESSAGE_TEXTBOX_CHANGED);
 			}
+			return true;
 		}
-		super.keyPress(key);
+		return false;
 	}
 
 	public void OnReturnKey()
 	{
 		lasttext = text;
+		Broadcast(GUI.MESSAGE_TEXTBOX_COMMITED);
 	}
 
 	private String clipText(String text)

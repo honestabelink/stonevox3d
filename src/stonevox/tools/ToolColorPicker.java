@@ -46,18 +46,15 @@ public class ToolColorPicker implements Tool
 
 	public void logic()
 	{
-		if (isActive() && Program.fps % 2 == 0)
+		if (Mouse.isButtonDown(0))
 		{
-			if (Mouse.isButtonDown(0))
-			{
-				use(Program.rayCaster.rayhitpoint);
-			}
+			use(Program.rayCaster.rayhitpoint);
 		}
 	}
 
 	public void use(RayHitPoint hit)
 	{
-		if (hit == null)
+		if (hit.cubelocation.y == -10000)
 		{
 			GL11.glReadBuffer(GL11.GL_FRONT);
 			ByteBuffer buffer = BufferUtils.createByteBuffer(4);

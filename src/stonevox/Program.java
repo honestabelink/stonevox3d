@@ -1,7 +1,12 @@
 package stonevox;
 
 import java.awt.Canvas;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -14,9 +19,11 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
+import org.newdawn.slick.Color;
 
 import stonevox.data.Keyhook;
 import stonevox.data.Matrix;
@@ -25,9 +32,10 @@ import stonevox.data.Shader;
 import stonevox.data.Vector3;
 import stonevox.gui.ColorOption;
 import stonevox.tools.Tool;
+import stonevox.tools.ToolAdd;
 import stonevox.tools.ToolColorPicker;
-import stonevox.tools.ToolEdit;
 import stonevox.tools.ToolPainter;
+import stonevox.tools.ToolRemove;
 import stonevox.tools.ToolSave;
 import stonevox.tools.ToolSelection;
 import stonevox.tools.ToolSettings;
@@ -35,6 +43,7 @@ import stonevox.util.DNDHandler;
 import stonevox.util.FontUtil;
 import stonevox.util.GUI;
 import stonevox.util.KeyboardUtil;
+import stonevox.util.PaletteUtil;
 import stonevox.util.QbUtil;
 import stonevox.util.Scale;
 
@@ -54,7 +63,7 @@ public class Program
 	public static QbModel			model;
 	public static float				fov							= 45f;
 	public static float				nearPlane					= 1f;
-	public static float				farPlane					= 100f;
+	public static float				farPlane					= 300f;
 	public static int				fps;
 	public static int				height						= 800;
 	public static int				width						= 800;
@@ -69,7 +78,8 @@ public class Program
 	public static ToolPainter		toolpainter;
 	public static ToolColorPicker	toolcolorpicker;
 	public static ToolSelection		toolselection;
-	public static ToolEdit			tooledit;
+	public static ToolRemove		toolremove;
+	public static ToolAdd			tooladd;
 	public static ToolSave			toolsave;
 	public static ToolSettings		toolsettings;
 
@@ -140,7 +150,8 @@ public class Program
 		{
 			Display.setFullscreen(false);
 			Display.setResizable(true);
-			Display.create();
+			// Display.create();
+			Display.create(new PixelFormat(/* Alpha Bits */8, /* Depth bits */8, /* Stencil bits */0, /* samples */8));
 
 			width = Display.getWidth();
 			height = Display.getHeight();
@@ -180,7 +191,8 @@ public class Program
 		shader.CreateUniformAccess("modelview\0");
 
 		toolcolorpicker = new ToolColorPicker();
-		tooledit = new ToolEdit();
+		toolremove = new ToolRemove();
+		tooladd = new ToolAdd();
 		toolpainter = new ToolPainter();
 		toolsave = new ToolSave();
 		toolselection = new ToolSelection();
@@ -204,28 +216,30 @@ public class Program
 
 		GUI.StandardGUI(width < 1500);
 
-		KeyboardUtil.Add(Keyboard.KEY_LMENU, new Keyhook(null)
+		KeyboardUtil.Add(Keyboard.KEY_E, new Keyhook()
 		{
 			public void down()
 			{
-				if (currentTool != toolcolorpicker)
-				{
-					setTool(toolcolorpicker);
-					toolcolorpicker.activate();
-					toolpainter.SetColor(ColorOption.lastOption.color);
-				}
+				setTool(toolremove);
 				super.down();
 			}
+		});
 
-			public void up()
+		KeyboardUtil.Add(Keyboard.KEY_A, new Keyhook()
+		{
+			public void down()
 			{
-				if (currentTool == toolcolorpicker)
-				{
-					setTool(lastTool);
-					toolcolorpicker.deactivate();
-					toolpainter.SetColor(ColorOption.lastOption.color);
-				}
-				super.up();
+				setTool(tooladd);
+				super.down();
+			}
+		});
+
+		KeyboardUtil.Add(Keyboard.KEY_B, new Keyhook()
+		{
+			public void down()
+			{
+				setTool(toolpainter);
+				super.down();
 			}
 		});
 
@@ -304,7 +318,10 @@ public class Program
 		// drop, what do i do???
 		if (filepath != "")
 		{
-			LoadQB(filepath);
+			if (filepath.matches(".*.qb"))
+				LoadQB(filepath);
+			else if (filepath.matches(".*.scp"))
+				LoadPal(filepath);
 			filepath = "";
 		}
 
@@ -352,7 +369,7 @@ public class Program
 	{
 		int wheel = Mouse.getDWheel();
 
-		if (Mouse.isButtonDown(1) && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+		if (Mouse.isButtonDown(1) && Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 		{
 			float rotY2 = (float) Math.toRadians(-mousedx * .15f);
 			float rotX2 = (float) Math.toRadians(mousedy * .15f);
@@ -364,7 +381,7 @@ public class Program
 			RotateVector3(rotX2, camera.direction, mposition);
 			camera.direction.noramlize();
 		}
-		else if (Mouse.isButtonDown(1) && !Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+		else if (Mouse.isButtonDown(1) && !Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 		{
 			Vector3 right = Vector3.cross(camera.direction, UP);
 			Vector3 up = Vector3.cross(right, camera.direction);
@@ -440,15 +457,23 @@ public class Program
 		{
 			int key = Keyboard.getEventKey();
 			boolean keyState = Keyboard.getEventKeyState();
-
-			if (KeyboardUtil.handleKeyboardInput(key, keyState))
-				continue;
-
-			if (GUI.handleKeyboardInput(key, keyState))
-				continue;
-
 			lastkey = key;
 			lastkeystate = keyState;
+			if (GUI.handleKeyboardInput(key, keyState))
+			{
+				lastkey = -1;
+				continue;
+			}
+			if (KeyboardUtil.handleKeyboardInput(key, keyState))
+			{
+				lastkey = -1;
+				continue;
+			}
+
+			if (key == Keyboard.KEY_P && keyState)
+			{
+				PaletteUtil.WritePalette();
+			}
 		}
 
 		// hacks
@@ -501,6 +526,41 @@ public class Program
 			GUI.Broadcast(GUI.MESSAGE_QB_LOADED, path, 10000);
 		}
 		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void LoadPal(String path)
+	{
+		try
+		{
+			DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(path)));
+
+			System.out.print("Beginning read .scp \n");
+
+			for (int i = 0; i < 10; i++)
+			{
+				ColorOption co = (ColorOption) GUI.get(GUI.coloroptionStartID + i);
+
+				Color color = new Color(in.readFloat(), in.readFloat(), in.readFloat(), in.readFloat());
+				Color hue = new Color(in.readFloat(), in.readFloat(), in.readFloat(), in.readFloat());
+				Vector3 csl = new Vector3(in.readFloat(), in.readFloat(), in.readFloat());
+
+				co.setColor(color);
+				co.huecolor = hue;
+				co.colorsquarelocation = csl;
+			}
+
+			System.out.print(String.format("read : %s \n", "success"));
+
+			in.close();
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}

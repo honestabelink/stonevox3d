@@ -14,10 +14,8 @@ import stonevox.Program;
 import stonevox.data.GUIelement;
 import stonevox.data.GUIlayout;
 import stonevox.data.GUItransition;
-import stonevox.data.GradientStop;
 import stonevox.data.Keyhook;
 import stonevox.data.TextDisplay;
-import stonevox.decorator.GradientBackground;
 import stonevox.decorator.MultiColorBackground;
 import stonevox.decorator.PlainBorder;
 import stonevox.decorator.PlainMarker;
@@ -29,25 +27,29 @@ import stonevox.gui.SpriteButton;
 import stonevox.gui.Tab;
 import stonevox.gui.TabGroup;
 import stonevox.gui.Textbox;
-import stonevox.tools.ToolEdit;
 
 public class GUI
 {
 	public static int						COLOR_PICKER_BACKGROUND		= 900;
 	public static int						PAINTER_BACKGROUND			= 901;
-	public static int						EDITER_BACKGROUND			= 902;
-	public static int						SAVE_BACKGROUND				= 903;
-	public static int						PROJECTSETTINGS_BACKGROUND	= 904;
-	public static int						PROJECTSETTINGS_BUTTON		= 905;
-	public static int						PROJECTSETTINGS_NAME		= 906;
-	public static int						MATRIX_NAME					= 907;
-	public static int						MATRIX_SIZE					= 908;
-	public static int						STATUS_LABEL				= 909;
-	public static int						COLOR_PICKER_COLORSQARE		= 910;
-	public static int						COLOR_PICKER_HUESLIDER		= 911;
-	public static int						MAINTAB						= 912;
-	public static int						MATRIXTAB					= 913;
-	public static int						MATRIXLISTBOX				= 914;
+	public static int						EDITER_ADD_BACKGROUND		= 902;
+	public static int						EDITER_REMVOE_BACKGROUND	= 903;
+	public static int						SAVE_BACKGROUND				= 904;
+	public static int						PROJECTSETTINGS_BACKGROUND	= 905;
+	public static int						PROJECTSETTINGS_BUTTON		= 906;
+	public static int						PROJECTSETTINGS_NAME		= 907;
+	public static int						MATRIX_NAME					= 908;
+	public static int						MATRIX_SIZE					= 909;
+	public static int						STATUS_LABEL				= 910;
+	public static int						COLOR_PICKER_COLORSQARE		= 911;
+	public static int						COLOR_PICKER_HUESLIDER		= 912;
+	public static int						MAINTAB						= 913;
+	public static int						MATRIXTAB					= 914;
+	public static int						MATRIXLISTBOX				= 915;
+	public static int						SCREENSHOT_BACKGROUND		= 916;
+	public static int						SCREENSHOT_CAMERA_BOUNDS	= 917;
+	public static int						SCREENSHOT_WIDTH			= 918;
+	public static int						SCREENSHOT_HEIGHT			= 919;
 
 	public static float						hackscalex					= 1.0f;
 	public static float						hackscaley					= 1.0f;
@@ -64,6 +66,8 @@ public class GUI
 	public static String					MESSAGE_QB_MATRIX_RESIZED	= "qb_matrix_resized";
 	public static String					MESSAGE_QB_MATRIX_ADDED		= "qb_matrix_added";
 	public static String					MESSAGE_QB_MATRIX_REMOVED	= "qb_matrix_removed";
+	public static String					MESSAGE_TEXTBOX_CHANGED		= "textbox_changed";
+	public static String					MESSAGE_TEXTBOX_COMMITED	= "textbox_commited";
 
 	static int								lastControlOver				= -1;
 	static int								lastControlFocused			= -1;
@@ -76,6 +80,8 @@ public class GUI
 
 	private static float					tooloffset;
 	private static float					clocationscale;
+
+	public static int						coloroptionStartID;
 
 	public static void logic(float x, float y, float dx, float dy)
 	{
@@ -159,6 +165,9 @@ public class GUI
 
 	public static void handleMouseInput(int button, boolean buttonstate)
 	{
+		if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+			return;
+
 		if (buttonstate)
 		{
 			if (lastControlOver > -1)
@@ -189,10 +198,12 @@ public class GUI
 
 	public static boolean handleKeyboardInput(int key, boolean keyState)
 	{
+		if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+			return false;
+
 		if (keyState && lastControlFocused != -1)
 		{
-			elements.get(lastControlFocused).keyPress(key);
-			return true;
+			return elements.get(lastControlFocused).keyPress(key);
 		}
 		else
 			return false;
@@ -996,13 +1007,14 @@ public class GUI
 			}
 		};
 		colorpickerHueSlider.statusTip = Tips.colorpick;
-		colorpickerHueSlider.setSize(27, colorpickerBG.getUnScaleHeight() / 2f * .72f);
-		colorpickerHueSlider.appearence.Add("gradientBG", new GradientBackground(new GradientStop(.45f, Color.red),
-				new GradientStop(.15f, Color.green), new GradientStop(.35f, Color.blue), new GradientStop(.05f,
-						Color.red)));
+		// colorpickerHueSlider.setSize(27, colorpickerBG.getUnScaleHeight() / 2f * .72f);
+		// colorpickerHueSlider.appearence.Add("gradientBG", new GradientBackground(new GradientStop(.45f, Color.red),
+		// new GradientStop(.15f, Color.green), new GradientStop(.35f, Color.blue), new GradientStop(.05f,
+		// Color.red)));
+		// colorpickerHueSlider.getGradientBackground("gradientBG").updateGradient(colorpickerHueSlider.width,
+		// colorpickerHueSlider.height);
+		colorpickerHueSlider.appearence.Add("bg", new Sprite("/data/hue.png", colorpickerHueSlider));
 		colorpickerHueSlider.appearence.Add("border", new PlainBorder(2f, Color.yellow.darker(.4f)));
-		colorpickerHueSlider.getGradientBackground("gradientBG").updateGradient(colorpickerHueSlider.width,
-				colorpickerHueSlider.height);
 		colorpickerHueSlider.setParent(colorpickerBG);
 		colorpickerHueSlider.setPositon(.80f, .2f, true);
 		GUI.AddElement(colorpickerHueSlider);
@@ -1056,6 +1068,7 @@ public class GUI
 						super.mouseClick(button);
 					}
 				};
+		painterPerVox.statusTip = Tips.toolpaint;
 		painterPerVox.setParent(painterOptionsBG);
 		painterPerVox.setPositon(.15f, .14f, true);
 		GUI.AddElement(painterPerVox);
@@ -1099,68 +1112,52 @@ public class GUI
 				super.mouseClick(button);
 			}
 		};
+		painterButton.statusTip = Tips.toolpaint;
 		painterButton.setPositon(width / 2f - 1f * 75f - (float) Scale.hUnSizeScale(painterButton.width * .25f), 0f);
 		GUI.AddElement(painterButton);
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// EDIT TOOL
+		// ADD TOOL
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-		GUIelement editOptionsBG = new GUIelement(GUI.EDITER_BACKGROUND)
+		GUIelement addOptionsBG = new GUIelement(GUI.EDITER_ADD_BACKGROUND)
 		{
 
 		};
-		editOptionsBG.setPositon(width / 2f, -100f);
-		editOptionsBG.appearence.Add("bg", new Sprite("/data/sub_toolmenu_someoptions.png", editOptionsBG));
-		editOptionsBG.x -= editOptionsBG.width / 2f;
-		editOptionsBG.data.put("state", false);
-		editOptionsBG.transitions.put("ontrans", new GUItransition((float) Scale.vPosScale(75), false));
-		editOptionsBG.transitions.put("offtrans", new GUItransition((float) Scale.vPosScale(-100), false));
-		GUI.AddElement(editOptionsBG);
+		addOptionsBG.setPositon(width / 2f, -100f);
+		addOptionsBG.appearence.Add("bg", new Sprite("/data/sub_toolmenu_oneoption.png", addOptionsBG));
+		addOptionsBG.x -= addOptionsBG.width / 2f;
+		addOptionsBG.data.put("state", false);
+		addOptionsBG.transitions.put("ontrans", new GUItransition((float) Scale.vPosScale(75), false));
+		addOptionsBG.transitions.put("offtrans", new GUItransition((float) Scale.vPosScale(-100), false));
+		GUI.AddElement(addOptionsBG);
 
 		SpriteButton editAddVox =
 				new SpriteButton(GUI.getNextID(), "/data/voxel_add.png", "/data/voxel_add_highlight.png")
 				{
 					public void mouseClick(int button)
 					{
-						GUIelement el = GUI.get(GUI.EDITER_BACKGROUND);
+						GUIelement el = GUI.get(GUI.EDITER_ADD_BACKGROUND);
 						el.doTrans("offtrans");
 						el.data.replace("state", false);
-						Program.setTool(Program.tooledit);
-						Program.tooledit.setState(ToolEdit.STATE_ADD);
+						Program.setTool(Program.tooladd);
 						super.mouseClick(button);
 					}
 				};
-		editAddVox.setParent(editOptionsBG);
-		editAddVox.setPositon(.15f, .14f, true);
+		editAddVox.statusTip = Tips.tooladd;
+		editAddVox.setParent(addOptionsBG);
+		// editAddVox.setPositon(.15f, .14f, true);
+		editAddVox.setPositon(.22f, .14f, true);
 		GUI.AddElement(editAddVox);
 
-		SpriteButton editRemoveVox =
-				new SpriteButton(GUI.getNextID(), "/data/voxel_remove.png", "/data/voxel_remove_highlight.png")
-				{
-					public void mouseClick(int button)
-					{
-						GUIelement el = GUI.get(GUI.EDITER_BACKGROUND);
-						el.doTrans("offtrans");
-						el.data.replace("state", false);
-						Program.setTool(Program.tooledit);
-						Program.tooledit.setState(ToolEdit.STATE_REMOVE);
-						super.mouseClick(button);
-					}
-				};
-		editRemoveVox.setParent(editOptionsBG);
-		editRemoveVox.setPositon(.60f, .14f, true);
-		GUI.AddElement(editRemoveVox);
-
 		GUI.layout.add(new GUIlayout(editAddVox.ID, false));
-		GUI.layout.add(new GUIlayout(editRemoveVox.ID, false));
-		GUI.layout.add(new GUIlayout(GUI.EDITER_BACKGROUND, false));
+		GUI.layout.add(new GUIlayout(GUI.EDITER_ADD_BACKGROUND, false));
 
-		SpriteButton editbutton = new SpriteButton(GUI.getNextID(), "/data/edit.png", "/data/edit_highlight.png")
+		SpriteButton addbutton = new SpriteButton(GUI.getNextID(), "/data/add.png", "/data/add_highlight.png")
 		{
 			public void mouseClick(int button)
 			{
-				GUIelement p = GUI.get(GUI.EDITER_BACKGROUND);
+				GUIelement p = GUI.get(GUI.EDITER_ADD_BACKGROUND);
 				if (!(Boolean) p.data.get("state"))
 				{
 					p.doTrans("ontrans");
@@ -1175,8 +1172,70 @@ public class GUI
 				super.mouseClick(button);
 			}
 		};
-		editbutton.setPositon(width / 2f - (float) Scale.hUnSizeScale(editbutton.width * .25f), 0f);
-		GUI.AddElement(editbutton);
+		addbutton.statusTip = Tips.tooladd;
+		addbutton.setPositon(width / 2f - (float) Scale.hUnSizeScale(addbutton.width * .25f), 0f);
+		GUI.AddElement(addbutton);
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// REMOVE TOOL
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		GUIelement removeOptionsBG = new GUIelement(GUI.EDITER_REMVOE_BACKGROUND)
+		{
+
+		};
+		removeOptionsBG.setPositon(width / 2f + 1f * tooloffset, -100f);
+		removeOptionsBG.appearence.Add("bg", new Sprite("/data/sub_toolmenu_oneoption.png", removeOptionsBG));
+		removeOptionsBG.x -= removeOptionsBG.width / 2f;
+		removeOptionsBG.data.put("state", false);
+		removeOptionsBG.transitions.put("ontrans", new GUItransition((float) Scale.vPosScale(75), false));
+		removeOptionsBG.transitions.put("offtrans", new GUItransition((float) Scale.vPosScale(-100), false));
+		GUI.AddElement(removeOptionsBG);
+
+		SpriteButton editRemoveVox =
+				new SpriteButton(GUI.getNextID(), "/data/voxel_remove.png", "/data/voxel_remove_highlight.png")
+				{
+					public void mouseClick(int button)
+					{
+						GUIelement el = GUI.get(GUI.EDITER_REMVOE_BACKGROUND);
+						el.doTrans("offtrans");
+						el.data.replace("state", false);
+						Program.setTool(Program.toolremove);
+						super.mouseClick(button);
+					}
+				};
+		editRemoveVox.statusTip = Tips.toolremove;
+		editRemoveVox.setParent(removeOptionsBG);
+		// editRemoveVox.setPositon(.60f, .14f, true);
+		editRemoveVox.setPositon(.22f, .14f, true);
+		GUI.AddElement(editRemoveVox);
+
+		GUI.layout.add(new GUIlayout(editRemoveVox.ID, false));
+		GUI.layout.add(new GUIlayout(GUI.EDITER_REMVOE_BACKGROUND, false));
+
+		SpriteButton removebutton = new SpriteButton(GUI.getNextID(), "/data/remove.png", "/data/remove_highlight.png")
+		{
+			public void mouseClick(int button)
+			{
+				GUIelement p = GUI.get(GUI.EDITER_REMVOE_BACKGROUND);
+				if (!(Boolean) p.data.get("state"))
+				{
+					p.doTrans("ontrans");
+					p.Broadcast(GUI.MESSAGE_GUI_MENU_TRANS_ON);
+					p.data.replace("state", true);
+				}
+				else
+				{
+					p.doTrans("offtrans");
+					p.data.replace("state", false);
+				}
+				super.mouseClick(button);
+			}
+		};
+		removebutton.statusTip = Tips.toolremove;
+		removebutton.setPositon(width / 2f + 1f * 75f - (float) Scale.hUnSizeScale(removebutton.width * .25f), 0f);
+		GUI.AddElement(removebutton);
+
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SAVE TOOL
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1185,7 +1244,7 @@ public class GUI
 		{
 
 		};
-		saveBG.setPositon(width / 2f + 1f * tooloffset, -100f);
+		saveBG.setPositon(width / 2f + 2f * tooloffset, -100f);
 		saveBG.appearence.Add("bg", new Sprite("/data/sub_toolmenu_oneoption.png", saveBG));
 		saveBG.x -= saveBG.width / 2f;
 		saveBG.data.put("state", false);
@@ -1204,6 +1263,7 @@ public class GUI
 				super.mouseClick(button);
 			}
 		};
+		saveqb.statusTip = Tips.toolsaveqb;
 		saveqb.setParent(saveBG);
 		saveqb.setPositon(.22f, .14f, true);
 		GUI.AddElement(saveqb);
@@ -1230,19 +1290,218 @@ public class GUI
 				super.mouseClick(button);
 			}
 		};
-		savebutton.setPositon(width / 2f + 1f * 75f - (float) Scale.hUnSizeScale(savebutton.width * .25f), 0f);
+		savebutton.statusTip = Tips.toolsave;
+		savebutton.setPositon(width / 2f + 2f * 75f - (float) Scale.hUnSizeScale(savebutton.width * .25f), 0f);
 		GUI.AddElement(savebutton);
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SETTINGS TOOL
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		SpriteButton settingsbutton =
-				new SpriteButton(GUI.getNextID(), "/data/settings.png", "/data/settings_highlight.png")
+		// SpriteButton settingsbutton =
+		// new SpriteButton(GUI.getNextID(), "/data/settings.png", "/data/settings_highlight.png")
+		// {
+		// };
+		// settingsbutton.setPositon(
+		// width / 2f + 2f * tooloffset - (float) Scale.hUnSizeScale(settingsbutton.width * .25f), 0f);
+		// GUI.AddElement(settingsbutton);
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// SCREENSHOT OPTIONS
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		GUIelement screenshot_background_bg = new GUIelement(GUI.SCREENSHOT_BACKGROUND)
+		{
+			@Override
+			public void setEnable(boolean enabled)
+			{
+				for (int i = 0; i < children.size(); i++)
+					children.get(i).setEnable(enabled);
+
+				GUI.get(GUI.SCREENSHOT_CAMERA_BOUNDS).setEnable(enabled);
+
+				Program.floor.visible = !enabled;
+
+				super.setEnable(enabled);
+			}
+
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_GUI_MENU_TRANS_ON)
 				{
+					setEnable(false);
+				}
+
+				super.onMessageRecieved(message, args);
+			}
+		};
+		screenshot_background_bg.appearence.Add("bg", new Sprite("/data/screenshot_bg.png", screenshot_background_bg));
+		screenshot_background_bg.setPositon(width - screenshot_background_bg.getUnScaleWidth() / 2f, height / 2f
+				- screenshot_background_bg.getUnScaleHeight() / 4f);
+		GUI.AddElement(screenshot_background_bg);
+
+		GUIelement camerabounds = new GUIelement(GUI.SCREENSHOT_CAMERA_BOUNDS)
+		{
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_TEXTBOX_COMMITED)
+				{
+					if ((Integer) args[1] == GUI.SCREENSHOT_WIDTH)
+					{
+						float width = this.getUnScaleWidth() / 2f;
+						Textbox t = (Textbox) GUI.get(GUI.SCREENSHOT_WIDTH);
+						try
+						{
+							width = Integer.parseInt(t.text) + 6;
+						}
+						catch (Exception ex)
+						{
+							t.setText(String.valueOf((int) width));
+						}
+						float height = this.getUnScaleHeight() / 2f;
+						this.setSize(width, height);
+						setPositon(Program.width / 2f - width / 2f, Program.height / 2f - height / 2f);
+					}
+					if ((Integer) args[1] == GUI.SCREENSHOT_HEIGHT)
+					{
+						float height = this.getUnScaleHeight() / 2f;
+						Textbox t = (Textbox) GUI.get(GUI.SCREENSHOT_HEIGHT);
+						float width = this.getUnScaleWidth() / 2f;
+						try
+						{
+							height = Integer.parseInt(t.text) + 6;
+						}
+						catch (Exception ex)
+						{
+							t.setText(String.valueOf((int) height));
+						}
+						this.setSize(width, height);
+						setPositon(Program.width / 2f - width / 2f, Program.height / 2f - height / 2f);
+					}
+				}
+				super.onMessageRecieved(message, args);
+			}
+
+			@Override
+			public void mouseEnter()
+			{
+				this.getPlainBorder("border").color = Color.white;
+				super.mouseEnter();
+			}
+
+			@Override
+			public void mouseLeave()
+			{
+				this.getPlainBorder("border").color = Color.gray;
+				super.mouseLeave();
+			}
+
+			@Override
+			public void mouseMove(float x, float y)
+			{
+				super.mouseMove(x, y);
+
+				if (Mouse.isButtonDown(0))
+				{
+					this.x += x;
+					this.y += y;
+				}
+			}
+		};
+		camerabounds.statusTip = Tips.camerabounds;
+		camerabounds.setPositon(width / 2f - 153, height / 2f - 153);
+		camerabounds.setSize(306, 306);
+		camerabounds.appearence.Add("border", new PlainBorder(2.4f, Color.gray));
+		GUI.AddElement(camerabounds);
+
+		Label screenshot_label_sizex = new Label(GUI.getNextID(), "Width : ", Color.white);
+		screenshot_label_sizex.setParent(screenshot_background_bg);
+		screenshot_label_sizex.setPositon(.1f, .85f, true);
+		GUI.AddElement(screenshot_label_sizex);
+		Label screenshot_label_sizey = new Label(GUI.getNextID(), "Height : ", Color.white);
+		screenshot_label_sizey.setParent(screenshot_background_bg);
+		screenshot_label_sizey.setPositon(.1f, .60f, true);
+		GUI.AddElement(screenshot_label_sizey);
+
+		Textbox screenshot_tb_sizex = new Textbox(GUI.SCREENSHOT_WIDTH, 150);
+		screenshot_tb_sizex.setParent(screenshot_background_bg);
+		screenshot_tb_sizex.setPositon(.1f, .75f, true);
+		screenshot_tb_sizex.setText("300");
+		screenshot_tb_sizex.statusTip = Tips.camerawidth;
+		GUI.AddElement(screenshot_tb_sizex);
+		Textbox screenshot_tb_sizey = new Textbox(GUI.SCREENSHOT_HEIGHT, 150);
+		screenshot_tb_sizey.setParent(screenshot_background_bg);
+		screenshot_tb_sizey.setPositon(.1f, .50f, true);
+		screenshot_tb_sizey.setText("300");
+		screenshot_tb_sizey.statusTip = Tips.cameraheight;
+		GUI.AddElement(screenshot_tb_sizey);
+
+		SpriteButton screenshot_viewReset =
+				new SpriteButton(GUI.getNextID(), "/data/view_reset.png", "/data/view_reset_highlight.png")
+				{
+					@Override
+					public void mouseClick(int button)
+					{
+						super.mouseClick(button);
+
+						Program.camera.LookAtModel();
+					}
 				};
-		settingsbutton.setPositon(
-				width / 2f + 2f * tooloffset - (float) Scale.hUnSizeScale(settingsbutton.width * .25f), 0f);
-		GUI.AddElement(settingsbutton);
+		screenshot_viewReset.setParent(screenshot_background_bg);
+		screenshot_viewReset.setPositon(.25f, .05f, true);
+		screenshot_viewReset.width /= 1.5f;
+		screenshot_viewReset.height /= 1.5f;
+		screenshot_viewReset.statusTip = Tips.cameraviewreset;
+		GUI.AddElement(screenshot_viewReset);
+
+		SpriteButton screenshot_save_button =
+				new SpriteButton(GUI.getNextID(), "/data/screenshot_save.png", "/data/screenshot_save_highlight.png")
+				{
+					@Override
+					public void mouseClick(int button)
+					{
+						super.mouseClick(button);
+
+						GUIelement g = GUI.get(GUI.SCREENSHOT_CAMERA_BOUNDS);
+						Textbox twidth = (Textbox) GUI.get(GUI.SCREENSHOT_WIDTH);
+						Textbox theight = (Textbox) GUI.get(GUI.SCREENSHOT_HEIGHT);
+
+						int x = (int) g.getUnScaleX() + 3;
+						int y = (int) g.getUnScaleY() + 3;
+						int width = Integer.parseInt(twidth.text);
+						int height = Integer.parseInt(theight.text);
+
+						ScreenShot.screenShot(x, y, width, height);
+
+						GUI.get(GUI.SCREENSHOT_BACKGROUND).setEnable(false);
+					}
+				};
+		screenshot_save_button.statusTip = Tips.camerasave;
+		screenshot_save_button.setParent(screenshot_background_bg);
+		screenshot_save_button.setPositon(.47f, .05f, true);
+		GUI.AddElement(screenshot_save_button);
+
+		screenshot_background_bg.setEnable(false);
+
+		SpriteButton camera_button =
+				new SpriteButton(GUI.getNextID(), "/data/camera.png", "/data/camera_highlight.png")
+				{
+					@Override
+					public void mouseClick(int button)
+					{
+						GUIelement e = GUI.get(GUI.SCREENSHOT_BACKGROUND);
+						if (e != null)
+						{
+							e.setEnable(!e.getEnabled());
+						}
+						super.mouseClick(button);
+					}
+				};
+		camera_button.statusTip = Tips.cameratool;
+		camera_button.setPositon(width - camera_button.getUnScaleWidth() / 2f - camera_button.getUnScaleWidth() * .1f,
+				.05f);
+		GUI.AddElement(camera_button);
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// COLOR OPTIONS
@@ -1314,6 +1573,8 @@ public class GUI
 
 			if (i == 0)
 			{
+				coloroptionStartID = t.ID;
+
 				colorpickerBG.y = t.y + t.height / 2f - colorpickerBG.height / 2f;
 				t.select();
 

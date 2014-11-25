@@ -1,5 +1,6 @@
 package stonevox.tools;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Color;
 
@@ -49,10 +50,17 @@ public class ToolPainter implements Tool
 
 	public void logic()
 	{
-		if (Mouse.isButtonDown(0))
+		if (Mouse.isButtonDown(0) && !Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 		{
 			if (Program.rayCaster.rayhitpoint != null)
 				use(Program.rayCaster.rayhitpoint);
+		}
+		else if (Mouse.isButtonDown(0) && Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+		{
+			if (Program.rayCaster.rayhitpoint != null)
+			{
+				Program.toolcolorpicker.use(Program.rayCaster.rayhitpoint);
+			}
 		}
 	}
 
