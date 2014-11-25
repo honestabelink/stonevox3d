@@ -2,7 +2,11 @@
 ## Eclipse
 #################
 
-stonvevox3d/bin/
+stonevox3d/bin/
+stonevox3d/build/
+stonevox3d/.settings/
+.gradle/
+stonevox3d/.gitignore
 
 *.pydevproject
 .project
