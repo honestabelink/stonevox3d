@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: stonevox.Program
-Class-Path: lib/jinput.jar lib/lwjgl.jar lib/lwjgl_util.jar lib/PNGDec
- oder.jar lib/slick.jar
-
