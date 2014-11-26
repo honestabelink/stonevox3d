@@ -20,6 +20,14 @@ Questions
 
 If your curious how anything works, need help with programing, or want some learning resources, just let me know.
 
+Program Background
+==========
+
+This project was started to help the modding community grow for a game called StoneHearth. Here is a link
+to the develop website if you would like to check it out.
+
+http://stonehearth.net/
+
 License
 ==========
 
