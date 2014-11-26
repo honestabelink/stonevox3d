@@ -16,7 +16,7 @@ public class Tips
 	public static String visibility = "Set visibility of Matrix";
 	public static String selectmatrix = "Click to Select Matrix for Use";
 
-	public static String camerabounds = "Click and Drage to Move";
+	public static String camerabounds = "Click and Drag to Move";
 	public static String camerasave = "Save Snapshot";
 	public static String cameratool = "Open Snapshot Settings";
 	public static String camerawidth = "Set Snapshot width";

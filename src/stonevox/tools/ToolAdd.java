@@ -8,6 +8,7 @@ import stonevox.data.Cube;
 import stonevox.data.RayHitPoint;
 import stonevox.data.Vector3;
 import stonevox.gui.ColorOption;
+import stonevox.util.CursorUtil;
 
 public class ToolAdd implements Tool
 {
@@ -31,6 +32,7 @@ public class ToolAdd implements Tool
 	{
 		this.active = true;
 		Program.rayCaster.raycast_dirt = false;
+		CursorUtil.SetCursor(CursorUtil.ADD, true);
 	}
 
 	public void deactivate()
@@ -67,6 +69,21 @@ public class ToolAdd implements Tool
 			wasmousedown = false;
 			Program.model.GetActiveMatrix().clean();
 		}
+	}
+
+	public boolean handelInput(int key, boolean state)
+	{
+		if (key == Keyboard.KEY_LMENU && state)
+		{
+			CursorUtil.SetCursor(CursorUtil.COLORPICK, false);
+			return true;
+		}
+		else if (key == Keyboard.KEY_LMENU && !state)
+		{
+			CursorUtil.SetCursor(CursorUtil.getDefault(true));
+			return true;
+		}
+		return false;
 	}
 
 	public void use(RayHitPoint hit)

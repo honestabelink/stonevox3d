@@ -29,13 +29,11 @@ public class ToolColorPicker implements Tool
 	public void activate()
 	{
 		active = true;
-		// Program.DisableRayCasting();
 	}
 
 	public void deactivate()
 	{
 		active = false;
-		// Program.EnableRayCasting();
 	}
 
 	public boolean repeatTest(RayHitPoint hit)
@@ -50,6 +48,11 @@ public class ToolColorPicker implements Tool
 		{
 			use(Program.rayCaster.rayhitpoint);
 		}
+	}
+
+	public boolean handelInput(int key, boolean state)
+	{
+		return false;
 	}
 
 	public void use(RayHitPoint hit)
@@ -68,6 +71,7 @@ public class ToolColorPicker implements Tool
 			{
 				ColorOption.lastOption.setColor(new Color(r / 256f, g / 256f, b / 256f));
 				ColorOption.lastOption.huecolor = new Color(r, g, b);
+				Program.toolpainter.paintColor = new Color(r, g, b);
 
 				GUIelement el = GUI.get(GUI.COLOR_PICKER_COLORSQARE);
 				if (el != null)
@@ -87,6 +91,7 @@ public class ToolColorPicker implements Tool
 					Color c = Program.model.GetActiveMatrix().getCube(hit.cubelocation).fcolor;
 					ColorOption.lastOption.setColor(new Color(c.r, c.g, c.b));
 					ColorOption.lastOption.huecolor = new Color(c.r, c.g, c.b);
+					Program.toolpainter.paintColor = new Color(c.r, c.g, c.b);
 
 					GUIelement el = GUI.get(GUI.COLOR_PICKER_COLORSQARE);
 					if (el != null)

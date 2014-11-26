@@ -41,6 +41,11 @@ public class ToolSettings implements Tool
 
 	}
 
+	public boolean handelInput(int key, boolean state)
+	{
+		return false;
+	}
+
 	public void use(RayHitPoint hit)
 	{
 		// TODO Auto-generated method stub

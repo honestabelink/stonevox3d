@@ -5,6 +5,7 @@ import org.lwjgl.input.Mouse;
 import stonevox.Program;
 import stonevox.data.Cube;
 import stonevox.data.RayHitPoint;
+import stonevox.util.CursorUtil;
 
 public class ToolRemove implements Tool
 {
@@ -28,6 +29,8 @@ public class ToolRemove implements Tool
 	{
 		this.active = true;
 		Program.rayCaster.raycast_dirt = true;
+		Program.model.GetActiveMatrix().clean();
+		CursorUtil.SetCursor(CursorUtil.REMOVE, true);
 	}
 
 	public void deactivate()
@@ -57,6 +60,11 @@ public class ToolRemove implements Tool
 			wasmousedown = false;
 			Program.model.GetActiveMatrix().clean();
 		}
+	}
+
+	public boolean handelInput(int key, boolean state)
+	{
+		return false;
 	}
 
 	public void use(RayHitPoint hit)

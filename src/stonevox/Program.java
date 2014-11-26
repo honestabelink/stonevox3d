@@ -253,6 +253,8 @@ public class Program
 		}
 	}
 
+	org.lwjgl.input.Cursor add;
+
 	void programLoop()
 	{
 		while (running)
@@ -428,7 +430,7 @@ public class Program
 			camera.position.z += -right.z * .1f;
 			camera.position.y += -right.y * .04f;
 		}
-		else if (wheel != 0)
+		else if (wheel != 0 && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 		{
 			if (wheel > 0)
 			{
@@ -438,6 +440,25 @@ public class Program
 			{
 				camera.position.add(Vector3.mul(camera.direction, -1f));
 			}
+		}
+
+		// hacks
+		if (wheel != 0 && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+		{
+			int direction = (int) Math.signum((float) -wheel);
+			System.out.print(direction + "\n");
+
+			int value = ColorOption.lastOption.ID + direction;
+			if (value > GUI.coloroptionStartID + 9)
+				value = GUI.coloroptionStartID;
+			if (value < GUI.coloroptionStartID)
+				value = GUI.coloroptionStartID + 9;
+
+			System.out.print(value + "\n");
+
+			ColorOption c = (ColorOption) GUI.get(value);
+			c.mouseClick(0);
+			c.select();
 		}
 
 		while (Mouse.next())
@@ -451,6 +472,12 @@ public class Program
 			// {
 			// ScreenShot.screenShot(0, 0, width, height);
 			// }
+
+			if (button == 2 && buttonState && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				ColorOption.lastOption.select();
+				ColorOption.lastOption.mouseClick(0);
+			}
 		}
 
 		while (Keyboard.next())
@@ -469,6 +496,9 @@ public class Program
 				lastkey = -1;
 				continue;
 			}
+
+			if (currentTool != null)
+				currentTool.handelInput(key, keyState);
 
 			if (key == Keyboard.KEY_P && keyState)
 			{

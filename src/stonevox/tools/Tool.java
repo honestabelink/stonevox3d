@@ -27,4 +27,6 @@ public interface Tool
 	public void render();
 
 	public void setState(int id);
+
+	public boolean handelInput(int key, boolean state);
 }

@@ -11,6 +11,7 @@ import stonevox.decorator.PlainBorder;
 import stonevox.decorator.PlainMarker;
 import stonevox.decorator.PlainText;
 import stonevox.decorator.Sprite;
+import stonevox.util.CursorUtil;
 import stonevox.util.GUI;
 import stonevox.util.Scale;
 
@@ -106,6 +107,7 @@ public class GUIelement
 		Broadcast(GUI.MESSAGE_MOUSE_LEAVE);
 		Program.rayCaster.enableRaycaster();
 		GUI.setStatus("");
+		CursorUtil.SetCursor(CursorUtil.getDefault(true));
 	}
 
 	public void mouseEnter()
@@ -113,6 +115,7 @@ public class GUIelement
 		Broadcast(GUI.MESSAGE_MOUSE_ENTER);
 		Program.rayCaster.disableRaycaster();
 		GUI.setStatus(statusTip);
+		CursorUtil.SetCursor(getCursor());
 	}
 
 	public void mouseOver()
@@ -344,6 +347,11 @@ public class GUIelement
 	public GUIelement getParent()
 	{
 		return parent;
+	}
+
+	public String getCursor()
+	{
+		return CursorUtil.DEFAULT;
 	}
 
 	public float getParentsX()
