@@ -21,8 +21,8 @@ sourceSets {
 }
 
 jar {
-    baseName = 'Stone-Vox'
-    version =  '0.0.3'
+    baseName = 'StoneVox3D'
+    version =  '0.0.3.1'
     manifest {
         attributes 'Main-Class': 'stonevox.Program',
 	 "Class-Path": 'lib/jinput.jar lib/lwjgl.jar lib/lwjgl_util.jar lib/PNGDecoder.jar lib/slick.jar'

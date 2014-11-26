@@ -494,7 +494,7 @@ public class QbMatrixDefination
 								{
 									if (cube.front.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f, z * .5f + .5f);
 
 										if (dis < hit.distance)
 										{
@@ -512,7 +512,7 @@ public class QbMatrixDefination
 							{
 								if (cube.front.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f, z * .5f + .5f);
 
 									if (dis < hit.distance)
 									{
@@ -532,7 +532,7 @@ public class QbMatrixDefination
 								{
 									if (cube.back.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f, z * .5f - .5f);
 
 										if (dis < hit.distance)
 										{
@@ -550,7 +550,7 @@ public class QbMatrixDefination
 							{
 								if (cube.back.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f, z * .5f - .5f);
 
 									if (dis < hit.distance)
 									{
@@ -570,7 +570,7 @@ public class QbMatrixDefination
 								{
 									if (cube.top.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f + .5f, z * .5f);
 
 										if (dis < hit.distance)
 										{
@@ -588,7 +588,7 @@ public class QbMatrixDefination
 							{
 								if (cube.top.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f + .5f, z * .5f);
 
 									if (dis < hit.distance)
 									{
@@ -608,7 +608,7 @@ public class QbMatrixDefination
 								{
 									if (cube.bottom.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f - .5f, z * .5f);
 
 										if (dis < hit.distance)
 										{
@@ -626,7 +626,7 @@ public class QbMatrixDefination
 							{
 								if (cube.bottom.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f - .5f, z * .5f);
 
 									if (dis < hit.distance)
 									{
@@ -646,7 +646,7 @@ public class QbMatrixDefination
 								{
 									if (cube.right.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f + .5f, y * .5f, z * .5f);
 
 										if (dis < hit.distance)
 										{
@@ -664,7 +664,7 @@ public class QbMatrixDefination
 							{
 								if (cube.right.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f + .5f, y * .5f, z * .5f);
 
 									if (dis < hit.distance)
 									{
@@ -684,7 +684,7 @@ public class QbMatrixDefination
 								{
 									if (cube.left.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f - .5f, y * .5f, z * .5f);
 
 										if (dis < hit.distance)
 										{
@@ -702,7 +702,7 @@ public class QbMatrixDefination
 							{
 								if (cube.left.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f - .5f, y * .5f, z * .5f);
 
 									if (dis < hit.distance)
 									{
@@ -742,7 +742,7 @@ public class QbMatrixDefination
 								{
 									if (cube.front.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f, z * .5f + .5f);
 
 										if (dis < hit.distance)
 										{
@@ -760,7 +760,7 @@ public class QbMatrixDefination
 							{
 								if (cube.front.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f, z * .5f + .5f);
 
 									if (dis < hit.distance)
 									{
@@ -780,7 +780,7 @@ public class QbMatrixDefination
 								{
 									if (cube.back.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f, z * .5f - .5f);
 
 										if (dis < hit.distance)
 										{
@@ -798,7 +798,7 @@ public class QbMatrixDefination
 							{
 								if (cube.back.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f, z * .5f - .5f);
 
 									if (dis < hit.distance)
 									{
@@ -818,7 +818,7 @@ public class QbMatrixDefination
 								{
 									if (cube.top.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f + .5f, z * .5f);
 
 										if (dis < hit.distance)
 										{
@@ -836,7 +836,7 @@ public class QbMatrixDefination
 							{
 								if (cube.top.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f + .5f, z * .5f);
 
 									if (dis < hit.distance)
 									{
@@ -856,7 +856,7 @@ public class QbMatrixDefination
 								{
 									if (cube.bottom.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f - .5f, z * .5f);
 
 										if (dis < hit.distance)
 										{
@@ -874,7 +874,7 @@ public class QbMatrixDefination
 							{
 								if (cube.bottom.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f, y * .5f - .5f, z * .5f);
 
 									if (dis < hit.distance)
 									{
@@ -894,7 +894,7 @@ public class QbMatrixDefination
 								{
 									if (cube.right.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f + .5f, y * .5f, z * .5f);
 
 										if (dis < hit.distance)
 										{
@@ -912,7 +912,7 @@ public class QbMatrixDefination
 							{
 								if (cube.right.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f + .5f, y * .5f, z * .5f);
 
 									if (dis < hit.distance)
 									{
@@ -932,7 +932,7 @@ public class QbMatrixDefination
 								{
 									if (cube.left.RayTest(origin, projection))
 									{
-										dis = RaycastingUtil.Distance(origin, x, y, z);
+										dis = RaycastingUtil.Distance(origin, x * .5f - .5f, y * .5f, z * .5f);
 
 										if (dis < hit.distance)
 										{
@@ -950,7 +950,7 @@ public class QbMatrixDefination
 							{
 								if (cube.left.RayTest(origin, projection))
 								{
-									dis = RaycastingUtil.Distance(origin, x, y, z);
+									dis = RaycastingUtil.Distance(origin, x * .5f - .5f, y * .5f, z * .5f);
 
 									if (dis < hit.distance)
 									{

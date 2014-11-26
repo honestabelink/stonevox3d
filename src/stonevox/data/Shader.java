@@ -2,8 +2,6 @@ package stonevox.data;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
@@ -12,6 +10,8 @@ import java.util.Map;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
+
+import stonevox.util.GetPath;
 
 public class Shader
 {
@@ -37,24 +37,7 @@ public class Shader
 		byte[] vertexShaderBytes = null;
 		byte[] fragmentShaderBytes = null;
 
-		String path = getClass().getProtectionDomain().getCodeSource().getLocation().toString();
-		try
-		{
-			path = URLDecoder.decode(path, "utf-8");
-		}
-		catch (UnsupportedEncodingException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		path = path.substring(6);
-
-		String hack = "Stone-Vox-0.1.0.jar";
-
-		if (path.endsWith(".jar"))
-		{
-			path = path.substring(0, path.length() - hack.length());
-		}
+		String path = GetPath.getPath("");
 
 		try
 		{

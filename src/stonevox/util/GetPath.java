@@ -21,7 +21,7 @@ public class GetPath
 		}
 		path1 = path1.substring(6);
 
-		String hack = "Stone-Vox-0.1.0.jar";
+		String hack = "StoneVox3D-0.0.3.1.jar";
 
 		if (path1.endsWith(".jar"))
 		{
