@@ -53,6 +53,8 @@ public class GUI
 
 	public static float hackscalex = 1.0f;
 	public static float hackscaley = 1.0f;
+	public static float offsetx = (float) Scale.hSizeScale(6);
+	public static float offsety = (float) Scale.vSizeScale(6);
 
 	public static String MESSAGE_GUI_MENU_TRANS_ON = "gui_menu_trans_on";
 	public static String MESSAGE_GUI_MENU_TRANS_OFF = "gui_menu_trans_off";
@@ -1387,6 +1389,8 @@ public class GUI
 			public void mouseEnter()
 			{
 				this.getPlainBorder("border").color = Color.white;
+				getPlainBorder("border1").setEnabled(true);
+				getPlainBorder("border2").setEnabled(true);
 				super.mouseEnter();
 			}
 
@@ -1394,6 +1398,8 @@ public class GUI
 			public void mouseLeave()
 			{
 				this.getPlainBorder("border").color = Color.gray;
+				getPlainBorder("border1").setEnabled(false);
+				getPlainBorder("border2").setEnabled(false);
 				super.mouseLeave();
 			}
 
@@ -1408,11 +1414,39 @@ public class GUI
 					this.y += y;
 				}
 			}
+
+			@Override
+			public void setEnable(boolean enabled)
+			{
+				super.setEnable(enabled);
+
+				getPlainBorder("border1").setEnabled(false);
+				getPlainBorder("border2").setEnabled(false);
+			}
 		};
 		camerabounds.statusTip = Tips.camerabounds;
 		camerabounds.setPositon(width / 2f - 153, height / 2f - 153);
 		camerabounds.setSize(306, 306);
 		camerabounds.appearence.Add("border", new PlainBorder(2.4f, Color.gray));
+		camerabounds.appearence.Add("border1", new PlainBorder(2.4f, Color.gray)
+		{
+			@Override
+			public void paint(float x, float y, float width, float height)
+			{
+				super.paint(x, y, width / 2f + offsetx, height / 2f + offsety);
+			}
+		});
+		camerabounds.appearence.Add("border2", new PlainBorder(2.4f, Color.gray)
+		{
+			@Override
+			public void paint(float x, float y, float width, float height)
+			{
+				super.paint(x + width / 2f + offsetx / 4f, y + height / 2f + offsety, width / 2f, height / 2f - offsety
+						/ 2f);
+			}
+		});
+		camerabounds.getPlainBorder("border1").setEnabled(false);
+		camerabounds.getPlainBorder("border2").setEnabled(false);
 		GUI.AddElement(camerabounds);
 
 		Label screenshot_label_sizex = new Label(GUI.getNextID(), "Width : ", Color.white);
