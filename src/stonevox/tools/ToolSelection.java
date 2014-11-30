@@ -1,6 +1,7 @@
 package stonevox.tools;
 
 import stonevox.data.RayHitPoint;
+import stonevox.data.Tool;
 
 public class ToolSelection implements Tool
 {
@@ -52,16 +53,9 @@ public class ToolSelection implements Tool
 
 	}
 
-	public void undo()
+	@Override
+	public void resetUndoRedo()
 	{
-		// TODO Auto-generated method stub
-
-	}
-
-	public void redo()
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 	public int hotKey()

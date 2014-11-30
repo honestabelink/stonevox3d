@@ -10,6 +10,7 @@ import org.newdawn.slick.Color;
 import stonevox.Program;
 import stonevox.data.GUIelement;
 import stonevox.data.RayHitPoint;
+import stonevox.data.Tool;
 import stonevox.gui.ColorOption;
 import stonevox.util.GUI;
 
@@ -105,12 +106,6 @@ public class ToolColorPicker implements Tool
 		}
 	}
 
-	public void undo()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
 	public void redo()
 	{
 		// TODO Auto-generated method stub
@@ -133,5 +128,10 @@ public class ToolColorPicker implements Tool
 	{
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void resetUndoRedo()
+	{
 	}
 }

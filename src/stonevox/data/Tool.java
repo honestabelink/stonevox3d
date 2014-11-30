@@ -1,6 +1,4 @@
-package stonevox.tools;
-
-import stonevox.data.RayHitPoint;
+package stonevox.data;
 
 public interface Tool
 {
@@ -18,10 +16,6 @@ public interface Tool
 
 	public void use(RayHitPoint hit);
 
-	public void undo();
-
-	public void redo();
-
 	public int hotKey();
 
 	public void render();
@@ -29,4 +23,6 @@ public interface Tool
 	public void setState(int id);
 
 	public boolean handelInput(int key, boolean state);
+
+	public void resetUndoRedo();
 }

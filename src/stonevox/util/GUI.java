@@ -1441,8 +1441,8 @@ public class GUI
 			@Override
 			public void paint(float x, float y, float width, float height)
 			{
-				super.paint(x + width / 2f + offsetx / 4f, y + height / 2f + offsety, width / 2f, height / 2f - offsety
-						/ 2f);
+				super.paint(x + width / 2f + offsetx / 2f, y + height / 2f + offsety, width / 2f - offsetx / 2f, height
+						/ 2f - offsety);
 			}
 		});
 		camerabounds.getPlainBorder("border1").setEnabled(false);

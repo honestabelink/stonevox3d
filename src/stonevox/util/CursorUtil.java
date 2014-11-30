@@ -14,7 +14,7 @@ public class CursorUtil
 	public static String ADD = "add";
 	public static String REMOVE = "remove";
 	public static String PAINT = "paint";
-	public static String TOOL = "tool";
+	public static String TOOL = "default";
 	public static String COLORPICK = "colorpick";
 
 	static HashMap<String, Cursor> cursors = new HashMap<String, Cursor>();
@@ -28,47 +28,8 @@ public class CursorUtil
 		try
 		{
 			cursors.put(ADD, CursorLoader.get().getCursor(GetPath.getPath("/data/cursor_add.png"), 0, 0));
-		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (LWJGLException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try
-		{
 			cursors.put(REMOVE, CursorLoader.get().getCursor(GetPath.getPath("/data/cursor_remove.png"), 0, 0));
-		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (LWJGLException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try
-		{
 			cursors.put(PAINT, CursorLoader.get().getCursor(GetPath.getPath("/data/cursor_paint.png"), 0, 0));
-		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (LWJGLException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try
-		{
 			cursors.put(COLORPICK, CursorLoader.get().getCursor(GetPath.getPath("/data/cursor_eyedrop.png"), 0, 0));
 		}
 		catch (IOException e)
@@ -123,16 +84,8 @@ public class CursorUtil
 	public static String getDefault(boolean tool)
 	{
 		if (tool)
-		{
-			if (TOOL != "tool")
-			{
-				return TOOL;
-			}
-			return ADD;
-		}
+			return TOOL;
 		else
-		{
-			return ADD;
-		}
+			return DEFAULT;
 	}
 }

@@ -1,20 +1,24 @@
 package stonevox.tools;
 
+import java.util.ArrayList;
+
 import org.lwjgl.input.Mouse;
 
 import stonevox.Program;
 import stonevox.data.Cube;
 import stonevox.data.RayHitPoint;
+import stonevox.data.Tool;
 import stonevox.util.CursorUtil;
+import stonevox.util.UndoUtil;
 
 public class ToolRemove implements Tool
 {
 	private boolean active;
 	private RayHitPoint lasthitpoint = new RayHitPoint();
-
 	public int state = 0;
-
 	private boolean wasmousedown = false;
+
+	private ArrayList<Float> undodata = new ArrayList<Float>(100);
 
 	public boolean isActive()
 	{
@@ -37,6 +41,12 @@ public class ToolRemove implements Tool
 	{
 		this.active = false;
 		Program.model.GetActiveMatrix().clean();
+
+		if (undodata.size() > 0)
+		{
+			UndoUtil.putData(UndoUtil.REMOVE, undodata);
+			undodata = new ArrayList<Float>(100);
+		}
 	}
 
 	public boolean repeatTest(RayHitPoint hit)
@@ -59,6 +69,12 @@ public class ToolRemove implements Tool
 		{
 			wasmousedown = false;
 			Program.model.GetActiveMatrix().clean();
+
+			if (undodata.size() > 0)
+			{
+				UndoUtil.putData(UndoUtil.REMOVE, undodata);
+				undodata = new ArrayList<Float>(100);
+			}
 		}
 	}
 
@@ -69,23 +85,9 @@ public class ToolRemove implements Tool
 
 	public void use(RayHitPoint hit)
 	{
-		if (lasthitpoint != null)
-		{
-			if ((!lasthitpoint.cubelocation.isEqual(hit.cubelocation))
-					|| (lasthitpoint.cubelocation.isEqual(hit.cubelocation) && !lasthitpoint.cubenormal
-							.isEqual(hit.cubenormal)))
-			{
-				Cube cube = Program.model.GetActiveMatrix().getCubeSaftly(hit.cubelocation);
-				if (cube != null && !cube.isDirty)
-				{
-					Program.model.GetActiveMatrix().getCube(hit.cubelocation).setColor(-1, -1, -1, 0);
-					Program.model.GetActiveMatrix().updateLightMap(cube.pos);
-					Program.model.GetActiveMatrix().updateMesh();
-				}
-				lasthitpoint = hit;
-			}
-		}
-		else
+		if ((!lasthitpoint.cubelocation.isEqual(hit.cubelocation))
+				|| (lasthitpoint.cubelocation.isEqual(hit.cubelocation) && !lasthitpoint.cubenormal
+						.isEqual(hit.cubenormal)))
 		{
 			Cube cube = Program.model.GetActiveMatrix().getCubeSaftly(hit.cubelocation);
 			if (cube != null && !cube.isDirty)
@@ -93,21 +95,13 @@ public class ToolRemove implements Tool
 				Program.model.GetActiveMatrix().getCube(hit.cubelocation).setColor(-1, -1, -1, 0);
 				Program.model.GetActiveMatrix().updateLightMap(cube.pos);
 				Program.model.GetActiveMatrix().updateMesh();
+
+				undodata.add(hit.cubelocation.x);
+				undodata.add(hit.cubelocation.y);
+				undodata.add(hit.cubelocation.z);
 			}
 			lasthitpoint = hit;
 		}
-	}
-
-	public void undo()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	public void redo()
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 	public int hotKey()
@@ -125,5 +119,11 @@ public class ToolRemove implements Tool
 	public void setState(int id)
 	{
 		this.state = id;
+	}
+
+	@Override
+	public void resetUndoRedo()
+	{
+		lasthitpoint.cubelocation.y = 1000000;
 	}
 }

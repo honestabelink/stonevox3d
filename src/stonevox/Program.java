@@ -29,16 +29,14 @@ import stonevox.data.Keyhook;
 import stonevox.data.Matrix;
 import stonevox.data.QbModel;
 import stonevox.data.Shader;
+import stonevox.data.Tool;
 import stonevox.data.Vector3;
 import stonevox.gui.ColorOption;
-import stonevox.tools.Tool;
 import stonevox.tools.ToolAdd;
 import stonevox.tools.ToolColorPicker;
 import stonevox.tools.ToolPainter;
 import stonevox.tools.ToolRemove;
-import stonevox.tools.ToolSave;
 import stonevox.tools.ToolSelection;
-import stonevox.tools.ToolSettings;
 import stonevox.util.DNDHandler;
 import stonevox.util.FontUtil;
 import stonevox.util.GUI;
@@ -46,6 +44,7 @@ import stonevox.util.KeyboardUtil;
 import stonevox.util.PaletteUtil;
 import stonevox.util.QbUtil;
 import stonevox.util.Scale;
+import stonevox.util.UndoUtil;
 
 public class Program
 {
@@ -80,8 +79,6 @@ public class Program
 	public static ToolSelection toolselection;
 	public static ToolRemove toolremove;
 	public static ToolAdd tooladd;
-	public static ToolSave toolsave;
-	public static ToolSettings toolsettings;
 
 	public static Tool lastTool;
 	public static Tool currentTool;
@@ -194,9 +191,7 @@ public class Program
 		toolremove = new ToolRemove();
 		tooladd = new ToolAdd();
 		toolpainter = new ToolPainter();
-		toolsave = new ToolSave();
 		toolselection = new ToolSelection();
-		toolsettings = new ToolSettings();
 
 		model = QbUtil.GetDefault();
 
@@ -207,7 +202,6 @@ public class Program
 		camera.LookAtModel();
 
 		rayCaster = new Raycaster();
-		rayCaster.disableRaycaster();
 		rayCaster.Setup(camera);
 
 		floor = new Floor();
@@ -243,6 +237,29 @@ public class Program
 			}
 		});
 
+		KeyboardUtil.Add(Keyboard.KEY_Z, new Keyhook()
+		{
+			public void down()
+			{
+				if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+				{
+					UndoUtil.undo();
+				}
+				super.down();
+			}
+		});
+		KeyboardUtil.Add(Keyboard.KEY_Y, new Keyhook()
+		{
+			public void down()
+			{
+				if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+				{
+					UndoUtil.redo();
+				}
+				super.down();
+			}
+		});
+
 		int cores = Runtime.getRuntime().availableProcessors();
 
 		if (multithreading_raycasting && cores > 1)
@@ -252,8 +269,6 @@ public class Program
 			multithreading_raycasting = false;
 		}
 	}
-
-	org.lwjgl.input.Cursor add;
 
 	void programLoop()
 	{
@@ -446,15 +461,12 @@ public class Program
 		if (wheel != 0 && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 		{
 			int direction = (int) Math.signum((float) -wheel);
-			System.out.print(direction + "\n");
 
 			int value = ColorOption.lastOption.ID + direction;
 			if (value > GUI.coloroptionStartID + 9)
 				value = GUI.coloroptionStartID;
 			if (value < GUI.coloroptionStartID)
 				value = GUI.coloroptionStartID + 9;
-
-			System.out.print(value + "\n");
 
 			ColorOption c = (ColorOption) GUI.get(value);
 			c.mouseClick(0);

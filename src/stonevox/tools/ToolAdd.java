@@ -1,23 +1,26 @@
 package stonevox.tools;
 
+import java.util.ArrayList;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import stonevox.Program;
 import stonevox.data.Cube;
 import stonevox.data.RayHitPoint;
+import stonevox.data.Tool;
 import stonevox.data.Vector3;
 import stonevox.gui.ColorOption;
 import stonevox.util.CursorUtil;
+import stonevox.util.UndoUtil;
 
 public class ToolAdd implements Tool
 {
 	private boolean active;
 	private RayHitPoint lasthitpoint = new RayHitPoint();
-
-	public int state = 0;
-
 	private boolean wasmousedown = false;
+
+	private ArrayList<Float> undodata = new ArrayList<Float>(100);
 
 	public boolean isActive()
 	{
@@ -32,13 +35,22 @@ public class ToolAdd implements Tool
 	{
 		this.active = true;
 		Program.rayCaster.raycast_dirt = false;
+		Program.model.GetActiveMatrix().clean();
 		CursorUtil.SetCursor(CursorUtil.ADD, true);
+
+		undodata.clear();
 	}
 
 	public void deactivate()
 	{
 		this.active = false;
 		Program.model.GetActiveMatrix().clean();
+
+		if (undodata.size() > 0)
+		{
+			UndoUtil.putData(UndoUtil.ADD, undodata);
+			undodata = new ArrayList<Float>(100);
+		}
 	}
 
 	public boolean repeatTest(RayHitPoint hit)
@@ -68,6 +80,12 @@ public class ToolAdd implements Tool
 		{
 			wasmousedown = false;
 			Program.model.GetActiveMatrix().clean();
+
+			if (undodata.size() > 0)
+			{
+				UndoUtil.putData(UndoUtil.ADD, undodata);
+				undodata = new ArrayList<Float>(100);
+			}
 		}
 	}
 
@@ -88,61 +106,37 @@ public class ToolAdd implements Tool
 
 	public void use(RayHitPoint hit)
 	{
-		if (lasthitpoint != null)
-		{
-			if ((!lasthitpoint.cubelocation.isEqual(hit.cubelocation))
-					|| (lasthitpoint.cubelocation.isEqual(hit.cubelocation) && !lasthitpoint.cubenormal
-							.isEqual(hit.cubenormal)))
-			{
-				Cube cube = Program.model.GetActiveMatrix().getCubeSaftly(hit.cubelocation);
-				Cube toaddcube =
-						Program.model.GetActiveMatrix().getCubeSaftly(Vector3.add(hit.cubelocation, hit.cubenormal));
-				if (cube != null && toaddcube != null)
-				{
-					Program.model.GetActiveMatrix().getCube(Vector3.add(hit.cubelocation, hit.cubenormal))
-							.setColor(ColorOption.lastOption.color);
-					Program.model.GetActiveMatrix().updateLightMap(cube.pos);
-					Program.model.GetActiveMatrix().updateMesh();
-				}
-				else if (cube == null && toaddcube != null)
-				{
-					Program.model.GetActiveMatrix().getCubeSaftly(Vector3.add(hit.cubelocation, hit.cubenormal))
-							.setColor(ColorOption.lastOption.color);
-					Program.model.GetActiveMatrix().updateLightMap(toaddcube.pos);
-					Program.model.GetActiveMatrix().updateMesh();
-				}
-				lasthitpoint = hit;
-			}
-		}
-		else
+		if ((!lasthitpoint.cubelocation.isEqual(hit.cubelocation))
+				|| (lasthitpoint.cubelocation.isEqual(hit.cubelocation) && !lasthitpoint.cubenormal
+						.isEqual(hit.cubenormal)))
 		{
 			Cube cube = Program.model.GetActiveMatrix().getCubeSaftly(hit.cubelocation);
 			Cube toaddcube =
 					Program.model.GetActiveMatrix().getCubeSaftly(Vector3.add(hit.cubelocation, hit.cubenormal));
 			if (cube != null && toaddcube != null)
 			{
-				Program.model.GetActiveMatrix().getCube(Vector3.add(hit.cubelocation, hit.cubenormal))
-						.setColor(ColorOption.lastOption.color);
+				Vector3 loc = Vector3.add(hit.cubelocation, hit.cubenormal);
+				Program.model.GetActiveMatrix().getCube(loc).setColor(ColorOption.lastOption.color);
 				Program.model.GetActiveMatrix().updateLightMap(cube.pos);
 				Program.model.GetActiveMatrix().updateMesh();
+
+				undodata.add(loc.x);
+				undodata.add(loc.y);
+				undodata.add(loc.z);
 			}
 			else if (cube == null && toaddcube != null)
 			{
-				Program.model.GetActiveMatrix().getCubeSaftly(Vector3.add(hit.cubelocation, hit.cubenormal))
-						.setColor(ColorOption.lastOption.color);
+				Vector3 loc = Vector3.add(hit.cubelocation, hit.cubenormal);
+				Program.model.GetActiveMatrix().getCubeSaftly(loc).setColor(ColorOption.lastOption.color);
 				Program.model.GetActiveMatrix().updateLightMap(toaddcube.pos);
 				Program.model.GetActiveMatrix().updateMesh();
+
+				undodata.add(loc.x);
+				undodata.add(loc.y);
+				undodata.add(loc.z);
 			}
 			lasthitpoint = hit;
 		}
-	}
-
-	public void undo()
-	{
-	}
-
-	public void redo()
-	{
 	}
 
 	public int hotKey()
@@ -159,7 +153,11 @@ public class ToolAdd implements Tool
 
 	public void setState(int id)
 	{
-		this.state = id;
+	}
 
+	@Override
+	public void resetUndoRedo()
+	{
+		lasthitpoint.cubelocation.y = 1000000;
 	}
 }
