@@ -127,7 +127,6 @@ public class Program
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(1280, 800);
 		frame.setTransferHandler(new DNDHandler(list));
-		// frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		frame.add(openglSurface);
 		frame.setVisible(true);
 		try
@@ -147,8 +146,7 @@ public class Program
 		{
 			Display.setFullscreen(false);
 			Display.setResizable(true);
-			// Display.create();
-			Display.create(new PixelFormat(/* Alpha Bits */8, /* Depth bits */8, /* Stencil bits */0, /* samples */8));
+			Display.create(new PixelFormat(8, 8, 0, 8));
 
 			width = Display.getWidth();
 			height = Display.getHeight();
@@ -424,8 +422,6 @@ public class Program
 
 			camera.position = Vector3.mul(focus, length);
 			camera.position.add(model.GetActiveMatrix().pos_size);
-			// camera.direction = Vector3.sub(pos, camera.position);
-			// camera.direction.noramlize();
 
 			RotateVector3(rotY2, camera.direction, up);
 			RotateVector3(rotX2, camera.direction, right);
@@ -479,11 +475,6 @@ public class Program
 			boolean buttonState = Mouse.getEventButtonState();
 
 			GUI.handleMouseInput(button, buttonState);
-			//
-			// if (button == 0 && buttonState)
-			// {
-			// ScreenShot.screenShot(0, 0, width, height);
-			// }
 
 			if (button == 2 && buttonState && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 			{
