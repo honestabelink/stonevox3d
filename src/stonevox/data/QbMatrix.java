@@ -16,7 +16,7 @@ import stonevox.util.GUI;
 import stonevox.util.RaycastingUtil;
 import stonevox.util.SideUtil;
 
-public class QbMatrixDefination
+public class QbMatrix
 {
 	float cubesizex = 0.5f;
 	float cubesizey = 0.5f;

@@ -16,7 +16,7 @@ import org.lwjgl.Sys;
 
 import stonevox.Program;
 import stonevox.data.Cube;
-import stonevox.data.QbMatrixDefination;
+import stonevox.data.QbMatrix;
 import stonevox.data.QbModel;
 import stonevox.gui.Textbox;
 
@@ -76,7 +76,7 @@ public class QbUtil
 
 			for (int i = 0; i < model.numMatrices; i++)
 			{
-				QbMatrixDefination def = model.matrixList.get(i);
+				QbMatrix def = model.matrixList.get(i);
 
 				byte namelength = in.readByte();
 				byte[] namebytes = new byte[namelength];
@@ -188,7 +188,7 @@ public class QbUtil
 
 			for (int i = 0; i < model.matrixList.size(); i++)
 			{
-				QbMatrixDefination m = model.matrixList.get(i);
+				QbMatrix m = model.matrixList.get(i);
 				System.out.print(String.format("	writting : %s \n", m.getName()));
 				out.writeByte((byte) m.getName().length());
 				out.writeBytes(m.getName());

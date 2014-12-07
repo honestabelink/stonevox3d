@@ -15,17 +15,17 @@ public class QbModel
 	public boolean hasPAL;
 	public String filepath;
 
-	public ArrayList<QbMatrixDefination> matrixList;
+	public ArrayList<QbMatrix> matrixList;
 
 	private int activeMatrixIndex;
 
 	public void setMatrixListLength(int length)
 	{
 		numMatrices = length;
-		matrixList = new ArrayList<QbMatrixDefination>(length);
+		matrixList = new ArrayList<QbMatrix>(length);
 		for (int i = 0; i < numMatrices; i++)
 		{
-			matrixList.add(new QbMatrixDefination());
+			matrixList.add(new QbMatrix());
 		}
 	}
 
@@ -36,7 +36,7 @@ public class QbModel
 		int ii = hasPAL ? 1 : 0;
 		for (int i = ii; i < numMatrices; i++)
 		{
-			QbMatrixDefination def = matrixList.get(i);
+			QbMatrix def = matrixList.get(i);
 
 			def.generateMesh();
 		}
@@ -47,7 +47,7 @@ public class QbModel
 		int ii = hasPAL ? 1 : 0;
 		for (int i = ii; i < numMatrices; i++)
 		{
-			QbMatrixDefination def = matrixList.get(i);
+			QbMatrix def = matrixList.get(i);
 			def.encodeVisibilityMask();
 		}
 	}
@@ -62,13 +62,13 @@ public class QbModel
 		int ii = hasPAL ? 1 : 0;
 		for (int i = ii; i < numMatrices; i++)
 		{
-			QbMatrixDefination def = matrixList.get(i);
+			QbMatrix def = matrixList.get(i);
 
 			def.render();
 		}
 	}
 
-	public QbMatrixDefination GetActiveMatrix()
+	public QbMatrix GetActiveMatrix()
 	{
 		int ii = hasPAL ? 1 : 0;
 		return matrixList.get(activeMatrixIndex + ii);
@@ -96,7 +96,7 @@ public class QbModel
 	public void addMatrix(int sizex, int sizey, int sizez)
 	{
 		this.numMatrices++;
-		QbMatrixDefination def = new QbMatrixDefination();
+		QbMatrix def = new QbMatrix();
 		def.setName("default");
 		def.setSize(sizex, sizey, sizez);
 		def.setPosition(0, 0, 0);
@@ -142,7 +142,7 @@ public class QbModel
 		return activeMatrixIndex;
 	}
 
-	public QbMatrixDefination getIndex(int index)
+	public QbMatrix getIndex(int index)
 	{
 		return matrixList.get(index);
 	}
