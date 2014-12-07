@@ -111,7 +111,7 @@ public class QbUtil
 								b = in.readUnsignedByte();
 								a = in.readUnsignedByte();
 
-								def.colors[z][y][x] = new Color(r / 256f, g / 256f, b / 256f, a);
+								def.cubecolors[z][y][x] = new Color(r / 256f, g / 256f, b / 256f, a);
 							}
 				}
 				else
