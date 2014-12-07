@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.lwjgl.Sys;
+import org.newdawn.slick.Color;
 
 import stonevox.Program;
 import stonevox.data.Cube;
@@ -101,7 +102,6 @@ public class QbUtil
 				if (model.compressed == 0)
 				{
 
-					Cube cube = new Cube();
 					for (int z = 0; z < def.sizeZ; z++)
 						for (int y = 0; y < def.sizeY; y++)
 							for (int x = 0; x < def.sizeX; x++)
@@ -111,12 +111,7 @@ public class QbUtil
 								b = in.readUnsignedByte();
 								a = in.readUnsignedByte();
 
-								cube.setPos(x, y, z);
-								cube.setColor(r, g, b, a);
-
-								def.cubes[z][y][x] = cube;
-
-								cube = new Cube();
+								def.colors[z][y][x] = new Color(r / 256f, g / 256f, b / 256f, a);
 							}
 				}
 				else
