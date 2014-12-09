@@ -38,7 +38,8 @@ public class QbModel
 		{
 			QbMatrix def = matrixList.get(i);
 
-			def.generateMesh();
+			def.generateVoxelData();
+			// def.generateMesh();
 		}
 	}
 
@@ -90,19 +91,19 @@ public class QbModel
 
 	public void addMatrix()
 	{
-		addMatrix(GetActiveMatrix().sizeX, GetActiveMatrix().sizeY, GetActiveMatrix().sizeZ);
+		addMatrix(GetActiveMatrix().size.x, GetActiveMatrix().size.y, GetActiveMatrix().size.z);
 	}
 
-	public void addMatrix(int sizex, int sizey, int sizez)
+	public void addMatrix(float sizex, float sizey, float sizez)
 	{
 		this.numMatrices++;
 		QbMatrix def = new QbMatrix();
 		def.setName("default");
-		def.setSize(sizex, sizey, sizez);
+		def.setSize((int) sizex, (int) sizey, (int) sizez);
 		def.setPosition(0, 0, 0);
 
 		def.CREATEZEROEDCUBES();
-		def.generateMesh();
+		def.generateVoxelData();
 		def.clean();
 
 		this.matrixList.add(def);
