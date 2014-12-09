@@ -41,11 +41,11 @@ public class Camera
 	public void LookAtModel()
 	{
 		position =
-				new Vector3(Program.model.GetActiveMatrix().sizeX * .5f - .5f,
-						Program.model.GetActiveMatrix().sizeY * .5f * 3.0f,
-						-Program.model.GetActiveMatrix().sizeZ * .5f * 3.5f);
+				new Vector3(Program.model.GetActiveMatrix().size.x * .5f - .5f,
+						Program.model.GetActiveMatrix().size.y * .5f * 3.0f,
+						-Program.model.GetActiveMatrix().size.z * .5f * 3.5f);
 
-		direction = Vector3.sub(Program.model.GetActiveMatrix().pos_size, position);
+		direction = Vector3.sub(Program.model.GetActiveMatrix().posSize, position);
 		direction.noramlize();
 
 		lookat = Matrix.CreateLookAt(position, Vector3.add(position, direction), up);

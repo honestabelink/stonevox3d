@@ -13,10 +13,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.lwjgl.Sys;
-import org.newdawn.slick.Color;
 
 import stonevox.Program;
-import stonevox.data.Cube;
+import stonevox.data.Color;
 import stonevox.data.QbMatrix;
 import stonevox.data.QbModel;
 import stonevox.gui.Textbox;
@@ -102,16 +101,21 @@ public class QbUtil
 				if (model.compressed == 0)
 				{
 
-					for (int z = 0; z < def.sizeZ; z++)
-						for (int y = 0; y < def.sizeY; y++)
-							for (int x = 0; x < def.sizeX; x++)
+					for (int z = 0; z < def.size.z; z++)
+						for (int y = 0; y < def.size.y; y++)
+							for (int x = 0; x < def.size.x; x++)
 							{
 								r = in.readUnsignedByte();
 								g = in.readUnsignedByte();
 								b = in.readUnsignedByte();
 								a = in.readUnsignedByte();
 
-								def.cubecolors[z][y][x] = new Color(r / 256f, g / 256f, b / 256f, a);
+								if (a > 0 && (a & 32) == 0)
+								{
+									boolean t = false;
+								}
+
+								def.cubecolor[z][y][x] = new Color(r / 256f, g / 256f, b / 256f, a);
 							}
 				}
 				else
@@ -119,7 +123,6 @@ public class QbUtil
 					throw new Exception("qb compression not implemented");
 				}
 			}
-
 			in.close();
 		}
 		catch (FileNotFoundException e)
@@ -130,6 +133,8 @@ public class QbUtil
 		{
 			e.printStackTrace();
 		}
+
+		model.encodeVisibilityMask();
 
 		long ntime = Sys.getTime();
 		ntime = Math.abs(ntime - time);
@@ -187,23 +192,23 @@ public class QbUtil
 				System.out.print(String.format("	writting : %s \n", m.getName()));
 				out.writeByte((byte) m.getName().length());
 				out.writeBytes(m.getName());
-				out.write(intToLEndian(m.sizeX));
-				out.write(intToLEndian(m.sizeY));
-				out.write(intToLEndian(m.sizeZ));
-				out.write(intToLEndian(m.posX));
-				out.write(intToLEndian(m.posY));
-				out.write(intToLEndian(m.posZ));
+				out.write(intToLEndian((int) m.size.x));
+				out.write(intToLEndian((int) m.size.y));
+				out.write(intToLEndian((int) m.size.z));
+				out.write(intToLEndian((int) m.pos.x));
+				out.write(intToLEndian((int) m.pos.y));
+				out.write(intToLEndian((int) m.pos.z));
 
-				for (int z = 0; z < m.sizeZ; z++)
-					for (int y = 0; y < m.sizeY; y++)
-						for (int x = 0; x < m.sizeX; x++)
+				for (int z = 0; z < m.size.z; z++)
+					for (int y = 0; y < m.size.y; y++)
+						for (int x = 0; x < m.size.x; x++)
 						{
-							org.lwjgl.util.Color c = m.cubes[z][y][x].color;
+							Color c = m.cubecolor[z][y][x];
 
-							int r = c.getRed();
-							int g = c.getGreen();
-							int b = c.getBlue();
-							int a = c.getAlpha();
+							int r = (int) (c.r * 256f);
+							int g = (int) (c.g * 256f);
+							int b = (int) (c.b * 256f);
+							int a = c.a;
 
 							out.writeByte((byte) r);
 							out.writeByte((byte) g);
@@ -245,14 +250,22 @@ public class QbUtil
 
 		model.GetActiveMatrix().setName("default");
 
+		// for (int z = 0; z < 10; z++)
+		// for (int y = 0; y < 10; y++)
+		// for (int x = 0; x < 10; x++)
+		// {
+		// Cube c = new Cube();
+		// c.setPos(x, y, z);
+		// c.setColor(0, 0, 0, 0);
+		// model.GetActiveMatrix().cubes[z][y][x] = c;
+		// }
+		//
+
 		for (int z = 0; z < 10; z++)
 			for (int y = 0; y < 10; y++)
 				for (int x = 0; x < 10; x++)
 				{
-					Cube c = new Cube();
-					c.setPos(x, y, z);
-					c.setColor(0, 0, 0, 0);
-					model.GetActiveMatrix().cubes[z][y][x] = c;
+					model.GetActiveMatrix().cubecolor[z][y][x] = new Color(1, 1, 1, 0);
 				}
 
 		model.generateMeshs();

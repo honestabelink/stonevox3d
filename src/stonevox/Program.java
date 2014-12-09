@@ -408,7 +408,7 @@ public class Program
 			right.noramlize();
 
 			Vector3 focus = null;
-			focus = Vector3.sub(camera.position, model.GetActiveMatrix().pos_size);
+			focus = Vector3.sub(camera.position, model.GetActiveMatrix().posSize);
 
 			float length = focus.length();
 
@@ -418,10 +418,10 @@ public class Program
 			RotateVector3(rotX2, focus, right);
 
 			Vector3 pos = null;
-			pos = model.GetActiveMatrix().pos_size;
+			pos = model.GetActiveMatrix().posSize;
 
 			camera.position = Vector3.mul(focus, length);
-			camera.position.add(model.GetActiveMatrix().pos_size);
+			camera.position.add(model.GetActiveMatrix().posSize);
 
 			RotateVector3(rotY2, camera.direction, up);
 			RotateVector3(rotX2, camera.direction, right);

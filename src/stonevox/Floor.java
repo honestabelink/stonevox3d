@@ -42,8 +42,8 @@ public class Floor
 
 		float[] vertexdata = new float[4 * 7];
 
-		float sizex = (float) Program.model.GetActiveMatrix().sizeX * 2f;
-		float sizez = (float) Program.model.GetActiveMatrix().sizeZ * 2f;
+		float sizex = (float) Program.model.GetActiveMatrix().size.x * 2f;
+		float sizez = (float) Program.model.GetActiveMatrix().size.z * 2f;
 
 		transform = Matrix.CreateTranslation(new Vector3(0, 0, 0));
 
@@ -124,8 +124,8 @@ public class Floor
 
 	public void updatemesh()
 	{
-		float sizex = (float) Program.model.GetActiveMatrix().sizeX * 2f;
-		float sizez = (float) Program.model.GetActiveMatrix().sizeZ * 2f;
+		float sizex = (float) Program.model.GetActiveMatrix().size.x * 2f;
+		float sizez = (float) Program.model.GetActiveMatrix().size.z * 2f;
 
 		transform = Matrix.CreateTranslation(new Vector3(0, 0, 0));
 
