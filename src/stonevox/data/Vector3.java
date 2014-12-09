@@ -99,6 +99,11 @@ public class Vector3
 		this.z = z;
 	}
 
+	public float dot(Vector3 vector2)
+	{
+		return this.x * vector2.x + this.y * vector2.y + this.z * vector2.z;
+	}
+
 	public Vector3f tovecf()
 	{
 		return new Vector3f(x, y, z);
