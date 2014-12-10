@@ -54,6 +54,8 @@ public class RaycastingUtil
 	static float intY;
 	static float intZ;
 	static final float accuraty = 0.0008f;
+	public static Vector3 rayOrigin;
+	public static Vector3 rayDirection;
 	// static final float accuraty = 0.0008f;
 	// static final float accuraty = 0.0005f;
 
@@ -107,6 +109,46 @@ public class RaycastingUtil
 
 	}
 
+	public static Vector3 rayTest(Vector3 planeNormal, float p1x, float p1y, float p1z, float p2x, float p2y,
+			float p2z, float p3x, float p3y, float p3z)
+	{
+		dot = rayDirection.x * planeNormal.x + rayDirection.y * planeNormal.y + rayDirection.z * planeNormal.z;
+		t = 0;
+		if (dot == 0)
+		{
+			return null;
+		}
+		coordRatio =
+				p1x * planeNormal.x + p1y * planeNormal.y + p1z * planeNormal.z - planeNormal.x * rayOrigin.x
+						- planeNormal.y * rayOrigin.y - planeNormal.z * rayOrigin.z;
+		t = coordRatio / dot;
+		if (t < 0)
+		{
+			return null;
+		}
+
+		intPoint.x = rayOrigin.x + t * rayDirection.x;
+		intPoint.y = rayOrigin.y + t * rayDirection.y;
+		intPoint.z = rayOrigin.z + t * rayDirection.z;
+
+		fullArea = calculateTriangleArea(p1x, p1y, p1z, p2x, p2y, p2z, p3x, p3y, p3z);
+		subTriangle1 = calculateTriangleArea(p1x, p1y, p1z, p2x, p2y, p2z, intPoint.x, intPoint.y, intPoint.z);
+		subTriangle2 = calculateTriangleArea(p2x, p2y, p2z, p3x, p3y, p3z, intPoint.x, intPoint.y, intPoint.z);
+		subTriangle3 = calculateTriangleArea(p1x, p1y, p1z, p3x, p3y, p3z, intPoint.x, intPoint.y, intPoint.z);
+
+		totalSubAreas = subTriangle1 + subTriangle2 + subTriangle3;
+
+		if (Math.abs(fullArea - totalSubAreas) < accuraty)
+		{
+			return intPoint;
+		}
+		else
+		{
+			return null;
+		}
+
+	}
+
 	public static Vector3 calculateTriangleNormal(Vector3 p1, Vector3 p2, Vector3 p3)
 	{
 		Vector3 u = Vector3.sub(p2, p1);
@@ -118,6 +160,17 @@ public class RaycastingUtil
 		retur.z = (u.x * v.y) - (u.y * v.x);
 
 		return retur;
+	}
+
+	private static float calculateTriangleArea(float p1x, float p1y, float p1z, float p2x, float p2y, float p2z,
+			float p3x, float p3y, float p3z)
+	{
+		float a = (float) Math.sqrt((p2x - p1x) * (p2x - p1x) + (p2y - p1y) * (p2y - p1y) + (p2z - p1z) * (p2z - p1z));
+		float b = (float) Math.sqrt((p3x - p2x) * (p3x - p2x) + (p3y - p2y) * (p3y - p2y) + (p3z - p2z) * (p3z - p2z));
+		float c = (float) Math.sqrt((p3x - p1x) * (p3x - p1x) + (p3y - p1y) * (p3y - p1y) + (p3z - p1z) * (p3z - p1z));
+		float s = (a + b + c) / 2;
+		float result = (float) Math.sqrt(s * (s - a) * (s - b) * (s - c));
+		return result;
 	}
 
 	private static float calculateTriangleArea(Vector3 p1, Vector3 p2, Vector3 p3)
@@ -159,11 +212,11 @@ public class RaycastingUtil
 		return (float) Math.sqrt((double) num);
 	}
 
-	public static float Distance(Vector3 value1, float x, float y, float z)
+	public static float Distance(float x, float y, float z)
 	{
-		float num = value1.x - x;
-		float num2 = value1.y - y;
-		float num3 = value1.z - z;
+		float num = rayOrigin.x - x;
+		float num2 = rayOrigin.y - y;
+		float num3 = rayOrigin.z - z;
 		float num4 = num * num + num2 * num2 + num3 * num3;
 		return (float) Math.sqrt((double) num4);
 	}
