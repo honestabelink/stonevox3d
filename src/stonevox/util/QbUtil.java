@@ -134,8 +134,6 @@ public class QbUtil
 			e.printStackTrace();
 		}
 
-		model.encodeVisibilityMask();
-
 		long ntime = Sys.getTime();
 		ntime = Math.abs(ntime - time);
 
@@ -183,7 +181,7 @@ public class QbUtil
 			out.write(intToLEndian(model.colorFormat));
 			out.write(intToLEndian(model.zAxisOrientation));
 			out.write(intToLEndian(model.compressed));
-			out.write(intToLEndian(model.visibilityMaskEncoded));
+			out.write(intToLEndian(1));
 			out.write(intToLEndian(model.matrixList.size()));
 
 			for (int i = 0; i < model.matrixList.size(); i++)
@@ -249,17 +247,6 @@ public class QbUtil
 		model.GetActiveMatrix().setPosition(0, 0, 0);
 
 		model.GetActiveMatrix().setName("default");
-
-		// for (int z = 0; z < 10; z++)
-		// for (int y = 0; y < 10; y++)
-		// for (int x = 0; x < 10; x++)
-		// {
-		// Cube c = new Cube();
-		// c.setPos(x, y, z);
-		// c.setColor(0, 0, 0, 0);
-		// model.GetActiveMatrix().cubes[z][y][x] = c;
-		// }
-		//
 
 		for (int z = 0; z < 10; z++)
 			for (int y = 0; y < 10; y++)
