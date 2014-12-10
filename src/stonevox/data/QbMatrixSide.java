@@ -3,6 +3,7 @@ package stonevox.data;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -18,6 +19,7 @@ public class QbMatrixSide
 	public int[][][] cubeindexs;
 	public float[] vertexdata;
 	public float[] lightmap;
+	public float lightscale;
 
 	public FloatBuffer voxelbuffer;
 
@@ -30,30 +32,40 @@ public class QbMatrixSide
 	private int bufferindex;
 	private Side side;
 
-	public ArrayList<Integer> dataholes = new ArrayList<Integer>();
+	private FloatBuffer subUpdateBuffer;
+	private ArrayList<Integer> dataholes = new ArrayList<Integer>();
+	private HashMap<String, int[]> updateLocations = new HashMap<String, int[]>();
 
 	public QbMatrixSide(Side side)
 	{
+		subUpdateBuffer = BufferUtils.createFloatBuffer(28);
+
 		this.side = side;
 		switch (side)
 		{
 			case BACK:
-				normal = new Vector3(0, 0, -1);
+				normal = new Vector3(0, 0, 1);
+				lightscale = .965f;
 				break;
 			case BOTTOM:
 				normal = new Vector3(0, -1, 0);
+				lightscale = 1f;
 				break;
 			case FRONT:
-				normal = new Vector3(0, 0, 1);
+				normal = new Vector3(0, 0, -1);
+				lightscale = .965f;
 				break;
 			case LEFT:
-				normal = new Vector3(-1, 0, 0);
+				normal = new Vector3(1, 0, 0);
+				lightscale = .98f;
 				break;
 			case RIGHT:
-				normal = new Vector3(1, 0, 0);
+				normal = new Vector3(-1, 0, 0);
+				lightscale = .98f;
 				break;
 			case TOP:
 				normal = new Vector3(0, 1, 0);
+				lightscale = 1f;
 				break;
 		}
 	}
@@ -99,155 +111,303 @@ public class QbMatrixSide
 		voxelbuffer.put(vertexdata, 0, facecount * 28);
 		voxelbuffer.flip();
 
-		voxelbufferid = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, voxelbufferid);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, voxelbuffer, GL15.GL_DYNAMIC_DRAW);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 	}
 
-	public void putVertexData(int x, int y, int z, Color color)
+	public void subBufferData(int index)
+	{
+		for (int i = 0; i < 28; i++)
+		{
+			subUpdateBuffer.put(vertexdata[index + i]);
+		}
+		subUpdateBuffer.flip();
+
+		GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, index << 2, subUpdateBuffer);
+	}
+
+	public void putVertexData(float x, float y, float z, Color color)
+	{
+		setVertexPositionData(bufferindex, x, y, z);
+
+		vertexdata[bufferindex + 3] = color.r;
+		vertexdata[bufferindex + 4] = color.g;
+		vertexdata[bufferindex + 5] = color.b;
+		vertexdata[bufferindex + 6] = 1f * lightscale;
+
+		vertexdata[bufferindex + 10] = color.r;
+		vertexdata[bufferindex + 11] = color.g;
+		vertexdata[bufferindex + 12] = color.b;
+		vertexdata[bufferindex + 13] = 1f * lightscale;
+
+		vertexdata[bufferindex + 17] = color.r;
+		vertexdata[bufferindex + 18] = color.g;
+		vertexdata[bufferindex + 19] = color.b;
+		vertexdata[bufferindex + 20] = 1f * lightscale;
+
+		vertexdata[bufferindex + 24] = color.r;
+		vertexdata[bufferindex + 25] = color.g;
+		vertexdata[bufferindex + 26] = color.b;
+		vertexdata[bufferindex + 27] = 1f * lightscale;
+
+		cubeindexs[(int) z][(int) y][(int) x] = bufferindex;
+		bufferindex += 28;
+		facecount++;
+	}
+
+	private void setVertexPositionData(int bufferindex, float x, float y, float z)
 	{
 		switch (side)
 		{
-			case FRONT:
-
-				vertexdata[0 + bufferindex] = -cubesize + x;
-				vertexdata[1 + bufferindex] = -cubesize + y;
-				vertexdata[2 + bufferindex] = cubesize + z;
-
-				vertexdata[7 + bufferindex] = cubesize + x;
-				vertexdata[8 + bufferindex] = -cubesize + y;
-				vertexdata[9 + bufferindex] = cubesize + z;
-
-				vertexdata[14 + bufferindex] = cubesize + x;
-				vertexdata[15 + bufferindex] = cubesize + y;
-				vertexdata[16 + bufferindex] = cubesize + z;
-
-				vertexdata[21 + bufferindex] = -cubesize + x;
-				vertexdata[22 + bufferindex] = cubesize + y;
-				vertexdata[23 + bufferindex] = cubesize + z;
-
-				break;
 			case BACK:
 
-				vertexdata[0 + bufferindex] = -cubesize + x;
-				vertexdata[1 + bufferindex] = -cubesize + y;
-				vertexdata[2 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 0] = -cubesize + x;
+				vertexdata[bufferindex + 1] = -cubesize + y;
+				vertexdata[bufferindex + 2] = cubesize + z;
 
-				vertexdata[7 + bufferindex] = cubesize + x;
-				vertexdata[8 + bufferindex] = -cubesize + y;
-				vertexdata[9 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 7] = cubesize + x;
+				vertexdata[bufferindex + 8] = -cubesize + y;
+				vertexdata[bufferindex + 9] = cubesize + z;
 
-				vertexdata[14 + bufferindex] = cubesize + x;
-				vertexdata[15 + bufferindex] = cubesize + y;
-				vertexdata[16 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 14] = cubesize + x;
+				vertexdata[bufferindex + 15] = cubesize + y;
+				vertexdata[bufferindex + 16] = cubesize + z;
 
-				vertexdata[21 + bufferindex] = -cubesize + x;
-				vertexdata[22 + bufferindex] = cubesize + y;
-				vertexdata[23 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 21] = -cubesize + x;
+				vertexdata[bufferindex + 22] = cubesize + y;
+				vertexdata[bufferindex + 23] = cubesize + z;
+
+				break;
+			case FRONT:
+
+				vertexdata[bufferindex + 0] = -cubesize + x;
+				vertexdata[bufferindex + 1] = -cubesize + y;
+				vertexdata[bufferindex + 2] = -cubesize + z;
+
+				vertexdata[bufferindex + 7] = cubesize + x;
+				vertexdata[bufferindex + 8] = -cubesize + y;
+				vertexdata[bufferindex + 9] = -cubesize + z;
+
+				vertexdata[bufferindex + 14] = cubesize + x;
+				vertexdata[bufferindex + 15] = cubesize + y;
+				vertexdata[bufferindex + 16] = -cubesize + z;
+
+				vertexdata[bufferindex + 21] = -cubesize + x;
+				vertexdata[bufferindex + 22] = cubesize + y;
+				vertexdata[bufferindex + 23] = -cubesize + z;
 
 				break;
 			case TOP:
 
-				vertexdata[0 + bufferindex] = -cubesize + x;
-				vertexdata[1 + bufferindex] = cubesize + y;
-				vertexdata[2 + bufferindex] = cubesize + z;
+				vertexdata[bufferindex + 0] = -cubesize + x;
+				vertexdata[bufferindex + 1] = cubesize + y;
+				vertexdata[bufferindex + 2] = cubesize + z;
 
-				vertexdata[7 + bufferindex] = cubesize + x;
-				vertexdata[8 + bufferindex] = cubesize + y;
-				vertexdata[9 + bufferindex] = cubesize + z;
+				vertexdata[bufferindex + 7] = cubesize + x;
+				vertexdata[bufferindex + 8] = cubesize + y;
+				vertexdata[bufferindex + 9] = cubesize + z;
 
-				vertexdata[14 + bufferindex] = cubesize + x;
-				vertexdata[15 + bufferindex] = cubesize + y;
-				vertexdata[16 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 14] = cubesize + x;
+				vertexdata[bufferindex + 15] = cubesize + y;
+				vertexdata[bufferindex + 16] = -cubesize + z;
 
-				vertexdata[21 + bufferindex] = -cubesize + x;
-				vertexdata[22 + bufferindex] = cubesize + y;
-				vertexdata[23 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 21] = -cubesize + x;
+				vertexdata[bufferindex + 22] = cubesize + y;
+				vertexdata[bufferindex + 23] = -cubesize + z;
 
 				break;
 			case BOTTOM:
 
-				vertexdata[0 + bufferindex] = -cubesize + x;
-				vertexdata[1 + bufferindex] = -cubesize + y;
-				vertexdata[2 + bufferindex] = cubesize + z;
+				vertexdata[bufferindex + 0] = -cubesize + x;
+				vertexdata[bufferindex + 1] = -cubesize + y;
+				vertexdata[bufferindex + 2] = cubesize + z;
 
-				vertexdata[7 + bufferindex] = cubesize + x;
-				vertexdata[8 + bufferindex] = -cubesize + y;
-				vertexdata[9 + bufferindex] = cubesize + z;
+				vertexdata[bufferindex + 7] = cubesize + x;
+				vertexdata[bufferindex + 8] = -cubesize + y;
+				vertexdata[bufferindex + 9] = cubesize + z;
 
-				vertexdata[14 + bufferindex] = cubesize + x;
-				vertexdata[15 + bufferindex] = -cubesize + y;
-				vertexdata[16 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 14] = cubesize + x;
+				vertexdata[bufferindex + 15] = -cubesize + y;
+				vertexdata[bufferindex + 16] = -cubesize + z;
 
-				vertexdata[21 + bufferindex] = -cubesize + x;
-				vertexdata[22 + bufferindex] = -cubesize + y;
-				vertexdata[23 + bufferindex] = -cubesize + z;
-
-				break;
-			case LEFT:
-
-				vertexdata[0 + bufferindex] = -cubesize + x;
-				vertexdata[1 + bufferindex] = -cubesize + y;
-				vertexdata[2 + bufferindex] = -cubesize + z;
-
-				vertexdata[7 + bufferindex] = -cubesize + x;
-				vertexdata[8 + bufferindex] = -cubesize + y;
-				vertexdata[9 + bufferindex] = cubesize + z;
-
-				vertexdata[14 + bufferindex] = -cubesize + x;
-				vertexdata[15 + bufferindex] = cubesize + y;
-				vertexdata[16 + bufferindex] = cubesize + z;
-
-				vertexdata[21 + bufferindex] = -cubesize + x;
-				vertexdata[22 + bufferindex] = cubesize + y;
-				vertexdata[23 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 21] = -cubesize + x;
+				vertexdata[bufferindex + 22] = -cubesize + y;
+				vertexdata[bufferindex + 23] = -cubesize + z;
 
 				break;
 			case RIGHT:
 
-				vertexdata[0 + bufferindex] = cubesize + x;
-				vertexdata[1 + bufferindex] = -cubesize + y;
-				vertexdata[2 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 0] = -cubesize + x;
+				vertexdata[bufferindex + 1] = -cubesize + y;
+				vertexdata[bufferindex + 2] = -cubesize + z;
 
-				vertexdata[7 + bufferindex] = cubesize + x;
-				vertexdata[8 + bufferindex] = -cubesize + y;
-				vertexdata[9 + bufferindex] = cubesize + z;
+				vertexdata[bufferindex + 7] = -cubesize + x;
+				vertexdata[bufferindex + 8] = -cubesize + y;
+				vertexdata[bufferindex + 9] = cubesize + z;
 
-				vertexdata[14 + bufferindex] = cubesize + x;
-				vertexdata[15 + bufferindex] = cubesize + y;
-				vertexdata[16 + bufferindex] = cubesize + z;
+				vertexdata[bufferindex + 14] = -cubesize + x;
+				vertexdata[bufferindex + 15] = cubesize + y;
+				vertexdata[bufferindex + 16] = cubesize + z;
 
-				vertexdata[21 + bufferindex] = cubesize + x;
-				vertexdata[22 + bufferindex] = cubesize + y;
-				vertexdata[23 + bufferindex] = -cubesize + z;
+				vertexdata[bufferindex + 21] = -cubesize + x;
+				vertexdata[bufferindex + 22] = cubesize + y;
+				vertexdata[bufferindex + 23] = -cubesize + z;
+
+				break;
+			case LEFT:
+
+				vertexdata[bufferindex + 0] = cubesize + x;
+				vertexdata[bufferindex + 1] = -cubesize + y;
+				vertexdata[bufferindex + 2] = -cubesize + z;
+
+				vertexdata[bufferindex + 7] = cubesize + x;
+				vertexdata[bufferindex + 8] = -cubesize + y;
+				vertexdata[bufferindex + 9] = cubesize + z;
+
+				vertexdata[bufferindex + 14] = cubesize + x;
+				vertexdata[bufferindex + 15] = cubesize + y;
+				vertexdata[bufferindex + 16] = cubesize + z;
+
+				vertexdata[bufferindex + 21] = cubesize + x;
+				vertexdata[bufferindex + 22] = cubesize + y;
+				vertexdata[bufferindex + 23] = -cubesize + z;
 
 				break;
 		}
+	}
 
-		vertexdata[3 + bufferindex] = color.r;
-		vertexdata[4 + bufferindex] = color.g;
-		vertexdata[5 + bufferindex] = color.b;
-		vertexdata[6 + bufferindex] = 1f;
+	public void putBlankData(int x, int y, int z)
+	{
+		setBlankVertexPositionData(bufferindex, x, y, z);
 
-		vertexdata[10 + bufferindex] = color.r;
-		vertexdata[11 + bufferindex] = color.g;
-		vertexdata[12 + bufferindex] = color.b;
-		vertexdata[13 + bufferindex] = 1f;
-
-		vertexdata[17 + bufferindex] = color.r;
-		vertexdata[18 + bufferindex] = color.g;
-		vertexdata[19 + bufferindex] = color.b;
-		vertexdata[20 + bufferindex] = 1f;
-
-		vertexdata[24 + bufferindex] = color.r;
-		vertexdata[25 + bufferindex] = color.g;
-		vertexdata[26 + bufferindex] = color.b;
-		vertexdata[27 + bufferindex] = 1f;
-
-		cubeindexs[z][y][x] = bufferindex / 28;
+		cubeindexs[(int) z][(int) y][(int) x] = bufferindex;
 		bufferindex += 28;
 		facecount++;
+	}
+
+	public void setBlankVertexPositionData(int bufferindex, float x, float y, float z)
+	{
+		vertexdata[bufferindex + 0] = -1000;
+		vertexdata[bufferindex + 1] = -1000;
+		vertexdata[bufferindex + 2] = -1000;
+
+		vertexdata[bufferindex + 7] = -1000;
+		vertexdata[bufferindex + 8] = -1000;
+		vertexdata[bufferindex + 9] = -1000;
+
+		vertexdata[bufferindex + 14] = -1000;
+		vertexdata[bufferindex + 15] = -1000;
+		vertexdata[bufferindex + 16] = -1000;
+
+		vertexdata[bufferindex + 21] = -1000;
+		vertexdata[bufferindex + 22] = -1000;
+		vertexdata[bufferindex + 23] = -1000;
+	}
+
+	public void setColor(int x, int y, int z, Color color)
+	{
+		int index = cubeindexs[z][y][x];
+
+		if (index >= 0)
+		{
+			vertexdata[index + 3] = color.r;
+			vertexdata[index + 4] = color.g;
+			vertexdata[index + 5] = color.b;
+
+			vertexdata[index + 10] = color.r;
+			vertexdata[index + 11] = color.g;
+			vertexdata[index + 12] = color.b;
+
+			vertexdata[index + 17] = color.r;
+			vertexdata[index + 18] = color.g;
+			vertexdata[index + 19] = color.b;
+
+			vertexdata[index + 24] = color.r;
+			vertexdata[index + 25] = color.g;
+			vertexdata[index + 26] = color.b;
+
+			updateLocations.put(x + "" + y + "" + z, new int[]
+			{
+					x, y, z
+			});
+		}
+	}
+
+	public void addVoxelData(int x, int y, int z, Color color)
+	{
+		int index = cubeindexs[z][y][x];
+
+		if (index == -1)
+		{
+			setVertexPositionData(index, x, y, z);
+
+			vertexdata[index + 3] = color.r;
+			vertexdata[index + 4] = color.g;
+			vertexdata[index + 5] = color.b;
+			vertexdata[index + 6] = 1f * lightscale;
+
+			vertexdata[index + 10] = color.r;
+			vertexdata[index + 11] = color.g;
+			vertexdata[index + 12] = color.b;
+			vertexdata[index + 13] = 1f * lightscale;
+
+			vertexdata[index + 17] = color.r;
+			vertexdata[index + 18] = color.g;
+			vertexdata[index + 19] = color.b;
+			vertexdata[index + 20] = 1f * lightscale;
+
+			vertexdata[index + 24] = color.r;
+			vertexdata[index + 25] = color.g;
+			vertexdata[index + 26] = color.b;
+			vertexdata[index + 27] = 1f * lightscale;
+
+			updateLocations.put(x + "" + y + "" + z, new int[]
+			{
+					x, y, z
+			});
+		}
+	}
+
+	public void removeVoxelData(int x, int y, int z)
+	{
+		int index = cubeindexs[z][y][x];
+
+		if (index >= 0)
+		{
+			dataholes.add(index);
+			cubeindexs[z][y][x] = -1;
+
+			for (int i = index; i < index + 28; i++)
+			{
+				vertexdata[i] = -10000;
+			}
+
+			updateLocations.put(x + "" + y + "" + z, new int[]
+			{
+					x, y, z
+			});
+		}
+	}
+
+	public void updateSubBufferData()
+	{
+		if (updateLocations.size() > 0)
+		{
+			int index = -1;
+			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, voxelbufferid);
+			for (int[] v : updateLocations.values())
+			{
+				index = cubeindexs[v[2]][v[1]][v[0]];
+
+				if (index >= 0)
+				{
+					subBufferData(index);
+				}
+			}
+			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+			updateLocations.clear();
+		}
 	}
 
 	public void dispose()
