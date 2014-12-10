@@ -3,6 +3,7 @@ package stonevox.data;
 import java.util.ArrayList;
 
 import stonevox.util.GUI;
+import stonevox.util.RaycastingUtil;
 
 public class QbModel
 {
@@ -55,7 +56,9 @@ public class QbModel
 
 	public RayHitPoint rayTest(Vector3 origin, Vector3 projection)
 	{
-		return GetActiveMatrix().rayTest(origin, projection);
+		RaycastingUtil.rayOrigin = origin;
+		RaycastingUtil.rayDirection = projection;
+		return GetActiveMatrix().rayTest();
 	}
 
 	public void draw()
