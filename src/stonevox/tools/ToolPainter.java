@@ -7,7 +7,6 @@ import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Color;
 
 import stonevox.Program;
-import stonevox.data.Cube;
 import stonevox.data.RayHitPoint;
 import stonevox.data.Tool;
 import stonevox.gui.ColorOption;
@@ -111,21 +110,21 @@ public class ToolPainter implements Tool
 		{
 			if (!lasthitpoint.cubelocation.isEqual(hit.cubelocation))
 			{
-				Cube cube = Program.model.GetActiveMatrix().getCubeSaftly(hit.cubelocation);
-				if (cube != null)
+				if (Program.model.GetActiveMatrix().hasCube(hit.cubelocation))
 				{
-					if (!cube.isDirty)
+					if (!Program.model.GetActiveMatrix().isDirty(hit.cubelocation))
 					{
-						undodata.add(hit.cubelocation.x);
-						undodata.add(hit.cubelocation.y);
-						undodata.add(hit.cubelocation.z);
-						undodata.add(cube.fcolor.r);
-						undodata.add(cube.fcolor.g);
-						undodata.add(cube.fcolor.b);
+						// undodata.add(hit.cubelocation.x);
+						// undodata.add(hit.cubelocation.y);
+						// undodata.add(hit.cubelocation.z);
+						// undodata.add(cube.fcolor.r);
+						// undodata.add(cube.fcolor.g);
+						// undodata.add(cube.fcolor.b);
 					}
 
-					Program.model.GetActiveMatrix().getCube(hit.cubelocation).setColor(paintColor);
-					Program.model.GetActiveMatrix().updateMesh();
+					Program.model.GetActiveMatrix().setVoxelColor(hit.cubelocation,
+							stonevox.data.Color.FromNEWDAWN(paintColor));
+					// Program.model.GetActiveMatrix().updateMesh();
 
 					lasthitpoint = hit;
 				}
