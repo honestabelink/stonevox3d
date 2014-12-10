@@ -44,6 +44,7 @@ public class Raycaster
 	public void Setup(Camera camera)
 	{
 		this.camera = camera;
+
 		rayhitpoint.cubelocation.y = -10000;
 		transform = new Matrix();
 
@@ -100,7 +101,6 @@ public class Raycaster
 
 			public void run()
 			{
-				System.out.print("RayCaster : running on another thread\n");
 
 				while (true)
 				{
@@ -116,7 +116,6 @@ public class Raycaster
 						}
 						continue;
 					}
-
 					RayHitPoint m = Program.model.rayTest(camera.position, projection);
 					RayHitPoint f = Program.floor.rayCast(camera.position, projection);
 
