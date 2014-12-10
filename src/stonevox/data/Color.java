@@ -14,4 +14,9 @@ public class Color
 		this.b = b;
 		this.a = a;
 	}
+
+	public static Color FromNEWDAWN(org.newdawn.slick.Color c)
+	{
+		return new Color(c.r, c.g, c.b, 0);
+	}
 }
