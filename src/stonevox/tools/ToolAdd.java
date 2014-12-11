@@ -6,7 +6,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import stonevox.Program;
-import stonevox.data.Cube;
+import stonevox.data.Color;
 import stonevox.data.RayHitPoint;
 import stonevox.data.Tool;
 import stonevox.data.Vector3;
@@ -110,30 +110,15 @@ public class ToolAdd implements Tool
 				|| (lasthitpoint.cubelocation.isEqual(hit.cubelocation) && !lasthitpoint.cubenormal
 						.isEqual(hit.cubenormal)))
 		{
-			Cube cube = Program.model.GetActiveMatrix().getCubeSaftly(hit.cubelocation);
-			Cube toaddcube =
-					Program.model.GetActiveMatrix().getCubeSaftly(Vector3.add(hit.cubelocation, hit.cubenormal));
-			if (cube != null && toaddcube != null)
+
+			if (Program.model.GetActiveMatrix().withinRange(Vector3.add(hit.cubelocation, hit.cubenormal)))
 			{
 				Vector3 loc = Vector3.add(hit.cubelocation, hit.cubenormal);
-				Program.model.GetActiveMatrix().getCube(loc).setColor(ColorOption.lastOption.color);
-				Program.model.GetActiveMatrix().updateLightMap(cube.pos);
-				Program.model.GetActiveMatrix().updateMesh();
+				Program.model.GetActiveMatrix().addVoxel(loc, Color.FromNEWDAWN(ColorOption.lastOption.color));
 
-				undodata.add(loc.x);
-				undodata.add(loc.y);
-				undodata.add(loc.z);
-			}
-			else if (cube == null && toaddcube != null)
-			{
-				Vector3 loc = Vector3.add(hit.cubelocation, hit.cubenormal);
-				Program.model.GetActiveMatrix().getCubeSaftly(loc).setColor(ColorOption.lastOption.color);
-				Program.model.GetActiveMatrix().updateLightMap(toaddcube.pos);
-				Program.model.GetActiveMatrix().updateMesh();
-
-				undodata.add(loc.x);
-				undodata.add(loc.y);
-				undodata.add(loc.z);
+				// undodata.add(loc.x);
+				// undodata.add(loc.y);
+				// undodata.add(loc.z);
 			}
 			lasthitpoint = hit;
 		}
