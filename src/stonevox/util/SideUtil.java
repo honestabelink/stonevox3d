@@ -9,17 +9,17 @@ public class SideUtil
 		switch (side)
 		{
 			case BACK:
-				return 32;
-			case FRONT:
 				return 64;
+			case FRONT:
+				return 32;
 			case BOTTOM:
 				return 16;
 			case TOP:
 				return 8;
 			case RIGHT:
-				return 2;
-			case LEFT:
 				return 4;
+			case LEFT:
+				return 2;
 		}
 
 		return 0;
