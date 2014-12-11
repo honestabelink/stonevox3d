@@ -19,4 +19,9 @@ public class Color
 	{
 		return new Color(c.r, c.g, c.b, 0);
 	}
+
+	public org.newdawn.slick.Color toNEWDAWN()
+	{
+		return new org.newdawn.slick.Color(r, g, b, 1f);
+	}
 }
