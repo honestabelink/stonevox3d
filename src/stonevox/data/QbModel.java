@@ -40,6 +40,7 @@ public class QbModel
 			QbMatrix def = matrixList.get(i);
 
 			def.generateVoxelData();
+			def.genLightingData();
 			// def.generateMesh();
 		}
 	}
