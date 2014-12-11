@@ -187,7 +187,8 @@ public class QbMatrix
 			{
 				for (int x = 0; x < size.x; x++)
 				{
-					updateVisibilityMaskRelative(x, y, z);
+					if (cubecolor[z][y][x].a >= 1)
+						updateVisibilityMaskRelative(x, y, z);
 				}
 			}
 		}
@@ -203,19 +204,7 @@ public class QbMatrix
 
 		if (z - 1 >= 0)
 		{
-			if (cubecolor[z - 1][y][x].a <= 1)
-			{
-				tempmask += SideUtil.getVisibilityMask(Side.BACK);
-			}
-		}
-		else
-		{
-			tempmask += SideUtil.getVisibilityMask(Side.BACK);
-		}
-
-		if (z + 1 < size.z)
-		{
-			if (cubecolor[z + 1][y][x].a <= 1)
+			if (cubecolor[z - 1][y][x].a == 0)
 			{
 				tempmask += SideUtil.getVisibilityMask(Side.FRONT);
 			}
@@ -225,9 +214,21 @@ public class QbMatrix
 			tempmask += SideUtil.getVisibilityMask(Side.FRONT);
 		}
 
+		if (z + 1 < size.z)
+		{
+			if (cubecolor[z + 1][y][x].a == 0)
+			{
+				tempmask += SideUtil.getVisibilityMask(Side.BACK);
+			}
+		}
+		else
+		{
+			tempmask += SideUtil.getVisibilityMask(Side.BACK);
+		}
+
 		if (y + 1 < size.y)
 		{
-			if (cubecolor[z][y + 1][x].a <= 1)
+			if (cubecolor[z][y + 1][x].a == 0)
 			{
 				tempmask += SideUtil.getVisibilityMask(Side.TOP);
 			}
@@ -239,7 +240,7 @@ public class QbMatrix
 
 		if (y - 1 >= 0)
 		{
-			if (cubecolor[z][y - 1][x].a <= 1)
+			if (cubecolor[z][y - 1][x].a == 0)
 			{
 				tempmask += SideUtil.getVisibilityMask(Side.BOTTOM);
 			}
@@ -251,19 +252,7 @@ public class QbMatrix
 
 		if (x + 1 < size.x)
 		{
-			if (cubecolor[z][y][x + 1].a <= 1)
-			{
-				tempmask += SideUtil.getVisibilityMask(Side.RIGHT);
-			}
-		}
-		else
-		{
-			tempmask += SideUtil.getVisibilityMask(Side.RIGHT);
-		}
-
-		if (x - 1 >= 0)
-		{
-			if (cubecolor[z][y][x - 1].a <= 1)
+			if (cubecolor[z][y][x + 1].a == 0)
 			{
 				tempmask += SideUtil.getVisibilityMask(Side.LEFT);
 			}
@@ -271,6 +260,18 @@ public class QbMatrix
 		else
 		{
 			tempmask += SideUtil.getVisibilityMask(Side.LEFT);
+		}
+
+		if (x - 1 >= 0)
+		{
+			if (cubecolor[z][y][x - 1].a == 0)
+			{
+				tempmask += SideUtil.getVisibilityMask(Side.RIGHT);
+			}
+		}
+		else
+		{
+			tempmask += SideUtil.getVisibilityMask(Side.RIGHT);
 		}
 
 		cubecolor[z][y][x].a = tempmask;
@@ -611,13 +612,15 @@ public class QbMatrix
 				{
 					for (int x = 0; x < size.x; x++)
 					{
-						if (cubedirty[z][y][x])
+						if (cubedirty[z][y][x])// cube that we added
+						{
 							continue;
+						}
 
 						color = cubecolor[z][y][x];
 
 						// no cube
-						if (color.a > 1)
+						if (color.a > 0)
 						{
 							// front
 							if ((color.a & 32) == 32)
@@ -642,6 +645,22 @@ public class QbMatrix
 										rayhit.cubelocation.y = y;
 										rayhit.cubelocation.z = z;
 										rayhit.cubenormal = front.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+							else if (isDirty(x, y, z + 1))
+							{
+								if (back.raytestUndefinedCube(x, y, z))
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = back.normal;
 										rayhit.distance = dis;
 									}
 								}
@@ -674,6 +693,22 @@ public class QbMatrix
 									}
 								}
 							}
+							else if (isDirty(x, y, z - 1))
+							{
+								if (front.raytestUndefinedCube(x, y, z))
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = front.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
 
 							// top
 							if ((color.a & 8) == 8)
@@ -691,6 +726,22 @@ public class QbMatrix
 												top.vertexdata[ci + 22], top.vertexdata[ci + 23]) != null)
 								{
 									dis = RaycastingUtil.Distance(x * .5f, y * .5f + .5f, z * .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = top.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+							else if (isDirty(x, y + 1, z))
+							{
+								if (top.raytestUndefinedCube(x, y, z))
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
 
 									if (dis < rayhit.distance)
 									{
@@ -731,6 +782,22 @@ public class QbMatrix
 									}
 								}
 							}
+							else if (isDirty(x, y - 1, z))
+							{
+								if (bottom.raytestUndefinedCube(x, y, z))
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = bottom.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
 
 							// left
 							if ((color.a & 2) == 2)
@@ -755,6 +822,22 @@ public class QbMatrix
 										rayhit.cubelocation.y = y;
 										rayhit.cubelocation.z = z;
 										rayhit.cubenormal = left.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+							else if (isDirty(x - 1, y, z))
+							{
+								if (right.raytestUndefinedCube(x, y, z))
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = right.normal;
 										rayhit.distance = dis;
 									}
 								}
@@ -787,12 +870,255 @@ public class QbMatrix
 									}
 								}
 							}
+							else if (isDirty(x + 1, y, z))
+							{
+								if (left.raytestUndefinedCube(x, y, z))
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = left.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
 						}
 					}
 				}
 			}
 		}
 		return rayhit.distance == 100000 ? null : rayhit;
+	}
+
+	public void genLightingData()
+	{
+		Color color = null;
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					color = cubecolor[z][y][x];
+
+					if (color.a > 1)
+					{
+						updateLightMap(color.a, x, y, z);
+					}
+				}
+			}
+		}
+	}
+
+	public void updateLightMapAroundIncluding(int x, int y, int z)
+	{
+		int minx = x - 3 > -1 ? x - 3 : 0;
+		int maxx = (int) (x + 3 < size.x - 1 ? x + 3 : (size.x - x) + x);
+
+		int miny = y - 3 > -1 ? y - 3 : 0;
+		int maxy = (int) (y + 3 < size.y - 1 ? y + 3 : (size.y - y) + y);
+
+		int minz = z - 3 > -1 ? z - 3 : 0;
+		int maxz = (int) (z + 3 < size.z - 1 ? z + 3 : (size.z - z) + z);
+
+		Color color = null;
+
+		for (int z2 = minz; z2 < maxz; z2++)
+			for (int y2 = miny; y2 < maxy; y2++)
+				for (int x2 = minx; x2 < maxx; x2++)
+				{
+					color = cubecolor[z2][y2][x2];
+					updateLightMap(color.a, x2, y2, z2);
+				}
+
+	}
+
+	public void updateLightMap(int mask, int x, int y, int z)
+	{
+		// front
+		if ((mask & 32) == 32)
+		{
+			updateLightMapRelative(Side.FRONT, x, y, z);
+		}
+
+		// back
+		if ((mask & 64) == 64)
+		{
+			updateLightMapRelative(Side.BACK, x, y, z);
+		}
+
+		// top
+		if ((mask & 8) == 8)
+		{
+			updateLightMapRelative(Side.TOP, x, y, z);
+		}
+
+		// bottom
+		if ((mask & 16) == 16)
+		{
+			updateLightMapRelative(Side.BOTTOM, x, y, z);
+		}
+
+		// left
+		if ((mask & 2) == 2)
+		{
+			updateLightMapRelative(Side.LEFT, x, y, z);
+		}
+
+		// right
+		if ((mask & 4) == 4)
+		{
+			updateLightMapRelative(Side.RIGHT, x, y, z);
+		}
+	}
+
+	float[][] ld = new float[3][3];
+	int px;
+	int py;
+	int pz;
+
+	public void updateLightMapRelative(Side side, int x, int y, int z)
+	{
+		switch (side)
+		{
+			case FRONT:
+				px = (int) (x + front.normal.x);
+				py = (int) (y + front.normal.y);
+				pz = (int) (z + front.normal.z);
+
+				ld[0][0] = getLightValue(pz, py - 1, px - 1);
+				ld[0][1] = getLightValue(pz, py - 1, px);
+				ld[0][2] = getLightValue(pz, py - 1, px + 1);
+
+				ld[1][0] = getLightValue(pz, py, px - 1);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz, py, px + 1);
+
+				ld[2][0] = getLightValue(pz, py + 1, px - 1);
+				ld[2][1] = getLightValue(pz, py + 1, px);
+				ld[2][2] = getLightValue(pz, py + 1, px + 1);
+
+				front.setLightValues(x, y, z, (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f, (ld[1][1] + ld[0][1]
+						+ ld[0][2] + ld[1][2]) / 4f, (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f, (ld[1][1]
+						+ ld[1][0] + ld[2][0] + ld[2][1]) / 4f);
+				break;
+
+			case BACK:
+				px = (int) (x + back.normal.x);
+				py = (int) (y + back.normal.y);
+				pz = (int) (z + back.normal.z);
+
+				ld[0][0] = getLightValue(pz, py - 1, px - 1);
+				ld[0][1] = getLightValue(pz, py - 1, px);
+				ld[0][2] = getLightValue(pz, py - 1, px + 1);
+
+				ld[1][0] = getLightValue(pz, py, px - 1);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz, py, px + 1);
+
+				ld[2][0] = getLightValue(pz, py + 1, px - 1);
+				ld[2][1] = getLightValue(pz, py + 1, px);
+				ld[2][2] = getLightValue(pz, py + 1, px + 1);
+
+				back.setLightValues(x, y, z, (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f, (ld[1][1] + ld[0][1]
+						+ ld[0][2] + ld[1][2]) / 4f, (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f, (ld[1][1]
+						+ ld[1][0] + ld[2][0] + ld[2][1]) / 4f);
+				break;
+
+			case TOP:
+				px = (int) (x + top.normal.x);
+				py = (int) (y + top.normal.y);
+				pz = (int) (z + top.normal.z);
+
+				ld[0][0] = getLightValue(pz + 1, py, px - 1);
+				ld[0][1] = getLightValue(pz + 1, py, px);
+				ld[0][2] = getLightValue(pz + 1, py, px + 1);
+
+				ld[1][0] = getLightValue(pz, py, px - 1);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz, py, px + 1);
+
+				ld[2][0] = getLightValue(pz - 1, py, px - 1);
+				ld[2][1] = getLightValue(pz - 1, py, px);
+				ld[2][2] = getLightValue(pz - 1, py, px + 1);
+
+				top.setLightValues(x, y, z, (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f, (ld[1][1] + ld[0][1]
+						+ ld[0][2] + ld[1][2]) / 4f, (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f, (ld[1][1]
+						+ ld[1][0] + ld[2][0] + ld[2][1]) / 4f);
+				break;
+
+			case BOTTOM:
+				px = (int) (x + bottom.normal.x);
+				py = (int) (y + bottom.normal.y);
+				pz = (int) (z + bottom.normal.z);
+
+				ld[0][0] = getLightValue(pz + 1, py, px - 1);
+				ld[0][1] = getLightValue(pz + 1, py, px);
+				ld[0][2] = getLightValue(pz + 1, py, px + 1);
+
+				ld[1][0] = getLightValue(pz, py, px - 1);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz, py, px + 1);
+
+				ld[2][0] = getLightValue(pz - 1, py, px - 1);
+				ld[2][1] = getLightValue(pz - 1, py, px);
+				ld[2][2] = getLightValue(pz - 1, py, px + 1);
+
+				bottom.setLightValues(x, y, z, (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f, (ld[1][1] + ld[0][1]
+						+ ld[0][2] + ld[1][2]) / 4f, (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f, (ld[1][1]
+						+ ld[1][0] + ld[2][0] + ld[2][1]) / 4f);
+				break;
+
+			case LEFT:
+				px = (int) (x + left.normal.x);
+				py = (int) (y + left.normal.y);
+				pz = (int) (z + left.normal.z);
+
+				ld[0][0] = getLightValue(pz - 1, py - 1, px);
+				ld[0][1] = getLightValue(pz, py - 1, px);
+				ld[0][2] = getLightValue(pz + 1, py - 1, px);
+
+				ld[1][0] = getLightValue(pz - 1, py, px);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz + 1, py, px);
+
+				ld[2][0] = getLightValue(pz - 1, py + 1, px);
+				ld[2][1] = getLightValue(pz, py + 1, px);
+				ld[2][2] = getLightValue(pz + 1, py + 1, px);
+
+				left.setLightValues(x, y, z, (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f, (ld[1][1] + ld[0][1]
+						+ ld[0][2] + ld[1][2]) / 4f, (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f, (ld[1][1]
+						+ ld[1][0] + ld[2][0] + ld[2][1]) / 4f);
+				break;
+
+			case RIGHT:
+				px = (int) (x + right.normal.x);
+				py = (int) (y + right.normal.y);
+				pz = (int) (z + right.normal.z);
+
+				ld[0][0] = getLightValue(pz - 1, py - 1, px);
+				ld[0][1] = getLightValue(pz, py - 1, px);
+				ld[0][2] = getLightValue(pz + 1, py - 1, px);
+
+				ld[1][0] = getLightValue(pz - 1, py, px);
+				ld[1][1] = getLightValue(pz, py, px);
+				ld[1][2] = getLightValue(pz + 1, py, px);
+
+				ld[2][0] = getLightValue(pz - 1, py + 1, px);
+				ld[2][1] = getLightValue(pz, py + 1, px);
+				ld[2][2] = getLightValue(pz + 1, py + 1, px);
+
+				right.setLightValues(x, y, z, (ld[0][0] + ld[0][1] + ld[1][0] + ld[1][1]) / 4f, (ld[1][1] + ld[0][1]
+						+ ld[0][2] + ld[1][2]) / 4f, (ld[1][1] + ld[1][2] + ld[2][2] + ld[2][1]) / 4f, (ld[1][1]
+						+ ld[1][0] + ld[2][0] + ld[2][1]) / 4f);
+
+				break;
+		}
 	}
 
 	public void removeVoxel(Vector3 location)
@@ -811,36 +1137,67 @@ public class QbMatrix
 
 		if (hasCube(x, y, z + 1))
 		{
-			updateVisibilityMaskRelative(x, y, z + 1);
-			updateVoxelData(this.cubecolor[z + 1][y][x].a, x, y, z + 1, this.cubecolor[z + 1][y][x]);
+			if ((this.cubecolor[z + 1][y][x].a & 32) != 32)
+			{
+				this.cubecolor[z + 1][y][x].a += 32;
+				updateVoxelData(this.cubecolor[z + 1][y][x].a, x, y, z + 1, this.cubecolor[z + 1][y][x]);
+			}
 		}
 		if (hasCube(x, y, z - 1))
 		{
-			updateVisibilityMaskRelative(x, y, z - 1);
-			updateVoxelData(this.cubecolor[z - 1][y][x].a, x, y, z - 1, this.cubecolor[z - 1][y][x]);
+			if ((this.cubecolor[z - 1][y][x].a & 64) != 64)
+			{
+				this.cubecolor[z - 1][y][x].a += 64;
+				updateVoxelData(this.cubecolor[z - 1][y][x].a, x, y, z - 1, this.cubecolor[z - 1][y][x]);
+			}
 		}
 
 		if (hasCube(x, y + 1, z))
 		{
-			updateVisibilityMaskRelative(x, y + 1, z);
-			updateVoxelData(this.cubecolor[z][y + 1][x].a, x, y + 1, z, this.cubecolor[z][y + 1][x]);
+			if ((this.cubecolor[z][y + 1][x].a & 16) != 16)
+			{
+				this.cubecolor[z][y + 1][x].a += 16;
+				updateVoxelData(this.cubecolor[z][y + 1][x].a, x, y + 1, z, this.cubecolor[z][y + 1][x]);
+			}
 		}
 		if (hasCube(x, y - 1, z))
 		{
-			updateVisibilityMaskRelative(x, y - 1, z);
-			updateVoxelData(this.cubecolor[z][y - 1][x].a, x, y - 1, z, this.cubecolor[z][y - 1][x]);
+			if ((this.cubecolor[z][y - 1][x].a & 8) != 8)
+			{
+				this.cubecolor[z][y - 1][x].a += 8;
+				updateVoxelData(this.cubecolor[z][y - 1][x].a, x, y - 1, z, this.cubecolor[z][y - 1][x]);
+			}
 		}
 
 		if (hasCube(x + 1, y, z))
 		{
-			updateVisibilityMaskRelative(x + 1, y, z);
-			updateVoxelData(this.cubecolor[z][y][x + 1].a, x + 1, y, z, this.cubecolor[z][y][x + 1]);
+			if ((this.cubecolor[z][y][x + 1].a & 4) != 4)
+			{
+				this.cubecolor[z][y][x + 1].a += 4;
+				updateVoxelData(this.cubecolor[z][y][x + 1].a, x + 1, y, z, this.cubecolor[z][y][x + 1]);
+			}
 		}
 		if (hasCube(x - 1, y, z))
 		{
-			updateVisibilityMaskRelative(x - 1, y, z);
-			updateVoxelData(this.cubecolor[z][y][x - 1].a, x - 1, y, z, this.cubecolor[z][y][x - 1]);
+			if ((this.cubecolor[z][y][x - 1].a & 2) != 2)
+			{
+				this.cubecolor[z][y][x - 1].a += 2;
+				updateVoxelData(this.cubecolor[z][y][x - 1].a, x - 1, y, z, this.cubecolor[z][y][x - 1]);
+			}
 		}
+
+		updateLightMapAroundIncluding(x, y, z);
+	}
+
+	public void addVoxel(Vector3 location)
+	{
+		addVoxel((int) location.x, (int) location.y, (int) location.z,
+				this.cubecolor[(int) location.z][(int) location.y][(int) location.x]);
+	}
+
+	public void addVoxel(int x, int y, int z)
+	{
+		addVoxel(x, y, z, this.cubecolor[z][y][x]);
 	}
 
 	public void addVoxel(Vector3 location, Color color)
@@ -862,36 +1219,56 @@ public class QbMatrix
 
 		if (hasCube(x, y, z + 1))
 		{
-			updateVisibilityMaskRelative(x, y, z + 1);
-			updateVoxelData(this.cubecolor[z + 1][y][x].a, x, y, z + 1, this.cubecolor[z + 1][y][x]);
+			if ((this.cubecolor[z + 1][y][x].a & 32) == 32)
+			{
+				this.cubecolor[z + 1][y][x].a -= 32;
+				updateVoxelData(this.cubecolor[z + 1][y][x].a, x, y, z + 1, this.cubecolor[z + 1][y][x]);
+			}
 		}
 		if (hasCube(x, y, z - 1))
 		{
-			updateVisibilityMaskRelative(x, y, z - 1);
-			updateVoxelData(this.cubecolor[z - 1][y][x].a, x, y, z - 1, this.cubecolor[z - 1][y][x]);
+			if ((this.cubecolor[z - 1][y][x].a & 64) == 64)
+			{
+				this.cubecolor[z - 1][y][x].a -= 64;
+				updateVoxelData(this.cubecolor[z - 1][y][x].a, x, y, z - 1, this.cubecolor[z - 1][y][x]);
+			}
 		}
 
 		if (hasCube(x, y + 1, z))
 		{
-			updateVisibilityMaskRelative(x, y + 1, z);
-			updateVoxelData(this.cubecolor[z][y + 1][x].a, x, y + 1, z, this.cubecolor[z][y + 1][x]);
+			if ((this.cubecolor[z][y + 1][x].a & 16) == 16)
+			{
+				this.cubecolor[z][y + 1][x].a -= 16;
+				updateVoxelData(this.cubecolor[z][y + 1][x].a, x, y + 1, z, this.cubecolor[z][y + 1][x]);
+			}
 		}
 		if (hasCube(x, y - 1, z))
 		{
-			updateVisibilityMaskRelative(x, y - 1, z);
-			updateVoxelData(this.cubecolor[z][y - 1][x].a, x, y - 1, z, this.cubecolor[z][y - 1][x]);
+			if ((this.cubecolor[z][y - 1][x].a & 8) == 8)
+			{
+				this.cubecolor[z][y - 1][x].a -= 8;
+				updateVoxelData(this.cubecolor[z][y - 1][x].a, x, y - 1, z, this.cubecolor[z][y - 1][x]);
+			}
 		}
 
 		if (hasCube(x + 1, y, z))
 		{
-			updateVisibilityMaskRelative(x + 1, y, z);
-			updateVoxelData(this.cubecolor[z][y][x + 1].a, x + 1, y, z, this.cubecolor[z][y][x + 1]);
+			if ((this.cubecolor[z][y][x + 1].a & 4) == 4)
+			{
+				this.cubecolor[z][y][x + 1].a -= 4;
+				updateVoxelData(this.cubecolor[z][y][x + 1].a, x + 1, y, z, this.cubecolor[z][y][x + 1]);
+			}
 		}
 		if (hasCube(x - 1, y, z))
 		{
-			updateVisibilityMaskRelative(x - 1, y, z);
-			updateVoxelData(this.cubecolor[z][y][x - 1].a, x - 1, y, z, this.cubecolor[z][y][x - 1]);
+			if ((this.cubecolor[z][y][x - 1].a & 2) == 2)
+			{
+				this.cubecolor[z][y][x - 1].a -= 2;
+				updateVoxelData(this.cubecolor[z][y][x - 1].a, x - 1, y, z, this.cubecolor[z][y][x - 1]);
+			}
 		}
+
+		updateLightMapAroundIncluding(x, y, z);
 	}
 
 	public void setVoxelColor(Vector3 location, Color color)
@@ -1118,7 +1495,27 @@ public class QbMatrix
 		else if (x < 0)
 			return false;
 
-		return cubecolor[z][y][x].a > 1;
+		return cubecolor[z][y][x].a > 0;
+	}
+
+	public float getLightValue(int z, int y, int x)
+	{
+		if (z > size.z - 1)
+			return 1f;
+		if (z < 0)
+			return 1f;
+
+		if (y > size.y - 1)
+			return 1f;
+		if (y < 0)
+			return 1f;
+
+		if (x > size.x - 1)
+			return 1f;
+		if (x < 0)
+			return 1f;
+
+		return cubecolor[z][y][x].a > 0 ? .65f : 1f;
 	}
 
 	public void reSize(int x1, int y1, int z1)
