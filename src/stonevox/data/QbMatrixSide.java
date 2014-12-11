@@ -52,7 +52,7 @@ public class QbMatrixSide
 		{
 			case BACK:
 				normal = new Vector3(0, 0, 1);
-				lightscale = .96f;
+				lightscale = .90f;
 				break;
 			case BOTTOM:
 				normal = new Vector3(0, -1, 0);
@@ -60,15 +60,15 @@ public class QbMatrixSide
 				break;
 			case FRONT:
 				normal = new Vector3(0, 0, -1);
-				lightscale = .96f;
+				lightscale = .9f;
 				break;
 			case LEFT:
 				normal = new Vector3(1, 0, 0);
-				lightscale = .975f;
+				lightscale = .95f;
 				break;
 			case RIGHT:
 				normal = new Vector3(-1, 0, 0);
-				lightscale = .975f;
+				lightscale = .95f;
 				break;
 			case TOP:
 				normal = new Vector3(0, 1, 0);
@@ -446,6 +446,27 @@ public class QbMatrixSide
 		vertexdata[bufferindex + 23] = -1000;
 	}
 
+	public void setLightValues(int x, int y, int z, float l1, float l2, float l3, float l4)
+	{
+		int index = cubeindexs[z][y][x];
+
+		if (index >= 0)
+		{
+			vertexdata[index + 6] = l1 * lightscale;
+			vertexdata[index + 13] = l2 * lightscale;
+			vertexdata[index + 20] = l3 * lightscale;
+			vertexdata[index + 27] = l4 * lightscale;
+
+			if (!updateLocations.containsKey(x + "" + y + "" + z))
+			{
+				updateLocations.put(x + "" + y + "" + z, new int[]
+				{
+						x, y, z, 0
+				});
+			}
+		}
+	}
+
 	public void setColor(int x, int y, int z, Color color)
 	{
 		int index = cubeindexs[z][y][x];
@@ -488,6 +509,31 @@ public class QbMatrixSide
 					x, y, z, 0
 			});
 		}
+		else
+		{
+			setVertexPositionData(index, x, y, z);
+
+			vertexdata[index + 3] = color.r;
+			vertexdata[index + 4] = color.g;
+			vertexdata[index + 5] = color.b;
+
+			vertexdata[index + 10] = color.r;
+			vertexdata[index + 11] = color.g;
+			vertexdata[index + 12] = color.b;
+
+			vertexdata[index + 17] = color.r;
+			vertexdata[index + 18] = color.g;
+			vertexdata[index + 19] = color.b;
+
+			vertexdata[index + 24] = color.r;
+			vertexdata[index + 25] = color.g;
+			vertexdata[index + 26] = color.b;
+
+			updateLocations.put(x + "" + y + "" + z, new int[]
+			{
+					x, y, z, 0
+			});
+		}
 	}
 
 	public void removeVoxelData(int x, int y, int z)
@@ -496,12 +542,9 @@ public class QbMatrixSide
 
 		if (index >= 0)
 		{
-			cubeindexs[z][y][x] = -1;
+			// cubeindexs[z][y][x] = -1;
 
-			for (int i = index; i < index + 28; i++)
-			{
-				vertexdata[i] = -10000;
-			}
+			setBlankVertexPositionData(index, x, y, z);
 
 			updateLocations.put(x + "" + y + "" + z, new int[]
 			{
