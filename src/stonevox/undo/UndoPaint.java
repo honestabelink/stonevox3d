@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.newdawn.slick.Color;
 
 import stonevox.Program;
-import stonevox.data.Cube;
 import stonevox.data.Undo;
 
 public class UndoPaint implements Undo
@@ -14,7 +13,7 @@ public class UndoPaint implements Undo
 	@Override
 	public ArrayList<Float> undo(ArrayList<Float> data)
 	{
-		Cube c = null;
+		Color c = null;
 		float x = 0;
 		float y = 0;
 		float z = 0;
@@ -37,16 +36,16 @@ public class UndoPaint implements Undo
 			g = data.get(i * 6 + 4);
 			b = data.get(i * 6 + 5);
 
-			c = Program.model.matrixList.get((int) mID).cubes[(int) z][(int) y][(int) x];
+			c = Program.model.matrixList.get((int) mID).getColor((int) x, (int) y, (int) z).toNEWDAWN();
 
-			data.set(i * 6 + 3, c.fcolor.r);
-			data.set(i * 6 + 4, c.fcolor.g);
-			data.set(i * 6 + 5, c.fcolor.b);
+			data.set(i * 6 + 3, c.r);
+			data.set(i * 6 + 4, c.g);
+			data.set(i * 6 + 5, c.b);
 
-			Program.model.matrixList.get((int) mID).cubes[(int) z][(int) y][(int) x].setColor(new Color(r, g, b));
+			Program.model.matrixList.get((int) mID).setVoxelColor((int) x, (int) y, (int) z,
+					new stonevox.data.Color(r, g, b, 0));
 		}
 
-		Program.model.matrixList.get((int) mID).updateMesh();
 		Program.model.matrixList.get((int) mID).clean();
 		resetTool();
 
