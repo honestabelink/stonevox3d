@@ -110,11 +110,6 @@ public class QbUtil
 								b = in.readUnsignedByte();
 								a = in.readUnsignedByte();
 
-								if (a > 0 && (a & 32) == 0)
-								{
-									boolean t = false;
-								}
-
 								def.cubecolor[z][y][x] = new Color(r / 256f, g / 256f, b / 256f, a);
 							}
 				}
@@ -203,9 +198,9 @@ public class QbUtil
 						{
 							Color c = m.cubecolor[z][y][x];
 
-							int r = (int) (c.r * 256f);
-							int g = (int) (c.g * 256f);
-							int b = (int) (c.b * 256f);
+							int r = (int) (c.r * 255f);
+							int g = (int) (c.g * 255f);
+							int b = (int) (c.b * 255f);
 							int a = c.a;
 
 							out.writeByte((byte) r);
