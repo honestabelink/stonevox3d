@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.lwjgl.input.Mouse;
 
 import stonevox.Program;
-import stonevox.data.Cube;
 import stonevox.data.RayHitPoint;
 import stonevox.data.Tool;
 import stonevox.util.CursorUtil;
@@ -89,16 +88,14 @@ public class ToolRemove implements Tool
 				|| (lasthitpoint.cubelocation.isEqual(hit.cubelocation) && !lasthitpoint.cubenormal
 						.isEqual(hit.cubenormal)))
 		{
-			Cube cube = Program.model.GetActiveMatrix().getCubeSaftly(hit.cubelocation);
-			if (cube != null && !cube.isDirty)
+			if (Program.model.GetActiveMatrix().hasCube(hit.cubelocation)
+					&& !Program.model.GetActiveMatrix().isDirty(hit.cubelocation))
 			{
-				Program.model.GetActiveMatrix().getCube(hit.cubelocation).setColor(-1, -1, -1, 0);
-				Program.model.GetActiveMatrix().updateLightMap(cube.pos);
-				Program.model.GetActiveMatrix().updateMesh();
+				Program.model.GetActiveMatrix().removeVoxel(hit.cubelocation);
 
-				undodata.add(hit.cubelocation.x);
-				undodata.add(hit.cubelocation.y);
-				undodata.add(hit.cubelocation.z);
+				// undodata.add(hit.cubelocation.x);
+				// undodata.add(hit.cubelocation.y);
+				// undodata.add(hit.cubelocation.z);
 			}
 			lasthitpoint = hit;
 		}
