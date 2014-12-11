@@ -93,9 +93,9 @@ public class ToolRemove implements Tool
 			{
 				Program.model.GetActiveMatrix().removeVoxel(hit.cubelocation);
 
-				// undodata.add(hit.cubelocation.x);
-				// undodata.add(hit.cubelocation.y);
-				// undodata.add(hit.cubelocation.z);
+				undodata.add(hit.cubelocation.x);
+				undodata.add(hit.cubelocation.y);
+				undodata.add(hit.cubelocation.z);
 			}
 			lasthitpoint = hit;
 		}
