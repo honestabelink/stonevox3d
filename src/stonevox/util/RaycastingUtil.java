@@ -49,7 +49,7 @@ public class RaycastingUtil
 	static float dot;
 	static float t;
 	static float coordRatio;
-	static Vector3 intPoint;
+	static Vector3 intPoint = new Vector3();
 	static float intX;
 	static float intY;
 	static float intZ;
