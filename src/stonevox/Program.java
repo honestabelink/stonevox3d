@@ -541,6 +541,8 @@ public class Program
 
 	public static void LoadQB(String path)
 	{
+		rayCaster.disableRaycaster();
+
 		if (model != null)
 		{
 			model.dispose();
