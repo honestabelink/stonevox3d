@@ -1,7 +1,6 @@
 package stonevox.data;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -10,6 +9,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+
+import stonevox.util.RaycastingUtil;
 
 public class QbMatrixSide
 {
@@ -20,6 +21,7 @@ public class QbMatrixSide
 	public float[] vertexdata;
 	public float[] lightmap;
 	public float lightscale;
+	public Vector3[] raycastVerts;
 
 	public FloatBuffer voxelbuffer;
 
@@ -33,11 +35,16 @@ public class QbMatrixSide
 	private Side side;
 
 	private FloatBuffer subUpdateBuffer;
-	private ArrayList<Integer> dataholes = new ArrayList<Integer>();
 	private HashMap<String, int[]> updateLocations = new HashMap<String, int[]>();
 
 	public QbMatrixSide(Side side)
 	{
+		this.raycastVerts = new Vector3[4];
+		for (int i = 0; i < 4; i++)
+		{
+			raycastVerts[i] = new Vector3();
+		}
+
 		subUpdateBuffer = BufferUtils.createFloatBuffer(28);
 
 		this.side = side;
@@ -45,7 +52,7 @@ public class QbMatrixSide
 		{
 			case BACK:
 				normal = new Vector3(0, 0, 1);
-				lightscale = .965f;
+				lightscale = .96f;
 				break;
 			case BOTTOM:
 				normal = new Vector3(0, -1, 0);
@@ -53,15 +60,15 @@ public class QbMatrixSide
 				break;
 			case FRONT:
 				normal = new Vector3(0, 0, -1);
-				lightscale = .965f;
+				lightscale = .96f;
 				break;
 			case LEFT:
 				normal = new Vector3(1, 0, 0);
-				lightscale = .98f;
+				lightscale = .975f;
 				break;
 			case RIGHT:
 				normal = new Vector3(-1, 0, 0);
-				lightscale = .98f;
+				lightscale = .975f;
 				break;
 			case TOP:
 				normal = new Vector3(0, 1, 0);
@@ -84,7 +91,7 @@ public class QbMatrixSide
 
 	public void genVoxelBuffers()
 	{
-		voxelbuffer.put(vertexdata, 0, facecount * 28);
+		voxelbuffer.put(vertexdata);
 		voxelbuffer.flip();
 
 		voxelbufferid = GL15.glGenBuffers();
@@ -277,6 +284,140 @@ public class QbMatrixSide
 		}
 	}
 
+	public boolean raytestUndefinedCube(float x, float y, float z)
+	{
+		switch (side)
+		{
+			case BACK:
+
+				raycastVerts[0].x = -cubesize + x;
+				raycastVerts[0].y = -cubesize + y;
+				raycastVerts[0].z = cubesize + z;
+
+				raycastVerts[1].x = cubesize + x;
+				raycastVerts[1].y = -cubesize + y;
+				raycastVerts[1].z = cubesize + z;
+
+				raycastVerts[2].x = cubesize + x;
+				raycastVerts[2].y = cubesize + y;
+				raycastVerts[2].z = cubesize + z;
+
+				raycastVerts[3].x = -cubesize + x;
+				raycastVerts[3].y = cubesize + y;
+				raycastVerts[3].z = cubesize + z;
+				break;
+			case FRONT:
+
+				raycastVerts[0].x = -cubesize + x;
+				raycastVerts[0].y = -cubesize + y;
+				raycastVerts[0].z = -cubesize + z;
+
+				raycastVerts[1].x = cubesize + x;
+				raycastVerts[1].y = -cubesize + y;
+				raycastVerts[1].z = -cubesize + z;
+
+				raycastVerts[2].x = cubesize + x;
+				raycastVerts[2].y = cubesize + y;
+				raycastVerts[2].z = -cubesize + z;
+
+				raycastVerts[3].x = -cubesize + x;
+				raycastVerts[3].y = cubesize + y;
+				raycastVerts[3].z = -cubesize + z;
+
+				break;
+			case TOP:
+
+				raycastVerts[0].x = -cubesize + x;
+				raycastVerts[0].y = cubesize + y;
+				raycastVerts[0].z = cubesize + z;
+
+				raycastVerts[1].x = cubesize + x;
+				raycastVerts[1].y = cubesize + y;
+				raycastVerts[1].z = cubesize + z;
+
+				raycastVerts[2].x = cubesize + x;
+				raycastVerts[2].y = cubesize + y;
+				raycastVerts[2].z = -cubesize + z;
+
+				raycastVerts[3].x = -cubesize + x;
+				raycastVerts[3].y = cubesize + y;
+				raycastVerts[3].z = -cubesize + z;
+
+				break;
+			case BOTTOM:
+
+				raycastVerts[0].x = -cubesize + x;
+				raycastVerts[0].y = -cubesize + y;
+				raycastVerts[0].z = cubesize + z;
+
+				raycastVerts[1].x = cubesize + x;
+				raycastVerts[1].y = -cubesize + y;
+				raycastVerts[1].z = cubesize + z;
+
+				raycastVerts[2].x = cubesize + x;
+				raycastVerts[2].y = -cubesize + y;
+				raycastVerts[2].z = -cubesize + z;
+
+				raycastVerts[3].x = -cubesize + x;
+				raycastVerts[3].y = -cubesize + y;
+				raycastVerts[3].z = -cubesize + z;
+
+				break;
+			case RIGHT:
+
+				raycastVerts[0].x = -cubesize + x;
+				raycastVerts[0].y = -cubesize + y;
+				raycastVerts[0].z = -cubesize + z;
+
+				raycastVerts[1].x = -cubesize + x;
+				raycastVerts[1].y = -cubesize + y;
+				raycastVerts[1].z = cubesize + z;
+
+				raycastVerts[2].x = -cubesize + x;
+				raycastVerts[2].y = cubesize + y;
+				raycastVerts[2].z = cubesize + z;
+
+				raycastVerts[3].x = -cubesize + x;
+				raycastVerts[3].y = cubesize + y;
+				raycastVerts[3].z = -cubesize + z;
+
+				break;
+			case LEFT:
+
+				raycastVerts[0].x = cubesize + x;
+				raycastVerts[0].y = -cubesize + y;
+				raycastVerts[0].z = -cubesize + z;
+
+				raycastVerts[1].x = cubesize + x;
+				raycastVerts[1].y = -cubesize + y;
+				raycastVerts[1].z = cubesize + z;
+
+				raycastVerts[2].x = cubesize + x;
+				raycastVerts[2].y = cubesize + y;
+				raycastVerts[2].z = cubesize + z;
+
+				raycastVerts[3].x = cubesize + x;
+				raycastVerts[3].y = cubesize + y;
+				raycastVerts[3].z = -cubesize + z;
+
+				break;
+		}
+
+		if (RaycastingUtil.rayTest(RaycastingUtil.rayOrigin, RaycastingUtil.rayDirection, this.normal, raycastVerts[0],
+				raycastVerts[1], raycastVerts[2]) != null
+				|| RaycastingUtil.rayTest(RaycastingUtil.rayOrigin, RaycastingUtil.rayDirection, this.normal,
+						raycastVerts[0], raycastVerts[2], raycastVerts[3]) != null)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public void putEmptySpace(int x, int y, int z)
+	{
+		cubeindexs[z][y][x] = -1;
+	}
+
 	public void putBlankData(int x, int y, int z)
 	{
 		setBlankVertexPositionData(bufferindex, x, y, z);
@@ -329,7 +470,7 @@ public class QbMatrixSide
 
 			updateLocations.put(x + "" + y + "" + z, new int[]
 			{
-					x, y, z
+					x, y, z, 0
 			});
 		}
 	}
@@ -340,31 +481,11 @@ public class QbMatrixSide
 
 		if (index == -1)
 		{
-			setVertexPositionData(index, x, y, z);
-
-			vertexdata[index + 3] = color.r;
-			vertexdata[index + 4] = color.g;
-			vertexdata[index + 5] = color.b;
-			vertexdata[index + 6] = 1f * lightscale;
-
-			vertexdata[index + 10] = color.r;
-			vertexdata[index + 11] = color.g;
-			vertexdata[index + 12] = color.b;
-			vertexdata[index + 13] = 1f * lightscale;
-
-			vertexdata[index + 17] = color.r;
-			vertexdata[index + 18] = color.g;
-			vertexdata[index + 19] = color.b;
-			vertexdata[index + 20] = 1f * lightscale;
-
-			vertexdata[index + 24] = color.r;
-			vertexdata[index + 25] = color.g;
-			vertexdata[index + 26] = color.b;
-			vertexdata[index + 27] = 1f * lightscale;
+			putVertexData(x, y, z, color);
 
 			updateLocations.put(x + "" + y + "" + z, new int[]
 			{
-					x, y, z
+					x, y, z, 0
 			});
 		}
 	}
@@ -375,7 +496,6 @@ public class QbMatrixSide
 
 		if (index >= 0)
 		{
-			dataholes.add(index);
 			cubeindexs[z][y][x] = -1;
 
 			for (int i = index; i < index + 28; i++)
@@ -385,7 +505,7 @@ public class QbMatrixSide
 
 			updateLocations.put(x + "" + y + "" + z, new int[]
 			{
-					x, y, z
+					x, y, z, index
 			});
 		}
 	}
@@ -403,6 +523,10 @@ public class QbMatrixSide
 				if (index >= 0)
 				{
 					subBufferData(index);
+				}
+				else
+				{
+					subBufferData(v[3]);
 				}
 			}
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
