@@ -115,7 +115,6 @@ public class QbMatrix
 					// no cube
 					if (color.a <= 1)
 					{
-						// exit no cube
 						continue;
 					}
 					else
@@ -201,121 +200,131 @@ public class QbMatrix
 	{
 		tempcolor = cubecolor[z][y][x];
 		tempmask = 1;
-		if (tempcolor.a != 0)
-		{
-			if (z + 1 < size.z)
-			{
-				if (cubecolor[z + 1][y][x].a == 0)
-				{
-					tempmask += SideUtil.getVisibilityMask(Side.FRONT);
-				}
-			}
-			else
-			{
-				tempmask += SideUtil.getVisibilityMask(Side.FRONT);
-			}
 
-			if (z - 1 >= 0)
-			{
-				if (cubecolor[z - 1][y][x].a == 0)
-				{
-					tempmask += SideUtil.getVisibilityMask(Side.BACK);
-				}
-			}
-			else
+		if (z - 1 >= 0)
+		{
+			if (cubecolor[z - 1][y][x].a <= 1)
 			{
 				tempmask += SideUtil.getVisibilityMask(Side.BACK);
 			}
-
-			if (y + 1 < size.y)
-			{
-				if (cubecolor[z][y + 1][x].a == 0)
-				{
-					tempmask += SideUtil.getVisibilityMask(Side.TOP);
-				}
-			}
-			else
-			{
-				tempmask += SideUtil.getVisibilityMask(Side.TOP);
-			}
-
-			if (y - 1 >= 0)
-			{
-				if (cubecolor[z][y - 1][x].a == 0)
-				{
-					tempmask += SideUtil.getVisibilityMask(Side.BOTTOM);
-				}
-			}
-			else
-			{
-				tempmask += SideUtil.getVisibilityMask(Side.BOTTOM);
-			}
-
-			if (x + 1 < size.x)
-			{
-				if (cubecolor[z][y][x + 1].a == 0)
-				{
-					tempmask += SideUtil.getVisibilityMask(Side.RIGHT);
-				}
-			}
-			else
-			{
-				tempmask += SideUtil.getVisibilityMask(Side.RIGHT);
-			}
-
-			if (x - 1 >= 0)
-			{
-				if (cubecolor[z][y][x - 1].a == 0)
-				{
-					tempmask += SideUtil.getVisibilityMask(Side.LEFT);
-				}
-			}
-			else
-			{
-				tempmask += SideUtil.getVisibilityMask(Side.LEFT);
-			}
-
-			cubecolor[z][y][x].a = tempmask;
 		}
 		else
 		{
-			cubecolor[z][y][x].a = 0;
+			tempmask += SideUtil.getVisibilityMask(Side.BACK);
 		}
+
+		if (z + 1 < size.z)
+		{
+			if (cubecolor[z + 1][y][x].a <= 1)
+			{
+				tempmask += SideUtil.getVisibilityMask(Side.FRONT);
+			}
+		}
+		else
+		{
+			tempmask += SideUtil.getVisibilityMask(Side.FRONT);
+		}
+
+		if (y + 1 < size.y)
+		{
+			if (cubecolor[z][y + 1][x].a <= 1)
+			{
+				tempmask += SideUtil.getVisibilityMask(Side.TOP);
+			}
+		}
+		else
+		{
+			tempmask += SideUtil.getVisibilityMask(Side.TOP);
+		}
+
+		if (y - 1 >= 0)
+		{
+			if (cubecolor[z][y - 1][x].a <= 1)
+			{
+				tempmask += SideUtil.getVisibilityMask(Side.BOTTOM);
+			}
+		}
+		else
+		{
+			tempmask += SideUtil.getVisibilityMask(Side.BOTTOM);
+		}
+
+		if (x + 1 < size.x)
+		{
+			if (cubecolor[z][y][x + 1].a <= 1)
+			{
+				tempmask += SideUtil.getVisibilityMask(Side.RIGHT);
+			}
+		}
+		else
+		{
+			tempmask += SideUtil.getVisibilityMask(Side.RIGHT);
+		}
+
+		if (x - 1 >= 0)
+		{
+			if (cubecolor[z][y][x - 1].a <= 1)
+			{
+				tempmask += SideUtil.getVisibilityMask(Side.LEFT);
+			}
+		}
+		else
+		{
+			tempmask += SideUtil.getVisibilityMask(Side.LEFT);
+		}
+
+		cubecolor[z][y][x].a = tempmask;
 	}
 
-	public void updateVoxelData(int mask, int x, int y, int z)
+	public void updateVoxelData(int mask, int x, int y, int z, Color color)
 	{
 		// front
 		if ((mask & 32) == 32)
 		{
-
+			front.addVoxelData(x, y, z, color);
 		}
+		else
+			front.removeVoxelData(x, y, z);
 
 		// back
 		if ((mask & 64) == 64)
 		{
-
+			back.addVoxelData(x, y, z, color);
 		}
+		else
+			back.removeVoxelData(x, y, z);
 
 		// top
 		if ((mask & 8) == 8)
 		{
+			top.addVoxelData(x, y, z, color);
 		}
+		else
+			top.removeVoxelData(x, y, z);
 
 		// bottom
 		if ((mask & 16) == 16)
 		{
+			bottom.addVoxelData(x, y, z, color);
 		}
+		else
+			bottom.removeVoxelData(x, y, z);
 
 		// left
 		if ((mask & 2) == 2)
 		{
+			left.addVoxelData(x, y, z, color);
 		}
+		else
+			left.removeVoxelData(x, y, z);
 
 		// right
 		if ((mask & 4) == 4)
 		{
+			right.addVoxelData(x, y, z, color);
 		}
+		else
+			right.removeVoxelData(x, y, z);
 	}
 
 	public RayHitPoint rayTest()
@@ -326,38 +335,21 @@ public class QbMatrix
 		Color color = null;
 		int ci = 0;
 		float dis = 0;
+		boolean allowdirt = Program.rayCaster.raycast_dirt;
 
-		for (int z = 0; z < size.z; z++)
+		if (allowdirt)
 		{
-			for (int y = 0; y < size.y; y++)
+			for (int z = 0; z < size.z; z++)
 			{
-				for (int x = 0; x < size.x; x++)
+				for (int y = 0; y < size.y; y++)
 				{
-					color = cubecolor[z][y][x];
-
-					// no cube
-					if (color.a <= 1)
+					for (int x = 0; x < size.x; x++)
 					{
-						// exit no cube
-						continue;
-					}
-					else
-					{
+						color = cubecolor[z][y][x];
 
-						// front
-						if ((color.a & 32) == 32)
+						if (cubedirty[z][y][x])
 						{
-							ci = front.cubeindexs[z][y][x];
-
-							if (RaycastingUtil.rayTest(front.normal, front.vertexdata[ci], front.vertexdata[ci + 1],
-									front.vertexdata[ci + 2], front.vertexdata[ci + 7], front.vertexdata[ci + 8],
-									front.vertexdata[ci + 9], front.vertexdata[ci + 14], front.vertexdata[ci + 15],
-									front.vertexdata[ci + 16]) != null
-									|| RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
-											front.vertexdata[ci + 1], front.vertexdata[ci + 2],
-											front.vertexdata[ci + 14], front.vertexdata[ci + 15],
-											front.vertexdata[ci + 16], front.vertexdata[ci + 21],
-											front.vertexdata[ci + 22], front.vertexdata[ci + 23]) != null)
+							if (front.raytestUndefinedCube(x, y, z))
 							{
 								dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
 
@@ -370,22 +362,7 @@ public class QbMatrix
 									rayhit.distance = dis;
 								}
 							}
-						}
-
-						// back
-						if ((color.a & 64) == 64)
-						{
-							ci = back.cubeindexs[z][y][x];
-
-							if (RaycastingUtil.rayTest(back.normal, back.vertexdata[ci], back.vertexdata[ci + 1],
-									back.vertexdata[ci + 2], back.vertexdata[ci + 7], back.vertexdata[ci + 8],
-									back.vertexdata[ci + 9], back.vertexdata[ci + 14], back.vertexdata[ci + 15],
-									back.vertexdata[ci + 16]) != null
-									|| RaycastingUtil.rayTest(back.normal, back.vertexdata[ci],
-											back.vertexdata[ci + 1], back.vertexdata[ci + 2], back.vertexdata[ci + 14],
-											back.vertexdata[ci + 15], back.vertexdata[ci + 16],
-											back.vertexdata[ci + 21], back.vertexdata[ci + 22],
-											back.vertexdata[ci + 23]) != null)
+							if (back.raytestUndefinedCube(x, y, z))
 							{
 								dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f + .5f);
 
@@ -398,21 +375,7 @@ public class QbMatrix
 									rayhit.distance = dis;
 								}
 							}
-						}
-
-						// top
-						if ((color.a & 8) == 8)
-						{
-							ci = top.cubeindexs[z][y][x];
-
-							if (RaycastingUtil.rayTest(top.normal, top.vertexdata[ci], top.vertexdata[ci + 1],
-									top.vertexdata[ci + 2], top.vertexdata[ci + 7], top.vertexdata[ci + 8],
-									top.vertexdata[ci + 9], top.vertexdata[ci + 14], top.vertexdata[ci + 15],
-									top.vertexdata[ci + 16]) != null
-									|| RaycastingUtil.rayTest(top.normal, top.vertexdata[ci], top.vertexdata[ci + 1],
-											top.vertexdata[ci + 2], top.vertexdata[ci + 14], top.vertexdata[ci + 15],
-											top.vertexdata[ci + 16], top.vertexdata[ci + 21], top.vertexdata[ci + 22],
-											top.vertexdata[ci + 23]) != null)
+							if (top.raytestUndefinedCube(x, y, z))
 							{
 								dis = RaycastingUtil.Distance(x * .5f, y * .5f + .5f, z * .5f);
 
@@ -425,22 +388,7 @@ public class QbMatrix
 									rayhit.distance = dis;
 								}
 							}
-						}
-
-						// bottom
-						if ((color.a & 16) == 16)
-						{
-							ci = bottom.cubeindexs[z][y][x];
-
-							if (RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci], bottom.vertexdata[ci + 1],
-									bottom.vertexdata[ci + 2], bottom.vertexdata[ci + 7], bottom.vertexdata[ci + 8],
-									bottom.vertexdata[ci + 9], bottom.vertexdata[ci + 14], bottom.vertexdata[ci + 15],
-									bottom.vertexdata[ci + 16]) != null
-									|| RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
-											bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
-											bottom.vertexdata[ci + 14], bottom.vertexdata[ci + 15],
-											bottom.vertexdata[ci + 16], bottom.vertexdata[ci + 21],
-											bottom.vertexdata[ci + 22], bottom.vertexdata[ci + 23]) != null)
+							if (bottom.raytestUndefinedCube(x, y, z))
 							{
 								dis = RaycastingUtil.Distance(x * .5f, y * .5f - .5f, z * .5f);
 
@@ -453,22 +401,7 @@ public class QbMatrix
 									rayhit.distance = dis;
 								}
 							}
-						}
-
-						// left
-						if ((color.a & 2) == 2)
-						{
-							ci = left.cubeindexs[z][y][x];
-
-							if (RaycastingUtil.rayTest(left.normal, left.vertexdata[ci], left.vertexdata[ci + 1],
-									left.vertexdata[ci + 2], left.vertexdata[ci + 7], left.vertexdata[ci + 8],
-									left.vertexdata[ci + 9], left.vertexdata[ci + 14], left.vertexdata[ci + 15],
-									left.vertexdata[ci + 16]) != null
-									|| RaycastingUtil.rayTest(left.normal, left.vertexdata[ci],
-											left.vertexdata[ci + 1], left.vertexdata[ci + 2], left.vertexdata[ci + 14],
-											left.vertexdata[ci + 15], left.vertexdata[ci + 16],
-											left.vertexdata[ci + 21], left.vertexdata[ci + 22],
-											left.vertexdata[ci + 23]) != null)
+							if (left.raytestUndefinedCube(x, y, z))
 							{
 								dis = RaycastingUtil.Distance(x * .5f + .5f, y * .5f, z * .5f);
 
@@ -481,22 +414,7 @@ public class QbMatrix
 									rayhit.distance = dis;
 								}
 							}
-						}
-
-						// right
-						if ((color.a & 4) == 4)
-						{
-							ci = right.cubeindexs[z][y][x];
-
-							if (RaycastingUtil.rayTest(right.normal, right.vertexdata[ci], right.vertexdata[ci + 1],
-									right.vertexdata[ci + 2], right.vertexdata[ci + 7], right.vertexdata[ci + 8],
-									right.vertexdata[ci + 9], right.vertexdata[ci + 14], right.vertexdata[ci + 15],
-									right.vertexdata[ci + 16]) != null
-									|| RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
-											right.vertexdata[ci + 1], right.vertexdata[ci + 2],
-											right.vertexdata[ci + 14], right.vertexdata[ci + 15],
-											right.vertexdata[ci + 16], right.vertexdata[ci + 21],
-											right.vertexdata[ci + 22], right.vertexdata[ci + 23]) != null)
+							if (right.raytestUndefinedCube(x, y, z))
 							{
 								dis = RaycastingUtil.Distance(x * .5f - .5f, y * .5f, z * .5f);
 
@@ -510,11 +428,424 @@ public class QbMatrix
 								}
 							}
 						}
+						else if (color.a > 1)
+						{
+							// front
+							if ((color.a & 32) == 32)
+							{
+								ci = front.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
+										front.vertexdata[ci + 1], front.vertexdata[ci + 2], front.vertexdata[ci + 7],
+										front.vertexdata[ci + 8], front.vertexdata[ci + 9], front.vertexdata[ci + 14],
+										front.vertexdata[ci + 15], front.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
+												front.vertexdata[ci + 1], front.vertexdata[ci + 2],
+												front.vertexdata[ci + 14], front.vertexdata[ci + 15],
+												front.vertexdata[ci + 16], front.vertexdata[ci + 21],
+												front.vertexdata[ci + 22], front.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = front.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// back
+							if ((color.a & 64) == 64)
+							{
+								ci = back.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(back.normal, back.vertexdata[ci], back.vertexdata[ci + 1],
+										back.vertexdata[ci + 2], back.vertexdata[ci + 7], back.vertexdata[ci + 8],
+										back.vertexdata[ci + 9], back.vertexdata[ci + 14], back.vertexdata[ci + 15],
+										back.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(back.normal, back.vertexdata[ci],
+												back.vertexdata[ci + 1], back.vertexdata[ci + 2],
+												back.vertexdata[ci + 14], back.vertexdata[ci + 15],
+												back.vertexdata[ci + 16], back.vertexdata[ci + 21],
+												back.vertexdata[ci + 22], back.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f + .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = back.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// top
+							if ((color.a & 8) == 8)
+							{
+								ci = top.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(top.normal, top.vertexdata[ci], top.vertexdata[ci + 1],
+										top.vertexdata[ci + 2], top.vertexdata[ci + 7], top.vertexdata[ci + 8],
+										top.vertexdata[ci + 9], top.vertexdata[ci + 14], top.vertexdata[ci + 15],
+										top.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(top.normal, top.vertexdata[ci],
+												top.vertexdata[ci + 1], top.vertexdata[ci + 2],
+												top.vertexdata[ci + 14], top.vertexdata[ci + 15],
+												top.vertexdata[ci + 16], top.vertexdata[ci + 21],
+												top.vertexdata[ci + 22], top.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f + .5f, z * .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = top.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// bottom
+							if ((color.a & 16) == 16)
+							{
+								ci = bottom.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
+										bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
+										bottom.vertexdata[ci + 7], bottom.vertexdata[ci + 8],
+										bottom.vertexdata[ci + 9], bottom.vertexdata[ci + 14],
+										bottom.vertexdata[ci + 15], bottom.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
+												bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
+												bottom.vertexdata[ci + 14], bottom.vertexdata[ci + 15],
+												bottom.vertexdata[ci + 16], bottom.vertexdata[ci + 21],
+												bottom.vertexdata[ci + 22], bottom.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f - .5f, z * .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = bottom.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// left
+							if ((color.a & 2) == 2)
+							{
+								ci = left.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(left.normal, left.vertexdata[ci], left.vertexdata[ci + 1],
+										left.vertexdata[ci + 2], left.vertexdata[ci + 7], left.vertexdata[ci + 8],
+										left.vertexdata[ci + 9], left.vertexdata[ci + 14], left.vertexdata[ci + 15],
+										left.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(left.normal, left.vertexdata[ci],
+												left.vertexdata[ci + 1], left.vertexdata[ci + 2],
+												left.vertexdata[ci + 14], left.vertexdata[ci + 15],
+												left.vertexdata[ci + 16], left.vertexdata[ci + 21],
+												left.vertexdata[ci + 22], left.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f + .5f, y * .5f, z * .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = left.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// right
+							if ((color.a & 4) == 4)
+							{
+								ci = right.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
+										right.vertexdata[ci + 1], right.vertexdata[ci + 2], right.vertexdata[ci + 7],
+										right.vertexdata[ci + 8], right.vertexdata[ci + 9], right.vertexdata[ci + 14],
+										right.vertexdata[ci + 15], right.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
+												right.vertexdata[ci + 1], right.vertexdata[ci + 2],
+												right.vertexdata[ci + 14], right.vertexdata[ci + 15],
+												right.vertexdata[ci + 16], right.vertexdata[ci + 21],
+												right.vertexdata[ci + 22], right.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f - .5f, y * .5f, z * .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = right.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			for (int z = 0; z < size.z; z++)
+			{
+				for (int y = 0; y < size.y; y++)
+				{
+					for (int x = 0; x < size.x; x++)
+					{
+						if (cubedirty[z][y][x])
+							continue;
+
+						color = cubecolor[z][y][x];
+
+						// no cube
+						if (color.a > 1)
+						{
+							// front
+							if ((color.a & 32) == 32)
+							{
+								ci = front.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
+										front.vertexdata[ci + 1], front.vertexdata[ci + 2], front.vertexdata[ci + 7],
+										front.vertexdata[ci + 8], front.vertexdata[ci + 9], front.vertexdata[ci + 14],
+										front.vertexdata[ci + 15], front.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
+												front.vertexdata[ci + 1], front.vertexdata[ci + 2],
+												front.vertexdata[ci + 14], front.vertexdata[ci + 15],
+												front.vertexdata[ci + 16], front.vertexdata[ci + 21],
+												front.vertexdata[ci + 22], front.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = front.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// back
+							if ((color.a & 64) == 64)
+							{
+								ci = back.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(back.normal, back.vertexdata[ci], back.vertexdata[ci + 1],
+										back.vertexdata[ci + 2], back.vertexdata[ci + 7], back.vertexdata[ci + 8],
+										back.vertexdata[ci + 9], back.vertexdata[ci + 14], back.vertexdata[ci + 15],
+										back.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(back.normal, back.vertexdata[ci],
+												back.vertexdata[ci + 1], back.vertexdata[ci + 2],
+												back.vertexdata[ci + 14], back.vertexdata[ci + 15],
+												back.vertexdata[ci + 16], back.vertexdata[ci + 21],
+												back.vertexdata[ci + 22], back.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f + .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = back.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// top
+							if ((color.a & 8) == 8)
+							{
+								ci = top.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(top.normal, top.vertexdata[ci], top.vertexdata[ci + 1],
+										top.vertexdata[ci + 2], top.vertexdata[ci + 7], top.vertexdata[ci + 8],
+										top.vertexdata[ci + 9], top.vertexdata[ci + 14], top.vertexdata[ci + 15],
+										top.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(top.normal, top.vertexdata[ci],
+												top.vertexdata[ci + 1], top.vertexdata[ci + 2],
+												top.vertexdata[ci + 14], top.vertexdata[ci + 15],
+												top.vertexdata[ci + 16], top.vertexdata[ci + 21],
+												top.vertexdata[ci + 22], top.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f + .5f, z * .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = top.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// bottom
+							if ((color.a & 16) == 16)
+							{
+								ci = bottom.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
+										bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
+										bottom.vertexdata[ci + 7], bottom.vertexdata[ci + 8],
+										bottom.vertexdata[ci + 9], bottom.vertexdata[ci + 14],
+										bottom.vertexdata[ci + 15], bottom.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
+												bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
+												bottom.vertexdata[ci + 14], bottom.vertexdata[ci + 15],
+												bottom.vertexdata[ci + 16], bottom.vertexdata[ci + 21],
+												bottom.vertexdata[ci + 22], bottom.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f - .5f, z * .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = bottom.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// left
+							if ((color.a & 2) == 2)
+							{
+								ci = left.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(left.normal, left.vertexdata[ci], left.vertexdata[ci + 1],
+										left.vertexdata[ci + 2], left.vertexdata[ci + 7], left.vertexdata[ci + 8],
+										left.vertexdata[ci + 9], left.vertexdata[ci + 14], left.vertexdata[ci + 15],
+										left.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(left.normal, left.vertexdata[ci],
+												left.vertexdata[ci + 1], left.vertexdata[ci + 2],
+												left.vertexdata[ci + 14], left.vertexdata[ci + 15],
+												left.vertexdata[ci + 16], left.vertexdata[ci + 21],
+												left.vertexdata[ci + 22], left.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f + .5f, y * .5f, z * .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = left.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+
+							// right
+							if ((color.a & 4) == 4)
+							{
+								ci = right.cubeindexs[z][y][x];
+
+								if (RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
+										right.vertexdata[ci + 1], right.vertexdata[ci + 2], right.vertexdata[ci + 7],
+										right.vertexdata[ci + 8], right.vertexdata[ci + 9], right.vertexdata[ci + 14],
+										right.vertexdata[ci + 15], right.vertexdata[ci + 16]) != null
+										|| RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
+												right.vertexdata[ci + 1], right.vertexdata[ci + 2],
+												right.vertexdata[ci + 14], right.vertexdata[ci + 15],
+												right.vertexdata[ci + 16], right.vertexdata[ci + 21],
+												right.vertexdata[ci + 22], right.vertexdata[ci + 23]) != null)
+								{
+									dis = RaycastingUtil.Distance(x * .5f - .5f, y * .5f, z * .5f);
+
+									if (dis < rayhit.distance)
+									{
+										rayhit.cubelocation.x = x;
+										rayhit.cubelocation.y = y;
+										rayhit.cubelocation.z = z;
+										rayhit.cubenormal = right.normal;
+										rayhit.distance = dis;
+									}
+								}
+							}
+						}
 					}
 				}
 			}
 		}
 		return rayhit.distance == 100000 ? null : rayhit;
+	}
+
+	public void removeVoxel(Vector3 location)
+	{
+		removeVoxel((int) location.x, (int) location.y, (int) location.z);
+	}
+
+	public void removeVoxel(int x, int y, int z)
+	{
+		cubedirty[z][y][x] = true;
+
+		Color cubecolor = this.cubecolor[z][y][x];
+		cubecolor.a = 0;
+
+		updateVoxelData(cubecolor.a, x, y, z, cubecolor);
+
+		if (hasCube(x, y, z + 1))
+		{
+			updateVisibilityMaskRelative(x, y, z + 1);
+			updateVoxelData(this.cubecolor[z + 1][y][x].a, x, y, z + 1, this.cubecolor[z + 1][y][x]);
+		}
+		if (hasCube(x, y, z - 1))
+		{
+			updateVisibilityMaskRelative(x, y, z - 1);
+			updateVoxelData(this.cubecolor[z - 1][y][x].a, x, y, z - 1, this.cubecolor[z - 1][y][x]);
+		}
+
+		if (hasCube(x, y + 1, z))
+		{
+			updateVisibilityMaskRelative(x, y + 1, z);
+			updateVoxelData(this.cubecolor[z][y + 1][x].a, x, y + 1, z, this.cubecolor[z][y + 1][x]);
+		}
+		if (hasCube(x, y - 1, z))
+		{
+			updateVisibilityMaskRelative(x, y - 1, z);
+			updateVoxelData(this.cubecolor[z][y - 1][x].a, x, y - 1, z, this.cubecolor[z][y - 1][x]);
+		}
+
+		if (hasCube(x + 1, y, z))
+		{
+			updateVisibilityMaskRelative(x + 1, y, z);
+			updateVoxelData(this.cubecolor[z][y][x + 1].a, x + 1, y, z, this.cubecolor[z][y][x + 1]);
+		}
+		if (hasCube(x - 1, y, z))
+		{
+			updateVisibilityMaskRelative(x - 1, y, z);
+			updateVoxelData(this.cubecolor[z][y][x - 1].a, x - 1, y, z, this.cubecolor[z][y][x - 1]);
+		}
+	}
+
+	public void addVoxel(Vector3 location, Color color)
+	{
+		addVoxel((int) location.x, (int) location.y, (int) location.z, color);
 	}
 
 	public void addVoxel(int x, int y, int z, Color color)
@@ -527,6 +858,40 @@ public class QbMatrix
 		cubecolor.b = color.b;
 
 		updateVisibilityMaskRelative(x, y, z);
+		updateVoxelData(cubecolor.a, x, y, z, cubecolor);
+
+		if (hasCube(x, y, z + 1))
+		{
+			updateVisibilityMaskRelative(x, y, z + 1);
+			updateVoxelData(this.cubecolor[z + 1][y][x].a, x, y, z + 1, this.cubecolor[z + 1][y][x]);
+		}
+		if (hasCube(x, y, z - 1))
+		{
+			updateVisibilityMaskRelative(x, y, z - 1);
+			updateVoxelData(this.cubecolor[z - 1][y][x].a, x, y, z - 1, this.cubecolor[z - 1][y][x]);
+		}
+
+		if (hasCube(x, y + 1, z))
+		{
+			updateVisibilityMaskRelative(x, y + 1, z);
+			updateVoxelData(this.cubecolor[z][y + 1][x].a, x, y + 1, z, this.cubecolor[z][y + 1][x]);
+		}
+		if (hasCube(x, y - 1, z))
+		{
+			updateVisibilityMaskRelative(x, y - 1, z);
+			updateVoxelData(this.cubecolor[z][y - 1][x].a, x, y - 1, z, this.cubecolor[z][y - 1][x]);
+		}
+
+		if (hasCube(x + 1, y, z))
+		{
+			updateVisibilityMaskRelative(x + 1, y, z);
+			updateVoxelData(this.cubecolor[z][y][x + 1].a, x + 1, y, z, this.cubecolor[z][y][x + 1]);
+		}
+		if (hasCube(x - 1, y, z))
+		{
+			updateVisibilityMaskRelative(x - 1, y, z);
+			updateVoxelData(this.cubecolor[z][y][x - 1].a, x - 1, y, z, this.cubecolor[z][y][x - 1]);
+		}
 	}
 
 	public void setVoxelColor(Vector3 location, Color color)
@@ -652,19 +1017,16 @@ public class QbMatrix
 
 	public void CREATEZEROEDCUBES()
 	{
-		System.out.print("qb matrix createzeroedcubes called \n");
-		// for (int z = 0; z < sizeZ; z++)
-		// {
-		// for (int y = 0; y < sizeY; y++)
-		// {
-		// for (int x = 0; x < sizeX; x++)
-		// {
-		// cubes[z][y][x] = new Cube();
-		// cubes[z][y][x].setPos(x, y, z);
-		// cubes[z][y][x].setAlpha(0);
-		// }
-		// }
-		// }
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					cubecolor[z][y][x] = new Color(0, 0, 0, 0);
+				}
+			}
+		}
 	}
 
 	public void clean()
@@ -707,6 +1069,31 @@ public class QbMatrix
 			return false;
 
 		return cubedirty[z][y][x];
+	}
+
+	public boolean withinRange(Vector3 location)
+	{
+		return withinRange((int) location.x, (int) location.y, (int) location.z);
+	}
+
+	public boolean withinRange(int x, int y, int z)
+	{
+		if (z > size.z - 1)
+			return false;
+		else if (z < 0)
+			return false;
+
+		else if (y > size.y - 1)
+			return false;
+		else if (y < 0)
+			return false;
+
+		else if (x > size.x - 1)
+			return false;
+		else if (x < 0)
+			return false;
+
+		return true;
 	}
 
 	public boolean hasCube(Vector3 location)
