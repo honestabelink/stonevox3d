@@ -87,9 +87,9 @@ public class ToolColorPicker implements Tool
 		{
 			if (ColorOption.lastOption != null)
 			{
-				if (Program.model.GetActiveMatrix().getCubeSaftly(hit.cubelocation) != null)
+				if (Program.model.GetActiveMatrix().withinRange(hit.cubelocation))
 				{
-					Color c = Program.model.GetActiveMatrix().getCube(hit.cubelocation).fcolor;
+					Color c = Program.model.GetActiveMatrix().getColor(hit.cubelocation).toNEWDAWN();
 					ColorOption.lastOption.setColor(new Color(c.r, c.g, c.b));
 					ColorOption.lastOption.huecolor = new Color(c.r, c.g, c.b);
 					Program.toolpainter.paintColor = new Color(c.r, c.g, c.b);

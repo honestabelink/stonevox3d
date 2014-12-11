@@ -26,11 +26,10 @@ public class UndoAdd implements Undo
 			x = data.get(i * 3);
 			y = data.get(i * 3 + 1);
 			z = data.get(i * 3 + 2);
-			Program.model.matrixList.get((int) mID).cubes[(int) z][(int) y][(int) x].setAlpha(0);
-			Program.model.matrixList.get((int) mID).updateLightMap((int) x, (int) y, (int) z);
+			Program.model.matrixList.get((int) mID).removeVoxel((int) x, (int) y, (int) z);
 		}
 
-		Program.model.matrixList.get((int) mID).updateMesh();
+		Program.model.matrixList.get((int) mID).clean();
 		resetTool();
 
 		return data;
@@ -54,11 +53,10 @@ public class UndoAdd implements Undo
 			x = data.get(i * 3);
 			y = data.get(i * 3 + 1);
 			z = data.get(i * 3 + 2);
-			Program.model.matrixList.get((int) mID).cubes[(int) z][(int) y][(int) x].setAlpha(255);
-			Program.model.matrixList.get((int) mID).updateLightMap((int) x, (int) y, (int) z);
+			Program.model.matrixList.get((int) mID).addVoxel((int) x, (int) y, (int) z);
 		}
 
-		Program.model.matrixList.get((int) mID).updateMesh();
+		Program.model.matrixList.get((int) mID).clean();
 		resetTool();
 
 		return data;

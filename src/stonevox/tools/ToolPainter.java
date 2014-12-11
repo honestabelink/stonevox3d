@@ -112,19 +112,17 @@ public class ToolPainter implements Tool
 			{
 				if (Program.model.GetActiveMatrix().hasCube(hit.cubelocation))
 				{
-					if (!Program.model.GetActiveMatrix().isDirty(hit.cubelocation))
-					{
-						// undodata.add(hit.cubelocation.x);
-						// undodata.add(hit.cubelocation.y);
-						// undodata.add(hit.cubelocation.z);
-						// undodata.add(cube.fcolor.r);
-						// undodata.add(cube.fcolor.g);
-						// undodata.add(cube.fcolor.b);
-					}
+					Color color = Program.model.GetActiveMatrix().getColor(hit.cubelocation).toNEWDAWN();
+
+					undodata.add(hit.cubelocation.x);
+					undodata.add(hit.cubelocation.y);
+					undodata.add(hit.cubelocation.z);
+					undodata.add(color.r);
+					undodata.add(color.g);
+					undodata.add(color.b);
 
 					Program.model.GetActiveMatrix().setVoxelColor(hit.cubelocation,
 							stonevox.data.Color.FromNEWDAWN(paintColor));
-					// Program.model.GetActiveMatrix().updateMesh();
 
 					lasthitpoint = hit;
 				}
