@@ -116,9 +116,9 @@ public class ToolAdd implements Tool
 				Vector3 loc = Vector3.add(hit.cubelocation, hit.cubenormal);
 				Program.model.GetActiveMatrix().addVoxel(loc, Color.FromNEWDAWN(ColorOption.lastOption.color));
 
-				// undodata.add(loc.x);
-				// undodata.add(loc.y);
-				// undodata.add(loc.z);
+				undodata.add(loc.x);
+				undodata.add(loc.y);
+				undodata.add(loc.z);
 			}
 			lasthitpoint = hit;
 		}
