@@ -98,7 +98,6 @@ public class Raycaster
 	{
 		thread = new Thread(new Runnable()
 		{
-
 			public void run()
 			{
 
