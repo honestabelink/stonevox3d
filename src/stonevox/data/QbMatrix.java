@@ -649,9 +649,9 @@ public class QbMatrix
 									}
 								}
 							}
-							else if (isDirty(x, y, z + 1))
+							else if (isDirty(x, y, z - 1))
 							{
-								if (back.raytestUndefinedCube(x, y, z))
+								if (front.raytestUndefinedCube(x, y, z))
 								{
 									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
 
@@ -660,7 +660,7 @@ public class QbMatrix
 										rayhit.cubelocation.x = x;
 										rayhit.cubelocation.y = y;
 										rayhit.cubelocation.z = z;
-										rayhit.cubenormal = back.normal;
+										rayhit.cubenormal = front.normal;
 										rayhit.distance = dis;
 									}
 								}
@@ -693,18 +693,18 @@ public class QbMatrix
 									}
 								}
 							}
-							else if (isDirty(x, y, z - 1))
+							else if (isDirty(x, y, z + 1))
 							{
-								if (front.raytestUndefinedCube(x, y, z))
+								if (back.raytestUndefinedCube(x, y, z))
 								{
-									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f + .5f);
 
 									if (dis < rayhit.distance)
 									{
 										rayhit.cubelocation.x = x;
 										rayhit.cubelocation.y = y;
 										rayhit.cubelocation.z = z;
-										rayhit.cubenormal = front.normal;
+										rayhit.cubenormal = back.normal;
 										rayhit.distance = dis;
 									}
 								}
@@ -741,7 +741,7 @@ public class QbMatrix
 							{
 								if (top.raytestUndefinedCube(x, y, z))
 								{
-									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f + .5f, z * .5f);
 
 									if (dis < rayhit.distance)
 									{
@@ -786,7 +786,7 @@ public class QbMatrix
 							{
 								if (bottom.raytestUndefinedCube(x, y, z))
 								{
-									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+									dis = RaycastingUtil.Distance(x * .5f, y * .5f - .5f, z * .5f);
 
 									if (dis < rayhit.distance)
 									{
@@ -826,18 +826,18 @@ public class QbMatrix
 									}
 								}
 							}
-							else if (isDirty(x - 1, y, z))
+							else if (isDirty(x + 1, y, z))
 							{
-								if (right.raytestUndefinedCube(x, y, z))
+								if (left.raytestUndefinedCube(x, y, z))
 								{
-									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+									dis = RaycastingUtil.Distance(x * .5f + .5f, y * .5f, z * .5f);
 
 									if (dis < rayhit.distance)
 									{
 										rayhit.cubelocation.x = x;
 										rayhit.cubelocation.y = y;
 										rayhit.cubelocation.z = z;
-										rayhit.cubenormal = right.normal;
+										rayhit.cubenormal = left.normal;
 										rayhit.distance = dis;
 									}
 								}
@@ -870,18 +870,18 @@ public class QbMatrix
 									}
 								}
 							}
-							else if (isDirty(x + 1, y, z))
+							else if (isDirty(x - 1, y, z))
 							{
-								if (left.raytestUndefinedCube(x, y, z))
+								if (right.raytestUndefinedCube(x, y, z))
 								{
-									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
+									dis = RaycastingUtil.Distance(x * .5f - .5f, y * .5f, z * .5f);
 
 									if (dis < rayhit.distance)
 									{
 										rayhit.cubelocation.x = x;
 										rayhit.cubelocation.y = y;
 										rayhit.cubelocation.z = z;
-										rayhit.cubenormal = left.normal;
+										rayhit.cubenormal = right.normal;
 										rayhit.distance = dis;
 									}
 								}
