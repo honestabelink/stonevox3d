@@ -581,5 +581,6 @@ public class QbMatrixSide
 	{
 		GL30.glDeleteVertexArrays(this.vertexobjectbufferid);
 		GL15.glDeleteBuffers(this.voxelbufferid);
+		updateLocations.clear();
 	}
 }
