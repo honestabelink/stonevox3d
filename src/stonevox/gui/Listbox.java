@@ -62,6 +62,7 @@ public class Listbox extends GUIelement
 					if (Program.model.matrixList.size() > activeIndex)
 					{
 						Program.model.setActiveMatrix(activeindex);
+						Program.floor.updatemesh();
 
 						Textbox name = (Textbox) GUI.get(GUI.MATRIX_NAME);
 						name.setText(Program.model.GetActiveMatrix().getName());
@@ -202,6 +203,7 @@ public class Listbox extends GUIelement
 			if (i < Program.model.matrixList.size())
 			{
 				String name = Program.model.matrixList.get(i).getName();
+
 				l.setText(name);
 				if (name != "")
 				{
