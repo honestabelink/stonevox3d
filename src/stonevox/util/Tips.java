@@ -27,7 +27,7 @@ public class Tips
 	public static String toolpaint = "Paint voxels - Shortcut B";
 	public static String toolremove = "Remove voxels - Shortcut E";
 	public static String toolsaveqb = "Export .qb File";
-	public static String toolsaveqbcentered = "Export Model Centered to File";
+	public static String toolsaveqbcentered = "Export .qb File - Center Aligned";
 	public static String toolsave = "Save and Export to File";
 
 	public static String notimplemented = "Not Implemented";
