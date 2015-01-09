@@ -71,6 +71,11 @@ public class GUI
 	public static String MESSAGE_TEXTBOX_CHANGED = "textbox_changed";
 	public static String MESSAGE_TEXTBOX_COMMITED = "textbox_commited";
 
+	private static float tooloffset;
+	private static float clocationscale;
+
+	public static int coloroptionStartID;
+
 	static int lastControlOver = -1;
 	static int lastControlFocused = -1;
 	static int lastButton = -1;
@@ -79,11 +84,6 @@ public class GUI
 	static ArrayList<GUIelement> elements = new ArrayList<GUIelement>();
 	public static ArrayList<GUIlayout> layout = new ArrayList<GUIlayout>();
 	public static ArrayList<TextDisplay> text = new ArrayList<TextDisplay>();
-
-	private static float tooloffset;
-	private static float clocationscale;
-
-	public static int coloroptionStartID;
 
 	public static void logic(float x, float y, float dx, float dy)
 	{
@@ -1247,7 +1247,7 @@ public class GUI
 
 		};
 		saveBG.setPositon(width / 2f + 2f * tooloffset, -100f);
-		saveBG.appearence.Add("bg", new Sprite("/data/sub_toolmenu_oneoption.png", saveBG));
+		saveBG.appearence.Add("bg", new Sprite("/data/sub_toolmenu_someoptions.png", saveBG));
 		saveBG.x -= saveBG.width / 2f;
 		saveBG.data.put("state", false);
 		saveBG.transitions.put("ontrans", new GUItransition((float) Scale.vPosScale(75), false));
@@ -1267,10 +1267,29 @@ public class GUI
 		};
 		saveqb.statusTip = Tips.toolsaveqb;
 		saveqb.setParent(saveBG);
-		saveqb.setPositon(.22f, .14f, true);
+		saveqb.setPositon(.15f, .14f, true);
 		GUI.AddElement(saveqb);
 
+		SpriteButton saveqbcentered =
+				new SpriteButton(GUI.getNextID(), "/data/qbsave.png", "/data/qbsave_highlight.png")
+				{
+					public void mouseClick(int button)
+					{
+						GUIelement el = GUI.get(GUI.SAVE_BACKGROUND);
+						el.doTrans("offtrans");
+						el.data.replace("state", false);
+						Program.model.centerMatrixPositions();
+						QbUtil.writeQB();
+						super.mouseClick(button);
+					}
+				};
+		saveqbcentered.statusTip = Tips.toolsaveqbcentered;
+		saveqbcentered.setParent(saveBG);
+		saveqbcentered.setPositon(.60f, .14f, true);
+		GUI.AddElement(saveqbcentered);
+
 		GUI.layout.add(new GUIlayout(saveqb.ID, false));
+		GUI.layout.add(new GUIlayout(saveqbcentered.ID, false));
 		GUI.layout.add(new GUIlayout(GUI.SAVE_BACKGROUND, false));
 
 		SpriteButton savebutton = new SpriteButton(GUI.getNextID(), "/data/save.png", "/data/save_highlight.png")
