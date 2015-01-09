@@ -85,13 +85,8 @@ public class QbUtil
 
 				def.setSize((int) (getUnsignedInt(in)), (int) (getUnsignedInt(in)), (int) (getUnsignedInt(in)));
 
-				def.setPosition(in.readInt(), in.readInt(), in.readInt());
+				def.setPosition((int) (getUnsignedInt(in)), (int) (getUnsignedInt(in)), (int) (getUnsignedInt(in)));
 				def.setPosition(0, 0, 0);
-
-				if (def.getName().equals("PAL"))
-				{
-					model.hasPAL = true;
-				}
 
 				int r;
 				int g;
@@ -117,6 +112,16 @@ public class QbUtil
 				{
 					throw new Exception("qb compression not implemented");
 				}
+
+				if (def.getName().equals("PAL"))
+				{
+					// model.hasPAL = true;
+					model.matrixList.remove(i);
+					i--;
+					model.numMatrices--;
+					continue;
+				}
+
 			}
 			in.close();
 		}
