@@ -27,6 +27,7 @@ import org.newdawn.slick.Color;
 
 import stonevox.data.Keyhook;
 import stonevox.data.Matrix;
+import stonevox.data.QbMatrix;
 import stonevox.data.QbModel;
 import stonevox.data.Shader;
 import stonevox.data.Tool;
@@ -64,9 +65,9 @@ public class Program
 	public static float nearPlane = 1f;
 	public static float farPlane = 300f;
 	public static int fps;
+	public static long delta = 1l;
 	public static int height = 800;
 	public static int width = 800;
-	public static long delta = 1l;
 
 	public static Camera camera;
 	public static Shader shader;
@@ -506,6 +507,56 @@ public class Program
 			if (key == Keyboard.KEY_P && keyState)
 			{
 				PaletteUtil.WritePalette();
+			}
+
+			if (key == Keyboard.KEY_UP && keyState)
+			{
+				for (QbMatrix m : model.matrixList)
+				{
+					m.hack_shift_model_backwards();
+				}
+			}
+			if (key == Keyboard.KEY_DOWN && keyState)
+			{
+				for (QbMatrix m : model.matrixList)
+				{
+					m.hack_shift_model_forwards();
+				}
+			}
+			if (key == Keyboard.KEY_LEFT && keyState)
+			{
+				for (QbMatrix m : model.matrixList)
+				{
+					m.hack_shift_model_left();
+				}
+			}
+
+			if (key == Keyboard.KEY_RIGHT && keyState)
+			{
+				for (QbMatrix m : model.matrixList)
+				{
+					m.hack_shift_model_right();
+				}
+			}
+
+			if (key == Keyboard.KEY_ADD && keyState)
+			{
+				for (QbMatrix m : model.matrixList)
+				{
+					Vector3 size = m.size;
+
+					m.reSize((int) size.x + 1, (int) size.y + 1, (int) size.z + 1);
+				}
+			}
+
+			if (key == Keyboard.KEY_SUBTRACT && keyState)
+			{
+				for (QbMatrix m : model.matrixList)
+				{
+					Vector3 size = m.size;
+
+					m.reSize((int) size.x - 1, (int) size.y - 1, (int) size.z - 1);
+				}
 			}
 		}
 
