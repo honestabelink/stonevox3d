@@ -1378,7 +1378,7 @@ public class QbMatrix
 
 	public String getSizeString()
 	{
-		return size.x + "_" + size.y + "_" + size.z;
+		return (int) size.x + "_" + (int) size.y + "_" + (int) size.z;
 	}
 
 	public String getName()
@@ -1520,45 +1520,72 @@ public class QbMatrix
 
 	public void reSize(int x1, int y1, int z1)
 	{
-		// Cube[][][] cubes = new Cube[z1][y1][x1];
-		// Color color = new Color();
-		//
-		// for (int z = 0; z < z1; z++)
-		// {
-		// for (int y = 0; y < y1; y++)
-		// {
-		// for (int x = 0; x < x1; x++)
-		// {
-		// cubes[z][y][x] = new Cube();
-		// cubes[z][y][x].setPos(x, y, z);
-		// cubes[z][y][x].setColor(0, 0, 0, 0);
-		// cubes[z][y][x].setAlpha(0);
-		// }
-		// }
-		// }
-		//
-		// for (int z = 0; z < sizeZ; z++)
-		// {
-		// for (int y = 0; y < sizeY; y++)
-		// {
-		// for (int x = 0; x < sizeX; x++)
-		// {
-		// if (z > z1 - 1)
-		// continue;
-		// if (y > y1 - 1)
-		// continue;
-		// if (x > x1 - 1)
-		// continue;
-		//
-		// color = this.cubes[z][y][x].color;
-		// cubes[z][y][x].setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		// }
-		// }
-		// }
-		//
-		// this.cubes = cubes;
-		//
-		// dispose();
+		Color[][][] ncolors = new Color[z1][y1][x1];
+
+		for (int z = 0; z < z1; z++)
+		{
+			for (int y = 0; y < y1; y++)
+			{
+				for (int x = 0; x < x1; x++)
+				{
+					ncolors[z][y][x] = new Color(0, 0, 0, 0);
+				}
+			}
+		}
+
+		Color old = null;
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					old = cubecolor[z][y][x];
+
+					if (z >= z1)
+						continue;
+					if (x >= x1)
+						continue;
+					if (y >= y1)
+						continue;
+
+					ncolors[z][y][x] = new Color(old.r, old.g, old.b, old.a);
+				}
+			}
+		}
+
+		this.cubecolor = ncolors;
+
+		dispose();
+
+		indexbuffer = BufferUtils.createIntBuffer(x1 * z1 * y1 * 36);
+
+		for (int i = 0; i < x1 * y1 * z1 * 6; i++)
+		{
+			indexbuffer.put(i * 4);
+			indexbuffer.put(i * 4 + 1);
+			indexbuffer.put(i * 4 + 2);
+
+			indexbuffer.put(i * 4);
+			indexbuffer.put(i * 4 + 2);
+			indexbuffer.put(i * 4 + 3);
+		}
+
+		indexbuffer.flip();
+
+		cubedirty = new boolean[z1][y1][x1];
+		front.setSize(x1, y1, z1);
+		back.setSize(x1, y1, z1);
+		top.setSize(x1, y1, z1);
+		bottom.setSize(x1, y1, z1);
+		left.setSize(x1, y1, z1);
+		right.setSize(x1, y1, z1);
+
+		size = new Vector3(x1, y1, z1);
+
+		generateVoxelData();
+		genLightingData();
 		// this.sizeX = x1;
 		// this.sizeY = y1;
 		// this.sizeZ = z1;
@@ -1567,10 +1594,234 @@ public class QbMatrix
 		// this.setPosition(0, 0, 0);
 		// generateMesh();
 		//
-		// this.clean();
+		this.clean();
+		this.encodeVisibilityMask();
 		//
-		// Program.floor.updatemesh();
-		// GUI.Broadcast(GUI.MESSAGE_QB_MATRIX_RESIZED, this.getSizeString(), 100000);
+		Program.floor.updatemesh();
+		GUI.Broadcast(GUI.MESSAGE_QB_MATRIX_RESIZED, this.getSizeString(), 100000);
+	}
+
+	public void hack_shift_model_backwards()
+	{
+		Color[][][] shift = new Color[(int) size.z][(int) size.y][(int) size.x];
+		Color old = null;
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					old = cubecolor[z][y][x];
+					shift[z][y][x] = new Color(old.r, old.g, old.b, old.a);
+				}
+			}
+		}
+
+		for (int y = 0; y < size.y; y++)
+		{
+			for (int x = 0; x < size.x; x++)
+			{
+				if (hasCube(x, y, 0))
+				{
+					removeVoxel(x, y, 0);
+				}
+			}
+		}
+
+		for (int z = (int) (size.z - 1); z > 0; z--)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					if (shift[z - 1][y][x].a <= 0)
+					{
+						if (hasCube(x, y, z))
+						{
+							removeVoxel(x, y, z);
+						}
+						continue;
+					}
+
+					if (hasCube(x, y, z))
+					{
+						setVoxelColor(x, y, z, shift[z - 1][y][x]);
+					}
+					else
+						addVoxel(x, y, z, shift[z - 1][y][x]);
+				}
+			}
+		}
+	}
+
+	public void hack_shift_model_forwards()
+	{
+		Color[][][] shift = new Color[(int) size.z][(int) size.y][(int) size.x];
+		Color old = null;
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					old = cubecolor[z][y][x];
+					shift[z][y][x] = new Color(old.r, old.g, old.b, old.a);
+				}
+			}
+		}
+
+		for (int y = 0; y < size.y; y++)
+		{
+			for (int x = 0; x < size.x; x++)
+			{
+				if (hasCube(x, y, (int) size.z - 1))
+				{
+					removeVoxel(x, y, (int) size.z - 1);
+				}
+			}
+		}
+
+		for (int z = 0; z < size.z - 1; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					if (shift[z + 1][y][x].a <= 0)
+					{
+						if (hasCube(x, y, z))
+						{
+							removeVoxel(x, y, z);
+						}
+						continue;
+					}
+
+					if (hasCube(x, y, z))
+					{
+						setVoxelColor(x, y, z, shift[z + 1][y][x]);
+					}
+					else
+						addVoxel(x, y, z, shift[z + 1][y][x]);
+				}
+			}
+		}
+	}
+
+	public void hack_shift_model_right()
+	{
+		Color[][][] shift = new Color[(int) size.z][(int) size.y][(int) size.x];
+		Color old = null;
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					old = cubecolor[z][y][x];
+					shift[z][y][x] = new Color(old.r, old.g, old.b, old.a);
+				}
+			}
+		}
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				if (hasCube((int) size.x - 1, y, z))
+				{
+					removeVoxel((int) size.x - 1, y, z);
+				}
+			}
+		}
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x - 1; x++)
+				{
+					if (shift[z][y][x + 1].a <= 0)
+					{
+						if (hasCube(x, y, z))
+						{
+							removeVoxel(x, y, z);
+						}
+						continue;
+					}
+
+					if (hasCube(x, y, z))
+					{
+						setVoxelColor(x, y, z, shift[z][y][x + 1]);
+					}
+					else
+						addVoxel(x, y, z, shift[z][y][x + 1]);
+				}
+			}
+		}
+	}
+
+	public void hack_shift_model_left()
+	{
+		Color[][][] shift = new Color[(int) size.z][(int) size.y][(int) size.x];
+		Color old = null;
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					old = cubecolor[z][y][x];
+					shift[z][y][x] = new Color(old.r, old.g, old.b, old.a);
+				}
+			}
+		}
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				if (hasCube(0, y, z))
+				{
+					removeVoxel(0, y, z);
+				}
+			}
+		}
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = (int) (size.x - 1); x > 0; x--)
+				{
+					if (shift[z][y][x - 1].a <= 0)
+					{
+						if (hasCube(x, y, z))
+						{
+							removeVoxel(x, y, z);
+						}
+						continue;
+					}
+
+					if (hasCube(x, y, z))
+					{
+						setVoxelColor(x, y, z, shift[z][y][x - 1]);
+					}
+					else
+						addVoxel(x, y, z, shift[z][y][x - 1]);
+				}
+			}
+		}
+	}
+
+	public void centerMatrixPosition()
+	{
+		this.pos.x = -(int) (size.x / 2f);
+		this.pos.y = 0;
+		this.pos.z = -(int) (size.z / 2f);
 	}
 
 	public void dispose()
