@@ -436,10 +436,12 @@ public class QbMatrix
 							{
 								ci = front.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
-										front.vertexdata[ci + 1], front.vertexdata[ci + 2], front.vertexdata[ci + 7],
-										front.vertexdata[ci + 8], front.vertexdata[ci + 9], front.vertexdata[ci + 14],
-										front.vertexdata[ci + 15], front.vertexdata[ci + 16]) != null
+								if (ci > -1
+										&& RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
+												front.vertexdata[ci + 1], front.vertexdata[ci + 2],
+												front.vertexdata[ci + 7], front.vertexdata[ci + 8],
+												front.vertexdata[ci + 9], front.vertexdata[ci + 14],
+												front.vertexdata[ci + 15], front.vertexdata[ci + 16]) != null
 										|| RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
 												front.vertexdata[ci + 1], front.vertexdata[ci + 2],
 												front.vertexdata[ci + 14], front.vertexdata[ci + 15],
@@ -464,10 +466,12 @@ public class QbMatrix
 							{
 								ci = back.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(back.normal, back.vertexdata[ci], back.vertexdata[ci + 1],
-										back.vertexdata[ci + 2], back.vertexdata[ci + 7], back.vertexdata[ci + 8],
-										back.vertexdata[ci + 9], back.vertexdata[ci + 14], back.vertexdata[ci + 15],
-										back.vertexdata[ci + 16]) != null
+								if (ci > -1
+										&& RaycastingUtil.rayTest(back.normal, back.vertexdata[ci],
+												back.vertexdata[ci + 1], back.vertexdata[ci + 2],
+												back.vertexdata[ci + 7], back.vertexdata[ci + 8],
+												back.vertexdata[ci + 9], back.vertexdata[ci + 14],
+												back.vertexdata[ci + 15], back.vertexdata[ci + 16]) != null
 										|| RaycastingUtil.rayTest(back.normal, back.vertexdata[ci],
 												back.vertexdata[ci + 1], back.vertexdata[ci + 2],
 												back.vertexdata[ci + 14], back.vertexdata[ci + 15],
@@ -492,10 +496,12 @@ public class QbMatrix
 							{
 								ci = top.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(top.normal, top.vertexdata[ci], top.vertexdata[ci + 1],
-										top.vertexdata[ci + 2], top.vertexdata[ci + 7], top.vertexdata[ci + 8],
-										top.vertexdata[ci + 9], top.vertexdata[ci + 14], top.vertexdata[ci + 15],
-										top.vertexdata[ci + 16]) != null
+								if (ci > -1
+										&& RaycastingUtil.rayTest(top.normal, top.vertexdata[ci],
+												top.vertexdata[ci + 1], top.vertexdata[ci + 2], top.vertexdata[ci + 7],
+												top.vertexdata[ci + 8], top.vertexdata[ci + 9],
+												top.vertexdata[ci + 14], top.vertexdata[ci + 15],
+												top.vertexdata[ci + 16]) != null
 										|| RaycastingUtil.rayTest(top.normal, top.vertexdata[ci],
 												top.vertexdata[ci + 1], top.vertexdata[ci + 2],
 												top.vertexdata[ci + 14], top.vertexdata[ci + 15],
@@ -520,11 +526,12 @@ public class QbMatrix
 							{
 								ci = bottom.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
-										bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
-										bottom.vertexdata[ci + 7], bottom.vertexdata[ci + 8],
-										bottom.vertexdata[ci + 9], bottom.vertexdata[ci + 14],
-										bottom.vertexdata[ci + 15], bottom.vertexdata[ci + 16]) != null
+								if (ci > -1
+										&& RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
+												bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
+												bottom.vertexdata[ci + 7], bottom.vertexdata[ci + 8],
+												bottom.vertexdata[ci + 9], bottom.vertexdata[ci + 14],
+												bottom.vertexdata[ci + 15], bottom.vertexdata[ci + 16]) != null
 										|| RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
 												bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
 												bottom.vertexdata[ci + 14], bottom.vertexdata[ci + 15],
@@ -549,10 +556,12 @@ public class QbMatrix
 							{
 								ci = left.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(left.normal, left.vertexdata[ci], left.vertexdata[ci + 1],
-										left.vertexdata[ci + 2], left.vertexdata[ci + 7], left.vertexdata[ci + 8],
-										left.vertexdata[ci + 9], left.vertexdata[ci + 14], left.vertexdata[ci + 15],
-										left.vertexdata[ci + 16]) != null
+								if (ci > -1
+										&& RaycastingUtil.rayTest(left.normal, left.vertexdata[ci],
+												left.vertexdata[ci + 1], left.vertexdata[ci + 2],
+												left.vertexdata[ci + 7], left.vertexdata[ci + 8],
+												left.vertexdata[ci + 9], left.vertexdata[ci + 14],
+												left.vertexdata[ci + 15], left.vertexdata[ci + 16]) != null
 										|| RaycastingUtil.rayTest(left.normal, left.vertexdata[ci],
 												left.vertexdata[ci + 1], left.vertexdata[ci + 2],
 												left.vertexdata[ci + 14], left.vertexdata[ci + 15],
@@ -577,10 +586,12 @@ public class QbMatrix
 							{
 								ci = right.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
-										right.vertexdata[ci + 1], right.vertexdata[ci + 2], right.vertexdata[ci + 7],
-										right.vertexdata[ci + 8], right.vertexdata[ci + 9], right.vertexdata[ci + 14],
-										right.vertexdata[ci + 15], right.vertexdata[ci + 16]) != null
+								if (ci > -1
+										&& RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
+												right.vertexdata[ci + 1], right.vertexdata[ci + 2],
+												right.vertexdata[ci + 7], right.vertexdata[ci + 8],
+												right.vertexdata[ci + 9], right.vertexdata[ci + 14],
+												right.vertexdata[ci + 15], right.vertexdata[ci + 16]) != null
 										|| RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
 												right.vertexdata[ci + 1], right.vertexdata[ci + 2],
 												right.vertexdata[ci + 14], right.vertexdata[ci + 15],
@@ -627,15 +638,17 @@ public class QbMatrix
 							{
 								ci = front.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
-										front.vertexdata[ci + 1], front.vertexdata[ci + 2], front.vertexdata[ci + 7],
-										front.vertexdata[ci + 8], front.vertexdata[ci + 9], front.vertexdata[ci + 14],
-										front.vertexdata[ci + 15], front.vertexdata[ci + 16]) != null
-										|| RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
+								if (ci > -1
+										&& (RaycastingUtil.rayTest(front.normal, front.vertexdata[ci],
 												front.vertexdata[ci + 1], front.vertexdata[ci + 2],
-												front.vertexdata[ci + 14], front.vertexdata[ci + 15],
-												front.vertexdata[ci + 16], front.vertexdata[ci + 21],
-												front.vertexdata[ci + 22], front.vertexdata[ci + 23]) != null)
+												front.vertexdata[ci + 7], front.vertexdata[ci + 8],
+												front.vertexdata[ci + 9], front.vertexdata[ci + 14],
+												front.vertexdata[ci + 15], front.vertexdata[ci + 16]) != null || RaycastingUtil
+												.rayTest(front.normal, front.vertexdata[ci], front.vertexdata[ci + 1],
+														front.vertexdata[ci + 2], front.vertexdata[ci + 14],
+														front.vertexdata[ci + 15], front.vertexdata[ci + 16],
+														front.vertexdata[ci + 21], front.vertexdata[ci + 22],
+														front.vertexdata[ci + 23]) != null))
 								{
 									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f - .5f);
 
@@ -671,15 +684,17 @@ public class QbMatrix
 							{
 								ci = back.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(back.normal, back.vertexdata[ci], back.vertexdata[ci + 1],
-										back.vertexdata[ci + 2], back.vertexdata[ci + 7], back.vertexdata[ci + 8],
-										back.vertexdata[ci + 9], back.vertexdata[ci + 14], back.vertexdata[ci + 15],
-										back.vertexdata[ci + 16]) != null
-										|| RaycastingUtil.rayTest(back.normal, back.vertexdata[ci],
+								if (ci > -1
+										&& (RaycastingUtil.rayTest(back.normal, back.vertexdata[ci],
 												back.vertexdata[ci + 1], back.vertexdata[ci + 2],
-												back.vertexdata[ci + 14], back.vertexdata[ci + 15],
-												back.vertexdata[ci + 16], back.vertexdata[ci + 21],
-												back.vertexdata[ci + 22], back.vertexdata[ci + 23]) != null)
+												back.vertexdata[ci + 7], back.vertexdata[ci + 8],
+												back.vertexdata[ci + 9], back.vertexdata[ci + 14],
+												back.vertexdata[ci + 15], back.vertexdata[ci + 16]) != null || RaycastingUtil
+												.rayTest(back.normal, back.vertexdata[ci], back.vertexdata[ci + 1],
+														back.vertexdata[ci + 2], back.vertexdata[ci + 14],
+														back.vertexdata[ci + 15], back.vertexdata[ci + 16],
+														back.vertexdata[ci + 21], back.vertexdata[ci + 22],
+														back.vertexdata[ci + 23]) != null))
 								{
 									dis = RaycastingUtil.Distance(x * .5f, y * .5f, z * .5f + .5f);
 
@@ -715,15 +730,16 @@ public class QbMatrix
 							{
 								ci = top.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(top.normal, top.vertexdata[ci], top.vertexdata[ci + 1],
-										top.vertexdata[ci + 2], top.vertexdata[ci + 7], top.vertexdata[ci + 8],
-										top.vertexdata[ci + 9], top.vertexdata[ci + 14], top.vertexdata[ci + 15],
-										top.vertexdata[ci + 16]) != null
-										|| RaycastingUtil.rayTest(top.normal, top.vertexdata[ci],
-												top.vertexdata[ci + 1], top.vertexdata[ci + 2],
+								if (ci > -1
+										&& (RaycastingUtil.rayTest(top.normal, top.vertexdata[ci],
+												top.vertexdata[ci + 1], top.vertexdata[ci + 2], top.vertexdata[ci + 7],
+												top.vertexdata[ci + 8], top.vertexdata[ci + 9],
+												top.vertexdata[ci + 14], top.vertexdata[ci + 15],
+												top.vertexdata[ci + 16]) != null || RaycastingUtil.rayTest(top.normal,
+												top.vertexdata[ci], top.vertexdata[ci + 1], top.vertexdata[ci + 2],
 												top.vertexdata[ci + 14], top.vertexdata[ci + 15],
 												top.vertexdata[ci + 16], top.vertexdata[ci + 21],
-												top.vertexdata[ci + 22], top.vertexdata[ci + 23]) != null)
+												top.vertexdata[ci + 22], top.vertexdata[ci + 23]) != null))
 								{
 									dis = RaycastingUtil.Distance(x * .5f, y * .5f + .5f, z * .5f);
 
@@ -759,16 +775,17 @@ public class QbMatrix
 							{
 								ci = bottom.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
-										bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
-										bottom.vertexdata[ci + 7], bottom.vertexdata[ci + 8],
-										bottom.vertexdata[ci + 9], bottom.vertexdata[ci + 14],
-										bottom.vertexdata[ci + 15], bottom.vertexdata[ci + 16]) != null
-										|| RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
+								if (ci > -1
+										&& (RaycastingUtil.rayTest(bottom.normal, bottom.vertexdata[ci],
 												bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
-												bottom.vertexdata[ci + 14], bottom.vertexdata[ci + 15],
-												bottom.vertexdata[ci + 16], bottom.vertexdata[ci + 21],
-												bottom.vertexdata[ci + 22], bottom.vertexdata[ci + 23]) != null)
+												bottom.vertexdata[ci + 7], bottom.vertexdata[ci + 8],
+												bottom.vertexdata[ci + 9], bottom.vertexdata[ci + 14],
+												bottom.vertexdata[ci + 15], bottom.vertexdata[ci + 16]) != null || RaycastingUtil
+												.rayTest(bottom.normal, bottom.vertexdata[ci],
+														bottom.vertexdata[ci + 1], bottom.vertexdata[ci + 2],
+														bottom.vertexdata[ci + 14], bottom.vertexdata[ci + 15],
+														bottom.vertexdata[ci + 16], bottom.vertexdata[ci + 21],
+														bottom.vertexdata[ci + 22], bottom.vertexdata[ci + 23]) != null))
 								{
 									dis = RaycastingUtil.Distance(x * .5f, y * .5f - .5f, z * .5f);
 
@@ -804,15 +821,17 @@ public class QbMatrix
 							{
 								ci = left.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(left.normal, left.vertexdata[ci], left.vertexdata[ci + 1],
-										left.vertexdata[ci + 2], left.vertexdata[ci + 7], left.vertexdata[ci + 8],
-										left.vertexdata[ci + 9], left.vertexdata[ci + 14], left.vertexdata[ci + 15],
-										left.vertexdata[ci + 16]) != null
-										|| RaycastingUtil.rayTest(left.normal, left.vertexdata[ci],
+								if (ci > -1
+										&& (RaycastingUtil.rayTest(left.normal, left.vertexdata[ci],
 												left.vertexdata[ci + 1], left.vertexdata[ci + 2],
-												left.vertexdata[ci + 14], left.vertexdata[ci + 15],
-												left.vertexdata[ci + 16], left.vertexdata[ci + 21],
-												left.vertexdata[ci + 22], left.vertexdata[ci + 23]) != null)
+												left.vertexdata[ci + 7], left.vertexdata[ci + 8],
+												left.vertexdata[ci + 9], left.vertexdata[ci + 14],
+												left.vertexdata[ci + 15], left.vertexdata[ci + 16]) != null || RaycastingUtil
+												.rayTest(left.normal, left.vertexdata[ci], left.vertexdata[ci + 1],
+														left.vertexdata[ci + 2], left.vertexdata[ci + 14],
+														left.vertexdata[ci + 15], left.vertexdata[ci + 16],
+														left.vertexdata[ci + 21], left.vertexdata[ci + 22],
+														left.vertexdata[ci + 23]) != null))
 								{
 									dis = RaycastingUtil.Distance(x * .5f + .5f, y * .5f, z * .5f);
 
@@ -848,15 +867,17 @@ public class QbMatrix
 							{
 								ci = right.cubeindexs[z][y][x];
 
-								if (RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
-										right.vertexdata[ci + 1], right.vertexdata[ci + 2], right.vertexdata[ci + 7],
-										right.vertexdata[ci + 8], right.vertexdata[ci + 9], right.vertexdata[ci + 14],
-										right.vertexdata[ci + 15], right.vertexdata[ci + 16]) != null
-										|| RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
+								if (ci > -1
+										&& (RaycastingUtil.rayTest(right.normal, right.vertexdata[ci],
 												right.vertexdata[ci + 1], right.vertexdata[ci + 2],
-												right.vertexdata[ci + 14], right.vertexdata[ci + 15],
-												right.vertexdata[ci + 16], right.vertexdata[ci + 21],
-												right.vertexdata[ci + 22], right.vertexdata[ci + 23]) != null)
+												right.vertexdata[ci + 7], right.vertexdata[ci + 8],
+												right.vertexdata[ci + 9], right.vertexdata[ci + 14],
+												right.vertexdata[ci + 15], right.vertexdata[ci + 16]) != null || RaycastingUtil
+												.rayTest(right.normal, right.vertexdata[ci], right.vertexdata[ci + 1],
+														right.vertexdata[ci + 2], right.vertexdata[ci + 14],
+														right.vertexdata[ci + 15], right.vertexdata[ci + 16],
+														right.vertexdata[ci + 21], right.vertexdata[ci + 22],
+														right.vertexdata[ci + 23]) != null))
 								{
 									dis = RaycastingUtil.Distance(x * .5f - .5f, y * .5f, z * .5f);
 
