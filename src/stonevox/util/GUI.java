@@ -15,7 +15,9 @@ import stonevox.data.GUIelement;
 import stonevox.data.GUIlayout;
 import stonevox.data.GUItransition;
 import stonevox.data.Keyhook;
+import stonevox.data.QbMatrix;
 import stonevox.data.TextDisplay;
+import stonevox.data.Vector3;
 import stonevox.decorator.MultiColorBackground;
 import stonevox.decorator.PlainBorder;
 import stonevox.decorator.PlainMarker;
@@ -27,6 +29,7 @@ import stonevox.gui.SpriteButton;
 import stonevox.gui.Tab;
 import stonevox.gui.TabGroup;
 import stonevox.gui.Textbox;
+import stonevox.gui.Window;
 
 public class GUI
 {
@@ -50,6 +53,8 @@ public class GUI
 	public static int SCREENSHOT_CAMERA_BOUNDS = 917;
 	public static int SCREENSHOT_WIDTH = 918;
 	public static int SCREENSHOT_HEIGHT = 919;
+	public static int HACK_MODEL_EXPORT_POSITION = 920;
+	public static int SAVE_WINDOW = 921;
 
 	public static float hackscalex = 1.0f;
 	public static float hackscaley = 1.0f;
@@ -70,6 +75,7 @@ public class GUI
 	public static String MESSAGE_QB_MATRIX_REMOVED = "qb_matrix_removed";
 	public static String MESSAGE_TEXTBOX_CHANGED = "textbox_changed";
 	public static String MESSAGE_TEXTBOX_COMMITED = "textbox_commited";
+	public static String MESSAGE_TAB_SELECTED = "gui_tab_selected";
 
 	private static float tooloffset;
 	private static float clocationscale;
@@ -378,6 +384,7 @@ public class GUI
 
 	public static void StandardGUI(boolean _720p)
 	{
+		lastelementid = -1;
 		float width = (float) Program.width;
 		float height = (float) Program.height;
 
@@ -390,11 +397,15 @@ public class GUI
 		String proName = "";
 		Textbox proSizeTextbox = (Textbox) GUI.get(GUI.MATRIX_SIZE);
 		String proSize = "";
+		Textbox proPosTextbox = (Textbox) GUI.get(GUI.HACK_MODEL_EXPORT_POSITION);
+		String proPos = "";
 
 		if (proTextbox != null)
 			proName = proTextbox.text;
 		if (proSizeTextbox != null)
 			proSize = proSizeTextbox.text;
+		if (proPosTextbox != null)
+			proPos = proPosTextbox.text;
 
 		GUI.dispose();
 
@@ -521,14 +532,9 @@ public class GUI
 		// MAIN TAB
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-		Label projectname = new Label(getNextID(), "File Name :", Color.white);
-		projectname.setParent(projectSettingsBG);
-		projectname.setPositon(.2f, .90f, true);
-		GUI.AddElement(projectname);
-
 		Label matrixlistlabel = new Label(getNextID(), "Matrix List :", Color.white);
 		matrixlistlabel.setParent(projectSettingsBG);
-		matrixlistlabel.setPositon(.2f, .77f, true);
+		matrixlistlabel.setPositon(.2f, .90f, true);
 		GUI.AddElement(matrixlistlabel);
 
 		SpriteButton addmatrixbutton =
@@ -561,30 +567,6 @@ public class GUI
 		removematrixbutton.setPositon(.85f, .028f, true);
 		GUI.AddElement(removematrixbutton);
 
-		Textbox projectnametextbox = new Textbox(GUI.PROJECTSETTINGS_NAME, 350f)
-		{
-			@Override
-			public void onMessageRecieved(String message, Object... args)
-			{
-				if (message == GUI.MESSAGE_QB_LOADED)
-				{
-					File f = new File((String) args[0]);
-					this.setText(f.getName().substring(0, f.getName().length() - 3));
-				}
-				super.onMessageRecieved(message, args);
-			}
-		};
-		projectnametextbox.statusTip = Tips.filename;
-		projectnametextbox.setParent(projectSettingsBG);
-		projectnametextbox.setPositon(.2f, .845f, true);
-		projectnametextbox.setText("untitled");
-		GUI.AddElement(projectnametextbox);
-
-		if (proName != "")
-		{
-			projectnametextbox.setText(proName);
-		}
-
 		float fontheight = FontUtil.GetFont("default").font.getHeight("T");
 		Listbox matrixlistbox = new Listbox(GUI.MATRIXLISTBOX, 350, fontheight * 14f)
 		{
@@ -608,20 +590,18 @@ public class GUI
 			}
 		};
 		matrixlistbox.setParent(projectSettingsBG);
-		matrixlistbox.setPositon(.2f, .15f, true);
+		matrixlistbox.setPositon(.2f, .28f, true);
 		matrixlistbox.updateNames();
 		GUI.AddElement(matrixlistbox);
 
 		// the hacks...
 		ArrayList<GUIelement> maintabelements = new ArrayList<GUIelement>();
-		maintabelements.add(projectname);
-		maintabelements.add(projectnametextbox);
 		maintabelements.add(matrixlistbox);
 		maintabelements.add(matrixlistlabel);
+		maintabelements.add(matrixlistbox.vs);
+		maintabelements.add(matrixlistbox.vs.getScrollbar());
 		maintabelements.add(addmatrixbutton);
 		maintabelements.add(removematrixbutton);
-		// maintabelements.add(matrixlistbox.vs);
-		// maintabelements.add(matrixlistbox.vs.getScrollbar());
 
 		for (int i = 0; i < matrixlistbox.elements.size(); i++)
 		{
@@ -954,20 +934,26 @@ public class GUI
 
 				float nx = (float) Scale.scale(Mouse.getX(), 0, Program.width, -1, 1);
 				float ny = (float) Scale.scale(Mouse.getY(), 0, Program.height, -1, 1);
-
-				Color c = new Color(1, 1, 1);
-				float average = r + g + b / 3f;
-
-				if (average > 256f / 2f)
+				if (button == 0)
 				{
-					c = Color.black;
+					Color c = new Color(1, 1, 1);
+					float average = r + g + b / 3f;
+
+					if (average > 256f / 2f)
+					{
+						c = Color.black;
+					}
+					else
+						c = Color.white;
+
+					ColorOption.lastOption.setColoredSquareLocation(nx - (x + getParent().x), ny - (y + getParent().y));
+
+					getPlainMarker("marker").setPositionColor(nx - (x + getParent().x), ny - (y + getParent().y), c);
 				}
-				else
-					c = Color.white;
-
-				ColorOption.lastOption.setColoredSquareLocation(nx - (x + getParent().x), ny - (y + getParent().y));
-
-				getPlainMarker("marker").setPositionColor(nx - (x + getParent().x), ny - (y + getParent().y), c);
+				else if (button == 1)
+				{
+					Program.clearColor = new Color(r / 255f, g / 255f, b / 255f, 1.0f);
+				}
 				super.mouseUp(button);
 			}
 		};
@@ -1239,6 +1225,217 @@ public class GUI
 		GUI.AddElement(removebutton);
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// SAVE WINDOW
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		Window saveWindow = new Window(GUI.SAVE_WINDOW)
+		{
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				super.onMessageRecieved(message, args);
+
+				if (message == GUI.MESSAGE_GUI_MENU_TRANS_ON)
+					this.setEnable(false);
+			}
+
+			@Override
+			public void setEnable(boolean enabled)
+			{
+
+				super.setEnable(enabled);
+			}
+		};
+		saveWindow.data.put("saveid", 0);
+		saveWindow.appearence.Add("bg", new Sprite("data/save_window_background.png", saveWindow));
+		saveWindow.setPositon(width / 2f - saveWindow.getUnScaleWidth() / 4f,
+				height / 2f - saveWindow.getUnScaleHeight() / 4f);
+
+		GUI.AddElement(saveWindow);
+
+		Label projectname = new Label(getNextID(), "File Name :", Color.white);
+		projectname.setParent(saveWindow);
+		projectname.setPositon(.05f, .90f, true);
+		GUI.AddElement(projectname);
+
+		Textbox projectnametextbox = new Textbox(GUI.PROJECTSETTINGS_NAME, 350f)
+		{
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					File f = new File((String) args[0]);
+					this.setText(f.getName().substring(0, f.getName().length() - 3));
+				}
+				super.onMessageRecieved(message, args);
+			}
+		};
+		projectnametextbox.statusTip = Tips.filename;
+		projectnametextbox.setParent(saveWindow);
+		projectnametextbox.setPositon(.05f, .845f, true);
+		projectnametextbox.setText("untitled");
+		GUI.AddElement(projectnametextbox);
+
+		if (proName != "")
+		{
+			projectnametextbox.setText(proName);
+		}
+
+		Label projectpos = new Label(getNextID(), "Export Origin :", Color.white);
+		projectpos.setParent(saveWindow);
+		projectpos.setPositon(.05f, .75f, true);
+		GUI.AddElement(projectpos);
+
+		Textbox modelPosTextbox = new Textbox(GUI.HACK_MODEL_EXPORT_POSITION, 350f)
+		{
+			public void OnReturnKey()
+			{
+				try
+				{
+					int _index1 = text.indexOf("_");
+					int _index2 = text.indexOf("_", _index1 + 1);
+
+					if (_index1 == -1 || _index2 == -1)
+					{
+						setText(lasttext);
+						return;
+					}
+
+					int x = Integer.parseInt(text.substring(0, _index1));
+					int y = Integer.parseInt(text.substring(_index1 + 1, _index2));
+					int z = Integer.parseInt(text.substring(_index2 + 1));
+					for (QbMatrix m : Program.model.matrixList)
+						m.pos = new Vector3(x, y, z);
+				}
+				catch (NumberFormatException e)
+				{
+					this.text = "0_0_0";
+				}
+				super.OnReturnKey();
+			}
+
+			@Override
+			public void focusLost()
+			{
+				try
+				{
+					int _index1 = text.indexOf("_");
+					int _index2 = text.indexOf("_", _index1 + 1);
+
+					if (_index1 == -1 || _index2 == -1)
+					{
+						setText(lasttext);
+						return;
+					}
+
+					int x = Integer.parseInt(text.substring(0, _index1));
+					int y = Integer.parseInt(text.substring(_index1 + 1, _index2));
+					int z = Integer.parseInt(text.substring(_index2 + 1));
+					for (QbMatrix m : Program.model.matrixList)
+						m.pos = new Vector3(x, y, z);
+				}
+				catch (NumberFormatException e)
+				{
+					this.text = "0_0_0";
+				}
+				super.focusLost();
+			}
+
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					this.setText(Program.model.GetActiveMatrix().getPositionString());
+				}
+				super.onMessageRecieved(message, args);
+			}
+		};
+		modelPosTextbox.statusTip = Tips.exportpos;
+		modelPosTextbox.setParent(saveWindow);
+		modelPosTextbox.setPositon(.05f, .7f, true);
+		modelPosTextbox.setText("0_0_0");
+		GUI.AddElement(modelPosTextbox);
+
+		if (proPos != "")
+		{
+			modelPosTextbox.setText(proPos);
+		}
+
+		SpriteButton center_align =
+				new SpriteButton(GUI.getNextID(), "data/center_aligned.png", "data/center_aligned_highlight.png")
+				{
+					public void mouseClick(int button)
+					{
+						super.mouseClick(button);
+
+						Program.model.centerMatrixPositions();
+
+						Textbox t = (Textbox) GUI.get(GUI.HACK_MODEL_EXPORT_POSITION);
+						t.setText(Program.model.GetActiveMatrix().getPositionString());
+					}
+				};
+
+		center_align.setParent(saveWindow);
+		center_align.setPositon(.65f, .685f, true);
+		center_align.setSize(35, 35);
+		center_align.statusTip = Tips.centeralign;
+
+		GUI.AddElement(center_align);
+
+		SpriteButton save_export_button =
+				new SpriteButton(GUI.getNextID(), "/data/screenshot_save.png", "/data/screenshot_save_highlight.png")
+				{
+					@Override
+					public void mouseClick(int button)
+					{
+						super.mouseClick(button);
+
+						int id = (Integer) GUI.get(GUI.SAVE_WINDOW).data.get("saveid");
+						if (id == 0)
+							QbUtil.writeQB();
+						else if (id == 1)
+							QbUtil.writeOBJ();
+
+						GUI.get(GUI.SAVE_WINDOW).setEnable(false);
+					}
+				};
+		save_export_button.statusTip = Tips.toolsave;
+		save_export_button.setParent(saveWindow);
+		save_export_button.setPositon(.75f, .05f, true);
+		GUI.AddElement(save_export_button);
+
+		SpriteButton save_cancel_export_button =
+				new SpriteButton(GUI.getNextID(), "/data/screenshot_cancel.png",
+						"/data/screenshot_cancel_highlight.png")
+				{
+					@Override
+					public void mouseClick(int button)
+					{
+						super.mouseClick(button);
+						GUI.get(GUI.SAVE_WINDOW).setEnable(false);
+					}
+				};
+		save_cancel_export_button.statusTip = Tips.toolcancel;
+		save_cancel_export_button.setParent(saveWindow);
+		save_cancel_export_button.setPositon(.55f, .05f, true);
+		GUI.AddElement(save_cancel_export_button);
+
+		ArrayList<GUIelement> savewindowelements = new ArrayList<GUIelement>();
+		savewindowelements.add(save_export_button);
+		savewindowelements.add(save_cancel_export_button);
+		savewindowelements.add(projectnametextbox);
+		savewindowelements.add(projectname);
+		savewindowelements.add(projectpos);
+		savewindowelements.add(modelPosTextbox);
+		savewindowelements.add(center_align);
+
+		saveWindow.elements = savewindowelements;
+
+		saveWindow.setEnable(false);
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SAVE TOOL
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1261,7 +1458,8 @@ public class GUI
 				GUIelement el = GUI.get(GUI.SAVE_BACKGROUND);
 				el.doTrans("offtrans");
 				el.data.replace("state", false);
-				QbUtil.writeQB();
+				GUI.get(GUI.SAVE_WINDOW).data.put("saveid", 0);
+				GUI.get(GUI.SAVE_WINDOW).setEnable(true);
 				super.mouseClick(button);
 			}
 		};
@@ -1270,26 +1468,27 @@ public class GUI
 		saveqb.setPositon(.15f, .14f, true);
 		GUI.AddElement(saveqb);
 
-		SpriteButton saveqbcentered =
-				new SpriteButton(GUI.getNextID(), "/data/qbsave.png", "/data/qbsave_highlight.png")
-				{
-					public void mouseClick(int button)
-					{
-						GUIelement el = GUI.get(GUI.SAVE_BACKGROUND);
-						el.doTrans("offtrans");
-						el.data.replace("state", false);
-						Program.model.centerMatrixPositions();
-						QbUtil.writeQB();
-						super.mouseClick(button);
-					}
-				};
-		saveqbcentered.statusTip = Tips.toolsaveqbcentered;
-		saveqbcentered.setParent(saveBG);
-		saveqbcentered.setPositon(.60f, .14f, true);
-		GUI.AddElement(saveqbcentered);
+		SpriteButton saveobj = new SpriteButton(GUI.getNextID(), "/data/objsave.png", "/data/objsave_highlight.png")
+		{
+			public void mouseClick(int button)
+			{
+				GUIelement el = GUI.get(GUI.SAVE_BACKGROUND);
+				el.doTrans("offtrans");
+				el.data.replace("state", false);
+				GUI.get(GUI.SAVE_WINDOW).data.put("saveid", 1);
+				GUI.get(GUI.SAVE_WINDOW).setEnable(true);
+				super.mouseClick(button);
+			}
+		};
+		saveobj.statusTip = Tips.toolsaveobj;
+		saveobj.setParent(saveBG);
+		saveobj.setPositon(.60f, .14f, true);
+		GUI.AddElement(saveobj);
+
+		saveobj.setPositon(.60f, .14f, true);
 
 		GUI.layout.add(new GUIlayout(saveqb.ID, false));
-		GUI.layout.add(new GUIlayout(saveqbcentered.ID, false));
+		GUI.layout.add(new GUIlayout(saveobj.ID, false));
 		GUI.layout.add(new GUIlayout(GUI.SAVE_BACKGROUND, false));
 
 		SpriteButton savebutton = new SpriteButton(GUI.getNextID(), "/data/save.png", "/data/save_highlight.png")
@@ -1738,8 +1937,8 @@ public class GUI
 
 	private static void Hacked1080pPreGUI(float width, float height)
 	{
-		hackscalex = .95f;
-		hackscaley = .95f;
+		hackscalex = 1f;
+		hackscaley = 1f;
 		tooloffset = 73f;
 
 		clocationscale = 45f;

@@ -1,5 +1,8 @@
 package stonevox.data;
 
+import java.nio.FloatBuffer;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.util.Color;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -130,6 +133,14 @@ public class Vector3
 	public Color fromVect()
 	{
 		return new Color((int) (x * 256f), (int) (y * 256), (int) (z * 256));
+	}
+
+	public FloatBuffer getBuffer()
+	{
+		FloatBuffer b = BufferUtils.createFloatBuffer(3);
+		b.put(x).put(y).put(z);
+		b.flip();
+		return b;
 	}
 
 	public static Color fromVect(Vector3 vect)

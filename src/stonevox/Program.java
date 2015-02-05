@@ -94,21 +94,15 @@ public class Program
 	boolean wasLeftClickDown;
 	int lastkey;
 	boolean lastkeystate;
+	public static Color clearColor = new Color(0, 0, 0, 0);
 
 	public static boolean debug = false;
 
 	public static void main(String[] args)
 	{
 		new Program().execute(args);
-		try
-		{
-			Display.setParent(null);
-		}
-		catch (LWJGLException e)
-		{
-			e.printStackTrace();
-		}
-		Display.destroy();
+		frame.dispose();
+		frame = null;
 		System.exit(0);
 	}
 
@@ -153,7 +147,7 @@ public class Program
 			height = Display.getHeight();
 
 			GL11.glEnable(GL11.GL_ALPHA_TEST);
-			GL11.glAlphaFunc(GL11.GL_GREATER, 0);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.6f);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -185,6 +179,8 @@ public class Program
 		shader.UseShader();
 
 		shader.CreateUniformAccess("modelview\0");
+		shader.CreateUniformAccess("highlight\0");
+		shader.CreateUniformAccess("colors\0");
 
 		toolcolorpicker = new ToolColorPicker();
 		toolremove = new ToolRemove();
@@ -306,7 +302,7 @@ public class Program
 			fps = 0;
 		}
 
-		GL11.glClearColor(0, 0, 0, 0);
+		GL11.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		shader.UseShader();
@@ -401,10 +397,10 @@ public class Program
 		{
 			Vector3 right = Vector3.cross(camera.direction, UP);
 			Vector3 up = Vector3.cross(right, camera.direction);
-
+			//
 			float rotY2 = (float) Math.toRadians(-mousedx * .15f);
 			float rotX2 = (float) Math.toRadians(mousedy * .15f);
-
+			//
 			up.noramlize();
 			right.noramlize();
 
@@ -417,9 +413,6 @@ public class Program
 
 			RotateVector3(rotY2, focus, up);
 			RotateVector3(rotX2, focus, right);
-
-			Vector3 pos = null;
-			pos = model.GetActiveMatrix().posSize;
 
 			camera.position = Vector3.mul(focus, length);
 			camera.position.add(model.GetActiveMatrix().posSize);
@@ -507,6 +500,11 @@ public class Program
 			if (key == Keyboard.KEY_P && keyState)
 			{
 				PaletteUtil.WritePalette();
+			}
+
+			if (key == Keyboard.KEY_O && keyState)
+			{
+				QbUtil.writeOBJ();
 			}
 
 			if (key == Keyboard.KEY_UP && keyState)
@@ -719,6 +717,7 @@ public class Program
 	static Vector3 UP = new Vector3(0, 1, 0);
 	static Vector3 FORWARD = new Vector3(0, 0, 1);
 	static Vector3 RIGHT = new Vector3(1, 0, 0);
+	static Vector3 DOWN = new Vector3(0, -1, 0);
 
 	Vector3 RotateVector3(float angle, Vector3 vec, Vector3 up)
 	{

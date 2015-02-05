@@ -45,7 +45,7 @@ public class Floor
 		float sizex = (float) Program.model.GetActiveMatrix().size.x * 2f;
 		float sizez = (float) Program.model.GetActiveMatrix().size.z * 2f;
 
-		transform = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+		transform = Matrix.CreateTranslation(new Vector3(0, -.001f, 0));
 
 		vertex[0] = new Vector3(-.5f, -.5f, -.5f);
 		vertexdata[0] = -.5f;
@@ -127,7 +127,7 @@ public class Floor
 		float sizex = (float) Program.model.GetActiveMatrix().size.x * 2f;
 		float sizez = (float) Program.model.GetActiveMatrix().size.z * 2f;
 
-		transform = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+		transform = Matrix.CreateTranslation(new Vector3(0, -.004f, 0));
 
 		float[] vertexdata = new float[4 * 7];
 
@@ -177,6 +177,9 @@ public class Floor
 
 	public RayHitPoint rayCast(Vector3 origin, Vector3 projection)
 	{
+		if (Program.camera.position.y <= -.5f)
+			return null;
+
 		RayHitPoint hit = new RayHitPoint();
 		Vector3 result = RaycastingUtil.rayTest(origin, projection, up, vertex[0], vertex[1], vertex[2]);
 
@@ -201,6 +204,8 @@ public class Floor
 	{
 		if (visible)
 		{
+			if (Program.camera.position.y <= -.5f)
+				return;
 			final_transform = Matrix.Multiply(Program.camera.modelview, transform);
 
 			Program.shader.WriteUniformMatrix4("modelview\0", final_transform.GetBuffer());

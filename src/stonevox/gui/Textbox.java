@@ -142,6 +142,8 @@ public class Textbox extends GUIelement
 			return "8";
 		else if (key == Keyboard.KEY_NUMPAD9)
 			return "9";
+		else if (key == Keyboard.KEY_SUBTRACT)
+			return "-";
 
 		if (!Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && !Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
 		{

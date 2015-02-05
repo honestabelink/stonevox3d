@@ -3,6 +3,7 @@ package stonevox.gui;
 import java.util.ArrayList;
 
 import stonevox.data.GUIelement;
+import stonevox.util.GUI;
 
 public class TabGroup extends GUIelement
 {
@@ -24,6 +25,7 @@ public class TabGroup extends GUIelement
 			if (tabs.get(i).ID == id)
 			{
 				tabs.get(i).select();
+				GUI.Broadcast(GUI.MESSAGE_TAB_SELECTED, tabs.get(i), tabs.get(i).ID);
 			}
 			else
 				tabs.get(i).deselect();

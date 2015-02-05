@@ -100,6 +100,11 @@ public class Shader
 		GL20.glUniform3f(uniforms.get(name), x, y, z);
 	}
 
+	public void WriteUniformBuffer(String name, FloatBuffer buffer)
+	{
+		GL20.glUniform2(uniforms.get(name), buffer);
+	}
+
 	public static void ResetUseShader()
 	{
 		GL20.glUseProgram(0);

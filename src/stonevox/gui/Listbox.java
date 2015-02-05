@@ -7,6 +7,7 @@ import org.newdawn.slick.Color;
 import stonevox.Program;
 import stonevox.data.GUIelement;
 import stonevox.data.GUIlayout;
+import stonevox.data.Vector3;
 import stonevox.decorator.PlainBackground;
 import stonevox.decorator.PlainBorder;
 import stonevox.decorator.Sprite;
@@ -20,7 +21,7 @@ public class Listbox extends GUIelement
 
 	public ArrayList<GUIelement> elements = new ArrayList<GUIelement>();
 
-	// public VerticalScrollbar vs;
+	public VerticalScrollbar vs;
 
 	private PlainBackground highlight;
 	private PlainBorder border;
@@ -30,6 +31,10 @@ public class Listbox extends GUIelement
 
 	// hacks
 	private int startvisibility;
+	private int startindex;
+	private int laststartindex;
+
+	private boolean showvs;
 
 	public Listbox(int ID, float width, float height)
 	{
@@ -55,13 +60,39 @@ public class Listbox extends GUIelement
 			Label s = new Label(GUI.getNextID(), "", Color.white)
 			{
 				@Override
+				public void mouseEnter()
+				{
+					// TODO Auto-generated method stub
+					super.mouseEnter();
+
+					int index = (Integer) data.get("index") + startindex;
+					if (Program.model.matrixList.size() > index)
+					{
+						Program.model.getIndex(index).highlight = new Vector3(1.8f, 1.8f, 1.8f);
+					}
+				}
+
+				@Override
+				public void mouseLeave()
+				{
+					// TODO Auto-generated method stub
+					super.mouseLeave();
+
+					int index = (Integer) data.get("index") + startindex;
+					if (Program.model.matrixList.size() > index)
+					{
+						Program.model.getIndex(index).highlight = new Vector3(1f, 1f, 1f);
+					}
+				}
+
+				@Override
 				public void mouseClick(int button)
 				{
 					int activeindex = (Integer) data.get("index");
 
-					if (Program.model.matrixList.size() > activeIndex)
+					if (Program.model.matrixList.size() > activeIndex + startindex)
 					{
-						Program.model.setActiveMatrix(activeindex);
+						Program.model.setActiveMatrix(activeindex + startindex);
 						Program.floor.updatemesh();
 
 						Textbox name = (Textbox) GUI.get(GUI.MATRIX_NAME);
@@ -113,7 +144,7 @@ public class Listbox extends GUIelement
 							getSprite("on").setEnabled(false);
 							getSprite("off").setEnabled(true);
 						}
-						Program.model.getIndex(index).visible = vstate;
+						Program.model.getIndex(index + startindex).visible = vstate;
 					}
 					super.mouseClick(button);
 				}
@@ -166,15 +197,127 @@ public class Listbox extends GUIelement
 			GUI.AddElement(s);
 		}
 
-		// vs = new VerticalScrollbar(GUI.getNextID(), 1, 20, getUnScaleHeight() / 2f);
-		// GUI.AddElement(vs);
+		vs = new VerticalScrollbar(GUI.getNextID(), Program.model.numMatrices, 20, getUnScaleHeight() / 2f)
+		{
+			@Override
+			public void setEnable(boolean enabled)
+			{
+				if (Program.model.numMatrices > maxelements)
+				{
+					super.setEnable(true);
+					this.getScrollbar().setEnable(true);
+				}
+				else
+				{
+					super.setEnable(false);
+					this.getScrollbar().setEnable(false);
+				}
+			}
 
-		// vs.setParent(this);
-		// vs.setPositon(.95f, .0f, true);
-		// vs.updateScrollbar();
+			public void valueChanged(float value)
+			{
+				super.valueChanged(value);
+
+				if (Program.model.numMatrices > maxelements && (int) value != startindex)
+				{
+					startindex = (int) value;
+					updateNames();
+				}
+			}
+
+			@Override
+			public void onMessageRecieved(String message, Object... args)
+			{
+				super.onMessageRecieved(message, args);
+
+				if (message == GUI.MESSAGE_TAB_SELECTED)
+				{
+					int id = (Integer) args[1];
+
+					if (id == GUI.MATRIXTAB)
+					{
+						super.setEnable(false);
+						this.getScrollbar().setEnable(false);
+					}
+					else if (id == GUI.MAINTAB)
+					{
+						if (Program.model.numMatrices > maxelements)
+						{
+							super.setEnable(true);
+							this.getScrollbar().setEnable(true);
+						}
+						else
+						{
+							super.setEnable(false);
+							this.getScrollbar().setEnable(false);
+						}
+					}
+				}
+
+				if (message == GUI.MESSAGE_QB_LOADED)
+				{
+					if (Program.model.numMatrices > maxelements)
+					{
+						this.setEnable(true);
+						this.getScrollbar().setEnable(true);
+					}
+					else
+					{
+						this.setEnable(false);
+						this.getScrollbar().setEnable(false);
+					}
+
+					this.maxValue = Program.model.numMatrices;
+					this.updateScrollbar();
+				}
+
+				if (message == GUI.MESSAGE_QB_MATRIX_ADDED)
+				{
+					if (Program.model.numMatrices > maxelements)
+					{
+						this.setEnable(true);
+						this.getScrollbar().setEnable(true);
+					}
+					else
+					{
+						this.setEnable(false);
+						this.getScrollbar().setEnable(false);
+					}
+
+					this.maxValue = Program.model.numMatrices;
+					this.updateScrollbar();
+				}
+				if (message == GUI.MESSAGE_QB_MATRIX_REMOVED)
+				{
+					if (Program.model.numMatrices > maxelements)
+					{
+						this.setEnable(true);
+						this.getScrollbar().setEnable(true);
+					}
+					else
+					{
+						this.setEnable(false);
+						this.getScrollbar().setEnable(false);
+					}
+
+					this.maxValue = Program.model.numMatrices;
+					this.updateScrollbar();
+				}
+			}
+		};
+		GUI.AddElement(vs);
+
+		vs.setParent(this);
+		vs.setPositon(.95f, .0f, true);
+		vs.getScrollbar().setParent(this);
+		vs.getScrollbar().setPositon(.94f, 0, true);
+		vs.updateScrollbar();
+
+		vs.setEnable(false);
+		vs.getScrollbar().setEnable(false);
 
 		GUI.layout.add(new GUIlayout(ID, false));
-		// GUI.layout.add(new GUIlayout(vs.getScrollbar().ID, true));
+		GUI.layout.add(new GUIlayout(vs.getScrollbar().ID, true));
 	}
 
 	@Override
@@ -187,6 +330,12 @@ public class Listbox extends GUIelement
 			elements.get(i).x -= this.x / 2f;
 			elements.get(i).y -= this.y / 2f;
 		}
+
+		vs.x -= this.x / 2f;
+		vs.y -= this.y / 2f;
+
+		vs.getScrollbar().x -= this.x / 2f;
+		vs.getScrollbar().y -= this.y / 2f;
 	}
 
 	@Override
@@ -197,12 +346,15 @@ public class Listbox extends GUIelement
 
 	public void updateNames()
 	{
+		if (!this.getEnabled())
+			return;
+
 		for (int i = 0; i < elements.size() / 2; i++)
 		{
 			Label l = (Label) elements.get(i);
-			if (i < Program.model.matrixList.size())
+			if (i + startindex < Program.model.matrixList.size())
 			{
-				String name = Program.model.matrixList.get(i).getName();
+				String name = Program.model.matrixList.get(i + startindex).getName();
 
 				l.setText(name);
 				if (name != "")
@@ -225,6 +377,7 @@ public class Listbox extends GUIelement
 				{
 					int index = (int) (i + startvisibility);
 					elements.get(index).data.replace("allow", false);
+					elements.get(index).data.replace("mindex", (int) i + startindex);
 					elements.get(index).setEnable(false);
 				}
 			}
@@ -236,7 +389,10 @@ public class Listbox extends GUIelement
 				elements.get(index).setEnable(false);
 			}
 		}
-		activeIndex = Program.model.getActiveIndex();
+		activeIndex = Program.model.getActiveIndex() - startindex;
+
+		if (activeIndex < 0 || activeIndex > maxelements)
+			activeIndex = -100;
 	}
 
 	@Override

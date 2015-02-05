@@ -1,4 +1,4 @@
-#version 430
+#version 420
 
 in layout(location=0) vec3 position;
 in layout(location=1) vec3 color;
@@ -7,10 +7,19 @@ in layout(location=2) float light;
 out vec4 _color;
 
 uniform mat4 modelview;
+uniform vec3 highlight;
+
+uniform vec3 lowclamp = vec3(0,0,0);
+uniform vec3 highclamp = vec3(1,1,1);
+
+uniform float alpha = 1.0;
+
+uniform vec3 colors[64];
 				
 void main()
 {
 	vec4 v = vec4(position,1.0);
 	gl_Position =  modelview * v;
-	_color = vec4(color * light,1.0);
+	vec3 _step = clamp(color*highlight , lowclamp, highclamp);
+	_color = vec4(_step * light,alpha);
 }

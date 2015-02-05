@@ -29,12 +29,14 @@ public class QbMatrix
 
 	public Color[][][] cubecolor;
 	public boolean[][][] cubedirty;
-	private QbMatrixSide front;
-	private QbMatrixSide back;
-	private QbMatrixSide top;
-	private QbMatrixSide bottom;
-	private QbMatrixSide left;
-	private QbMatrixSide right;
+	public QbMatrixSide front;
+	public QbMatrixSide back;
+	public QbMatrixSide top;
+	public QbMatrixSide bottom;
+	public QbMatrixSide left;
+	public QbMatrixSide right;
+
+	public Vector3 highlight = new Vector3(1, 1, 1);
 
 	private IntBuffer indexbuffer;
 	private int indexbufferID;
@@ -82,7 +84,7 @@ public class QbMatrix
 
 	public void setPosition(int x, int y, int z)
 	{
-		pos = new Vector3(x * .5f, y * .5f, z * .5f);
+		pos = new Vector3(x, y, z);
 		posSize = new Vector3((float) (size.x) * .5f - .5f, (float) (size.y) * .5f - .5f, (float) (size.z) * .5f - .5f);
 
 		transform = Matrix.CreateTranslation(0, 0, 0);
@@ -331,7 +333,7 @@ public class QbMatrix
 	public RayHitPoint rayTest()
 	{
 		RayHitPoint rayhit = new RayHitPoint();
-		rayhit.distance = 100000;
+		rayhit.distance = 10000;
 
 		Color color = null;
 		int ci = 0;
@@ -912,7 +914,7 @@ public class QbMatrix
 				}
 			}
 		}
-		return rayhit.distance == 100000 ? null : rayhit;
+		return rayhit.distance == 10000 ? null : rayhit;
 	}
 
 	public void genLightingData()
@@ -1357,6 +1359,7 @@ public class QbMatrix
 			final_transform = Matrix.Multiply(Program.camera.modelview, transform);
 
 			Program.shader.WriteUniformMatrix4("modelview\0", final_transform.GetBuffer());
+			Program.shader.WriteUniformVec3("highlight\0", highlight.x, highlight.y, highlight.z);
 
 			// if (front.normal.dot(Program.camera.direction) < 0)
 			// {
@@ -1400,6 +1403,11 @@ public class QbMatrix
 	public String getSizeString()
 	{
 		return (int) size.x + "_" + (int) size.y + "_" + (int) size.z;
+	}
+
+	public String getPositionString()
+	{
+		return (int) pos.x + "_" + (int) pos.y + "_" + (int) pos.z;
 	}
 
 	public String getName()
@@ -1674,6 +1682,8 @@ public class QbMatrix
 				}
 			}
 		}
+
+		this.clean();
 	}
 
 	public void hack_shift_model_forwards()
@@ -1728,6 +1738,8 @@ public class QbMatrix
 				}
 			}
 		}
+
+		this.clean();
 	}
 
 	public void hack_shift_model_right()
@@ -1782,6 +1794,8 @@ public class QbMatrix
 				}
 			}
 		}
+
+		this.clean();
 	}
 
 	public void hack_shift_model_left()
@@ -1836,6 +1850,8 @@ public class QbMatrix
 				}
 			}
 		}
+
+		this.clean();
 	}
 
 	public void centerMatrixPosition()

@@ -6,7 +6,6 @@ import stonevox.data.GUIelement;
 import stonevox.data.GUIlayout;
 import stonevox.decorator.PlainBackground;
 import stonevox.decorator.PlainBorder;
-import stonevox.util.FontUtil;
 import stonevox.util.GUI;
 import stonevox.util.Scale;
 
@@ -14,7 +13,7 @@ public class VerticalScrollbar extends GUIelement
 {
 	private GUIelement button;
 
-	private float maxValue = 10;
+	public float maxValue = 10;
 	private float barStep;
 	private float valueStep;
 	private float currentPos;
@@ -23,9 +22,19 @@ public class VerticalScrollbar extends GUIelement
 
 	public float value;
 
+	private VerticalScrollbar ref;
+	private float fontHeight;
+
 	public VerticalScrollbar(int ID, int maxvalue, float width, float height)
 	{
 		super(ID);
+
+		Label g = new Label(1, "Tonion", Color.red);
+		g.setEnable(false);
+
+		fontHeight = g.height;
+
+		ref = this;
 
 		this.setSize(width, height);
 
@@ -40,18 +49,18 @@ public class VerticalScrollbar extends GUIelement
 					return;
 				this.y += y;
 
-				if (this.y > this.getParent().height - this.height)
+				if (this.y > ref.height - this.height - getParent().y / 2f)
 				{
-					this.y = this.getParent().height - this.height;
+					this.y = ref.height - this.height - getParent().y / 2f;
 				}
-				else if (this.y < 0)
+				else if (this.y < -getParent().y / 2f)
 				{
-					this.y = 0;
+					this.y = -getParent().y / 2f;
 				}
 
 				value =
-						Math.abs((float) Scale.scale(this.y, 0, this.getParent().height - this.height, startValue,
-								maxValue) - (startValue + (maxValue - maxTextShow)));
+						Math.abs((float) Scale.scale(this.y + getParent().y / 2f, 0, ref.height - this.height,
+								startValue, maxValue) - (startValue + (maxValue - maxTextShow)));
 				valueChanged(value);
 			}
 
@@ -68,11 +77,17 @@ public class VerticalScrollbar extends GUIelement
 				getPlainBackground("bg").color = Color.lightGray;
 				super.mouseLeave();
 			}
+
+			@Override
+			public void setEnable(boolean enabled)
+			{
+				super.setEnable(ref.getEnabled());
+			}
 		};
 
 		button.appearence.Add("bg", new PlainBackground(Color.lightGray));
 
-		button.setParent(this);
+		// button.setParent(this);
 		button.width = this.width * 1.3f;
 
 		updateScrollbar((float) maxvalue);
@@ -90,7 +105,6 @@ public class VerticalScrollbar extends GUIelement
 	public void updateScrollbar(float maxvalue)
 	{
 		this.maxValue = maxvalue;
-		float fontHeight = (float) Scale.vSizeScale(FontUtil.GetFont("default").height);
 		maxTextShow = this.height / fontHeight;
 
 		this.barStep = this.height / 100f;
@@ -108,13 +122,21 @@ public class VerticalScrollbar extends GUIelement
 
 		startValue = (float) Scale.scale(button.height, 0, this.height, 0f, maxValue);
 
-		button.setPositon(this.getUnScaleX() - button.getUnScaleWidth() / 16f,
-				this.getUnScaleY() + (this.getUnScaleHeight() - button.getUnScaleHeight()) / 2f, true);
+		if (this.getParent() != null)
+		{
+			button.y = (this.height - button.height - button.getParent().y / 2f) * .999f;
+			valueChanged(0f);
+		}
+	}
+
+	public void setParent(GUIelement el)
+	{
+		super.setParent(el);
 	}
 
 	public void valueChanged(float value)
 	{
-		System.out.print((Math.round(value) + "\n"));
+		// System.out.print((int) value + " " + '\r');
 	}
 
 	public GUIelement getScrollbar()
