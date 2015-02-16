@@ -63,6 +63,15 @@ public class QbUtil
 		return buffer3.array();
 	}
 
+	public static Color getColor(int r, int g, int b, int a, int colorFormat)
+	{
+		if (colorFormat == 0)
+		{
+			return new Color(r / 256f, g / 256f, b / 256f, a);
+		}
+		return new Color(b / 256f, g / 256f, r / 256f, a);
+	}
+
 	public static QbModel readQB(String path) throws Exception
 	{
 		System.out.print(String.format("Begining QB read : %s\n", path));
@@ -98,6 +107,7 @@ public class QbUtil
 				int g;
 				int b;
 				int a;
+				int tz; // normalized z coordinate (z if zAxisOrientation == 0 and width - z - 1 if zAxisOrientation == 1)
 
 				if (model.compressed == 0)
 				{
@@ -110,13 +120,60 @@ public class QbUtil
 								g = in.readUnsignedByte();
 								b = in.readUnsignedByte();
 								a = in.readUnsignedByte();
+								tz = model.zAxisOrientation == 0 ? z : (int) def.size.z - z - 1;
 
-								def.cubecolor[z][y][x] = new Color(r / 256f, g / 256f, b / 256f, a);
+								def.cubecolor[tz][y][x] = getColor(r, g, b, a, model.colorFormat);
 							}
 				}
 				else
 				{
-					throw new Exception("qb compression not implemented");
+					for (int z=0; z < def.size.z; z++)
+					{
+						tz = model.zAxisOrientation == 0 ? z : (int) def.size.z - z - 1;
+						int index = 0;
+						while (true)
+						{
+							r = in.readUnsignedByte();
+							g = in.readUnsignedByte();
+							b = in.readUnsignedByte();
+							a = in.readUnsignedByte();
+							if (r == 6 && g == 0 && b == 0 && a == 0) // NEXTSLICEFLAG
+							{
+								for (; index < def.size.y * def.size.x; index++) // fill with empty voxels
+								{
+									int x = index % (int) def.size.x;
+									int y = index / (int) def.size.x;
+									def.cubecolor[tz][y][(int) def.size.x - x - 1] = new Color(0, 0, 0, 0);
+								}
+								break;
+							}
+							else
+							{
+								if (r == 2 && g == 0 && b == 0 && a == 0) //CODEFLAG
+								{
+									int count = (int) (getUnsignedInt(in));
+									r = in.readUnsignedByte();
+									g = in.readUnsignedByte();
+									b = in.readUnsignedByte();
+									a = in.readUnsignedByte();
+									for (int j=0; j < count; j++)
+									{
+										int x = index % (int) def.size.x;
+										int y = index / (int) def.size.x;
+										index++;
+										def.cubecolor[tz][y][(int) def.size.x - x - 1] = getColor(r, g, b, a, model.colorFormat);
+									}
+								}
+								else 
+								{
+									int x = index % (int) def.size.x;
+									int y = index / (int) def.size.x;
+									index++;
+									def.cubecolor[tz][y][(int) def.size.x - x - 1] = getColor(r, g, b, a, model.colorFormat);
+								}
+							}
+						}
+					}
 				}
 
 				if (def.getName().equals("PAL"))
