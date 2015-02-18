@@ -19,7 +19,7 @@ public class GetPath
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		path1 = path1.substring(6);
+		path1 = path1.substring(5);
 
 		String hack = "StoneVox3D-0.0.4.jar";
 
