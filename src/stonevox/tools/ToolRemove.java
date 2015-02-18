@@ -118,7 +118,6 @@ public class ToolRemove implements Tool
 		this.state = id;
 	}
 
-	@Override
 	public void resetUndoRedo()
 	{
 		lasthitpoint.cubelocation.y = 1000000;

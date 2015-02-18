@@ -53,7 +53,6 @@ public class ToolSelection implements Tool
 
 	}
 
-	@Override
 	public void resetUndoRedo()
 	{
 	}
