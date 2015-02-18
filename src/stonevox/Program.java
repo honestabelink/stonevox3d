@@ -172,8 +172,8 @@ public class Program
 
 		shader = new Shader();
 
-		shader.vertexshader_path = "/shaders/VertexShader.txt";
-		shader.fragmentshader_path = "/shaders/FragmentShader.txt";
+		shader.vertexshader_path = "shaders/VertexShader.txt";
+		shader.fragmentshader_path = "shaders/FragmentShader.txt";
 		shader.Load();
 		shader.InstallShader();
 		shader.UseShader();
