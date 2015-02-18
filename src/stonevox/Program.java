@@ -509,32 +509,64 @@ public class Program
 
 			if (key == Keyboard.KEY_UP && keyState)
 			{
-				for (QbMatrix m : model.matrixList)
+				if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 				{
-					m.hack_shift_model_backwards();
+					if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+						model.GetActiveMatrix().hack_shift_model_upwards();
+					else
+						for (QbMatrix m : model.matrixList)
+						{
+							m.hack_shift_model_upwards();
+						}
 				}
+				else if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+					model.GetActiveMatrix().hack_shift_model_backwards();
+				else
+					for (QbMatrix m : model.matrixList)
+					{
+						m.hack_shift_model_backwards();
+					}
 			}
 			if (key == Keyboard.KEY_DOWN && keyState)
 			{
-				for (QbMatrix m : model.matrixList)
+				if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 				{
-					m.hack_shift_model_forwards();
+					if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+						model.GetActiveMatrix().hack_shift_model_downward();
+					else
+						for (QbMatrix m : model.matrixList)
+						{
+							m.hack_shift_model_downward();
+						}
 				}
+				else if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+					model.GetActiveMatrix().hack_shift_model_forwards();
+				else
+					for (QbMatrix m : model.matrixList)
+					{
+						m.hack_shift_model_forwards();
+					}
 			}
 			if (key == Keyboard.KEY_LEFT && keyState)
 			{
-				for (QbMatrix m : model.matrixList)
-				{
-					m.hack_shift_model_left();
-				}
+				if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+					model.GetActiveMatrix().hack_shift_model_left();
+				else
+					for (QbMatrix m : model.matrixList)
+					{
+						m.hack_shift_model_left();
+					}
 			}
 
 			if (key == Keyboard.KEY_RIGHT && keyState)
 			{
-				for (QbMatrix m : model.matrixList)
-				{
-					m.hack_shift_model_right();
-				}
+				if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+					model.GetActiveMatrix().hack_shift_model_right();
+				else
+					for (QbMatrix m : model.matrixList)
+					{
+						m.hack_shift_model_right();
+					}
 			}
 
 			if (key == Keyboard.KEY_ADD && keyState)
@@ -673,6 +705,8 @@ public class Program
 
 		try
 		{
+			int t = org.lwjgl.opengl.Display.getDisplayMode().getBitsPerPixel();
+
 			DisplayMode[] dm = org.lwjgl.util.Display.getAvailableDisplayModes(width, height, -1, -1, -1, -1, 60, 60);
 
 			org.lwjgl.util.Display.setDisplayMode(dm, new String[]
