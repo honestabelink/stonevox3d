@@ -130,7 +130,6 @@ public class ToolColorPicker implements Tool
 
 	}
 
-	@Override
 	public void resetUndoRedo()
 	{
 	}

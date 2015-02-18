@@ -143,7 +143,6 @@ public class ToolPainter implements Tool
 	{
 	}
 
-	@Override
 	public void resetUndoRedo()
 	{
 		lasthitpoint.cubelocation.y = 1000000;

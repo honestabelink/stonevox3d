@@ -205,7 +205,6 @@ public class QbUtil
 
 		Collections.sort(model.matrixList, new Comparator()
 		{
-			@Override
 			public int compare(Object softDrinkOne, Object softDrinkTwo)
 			{
 				// use instanceof to verify the references are indeed of the type in question
