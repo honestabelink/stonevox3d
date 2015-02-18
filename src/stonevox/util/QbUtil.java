@@ -104,12 +104,19 @@ public class QbUtil
 
 					for (int z = 0; z < def.size.z; z++)
 						for (int y = 0; y < def.size.y; y++)
-							for (int x = (int) def.size.x - 1; x > -1; x--)
+							for (int x = 0; x < def.size.x; x++)
 							{
 								r = in.readUnsignedByte();
 								g = in.readUnsignedByte();
 								b = in.readUnsignedByte();
 								a = in.readUnsignedByte();
+
+								if (a > 0)
+								{
+									Color c = new Color(r / 256f, g / 256f, b / 256f, a);
+									System.out.print(c.r + " " + c.g + " " + c.b + System.lineSeparator());
+									boolean t = false;
+								}
 
 								def.cubecolor[z][y][x] = new Color(r / 256f, g / 256f, b / 256f, a);
 							}
@@ -227,7 +234,7 @@ public class QbUtil
 				// z -axis
 				for (int z = 0; z < m.size.z; z++)
 					for (int y = 0; y < m.size.y; y++)
-						for (int x = (int) m.size.x - 1; x > -1; x--)
+						for (int x = 0; x < m.size.x; x++)
 						{
 							Color c = m.cubecolor[z][y][x];
 
