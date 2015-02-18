@@ -74,19 +74,16 @@ public class GradientBackground implements GUIdecorator
 		GL30.glBindVertexArray(0);
 	}
 
-	@Override
 	public boolean isEnabled()
 	{
 		return enabled;
 	}
 
-	@Override
 	public void setEnabled(boolean enabled)
 	{
 		enabled = true;
 	}
 
-	@Override
 	public void paint(float x, float y, float width, float height)
 	{
 		Program.shader.UseShader();
@@ -101,7 +98,6 @@ public class GradientBackground implements GUIdecorator
 		Shader.ResetUseShader();
 	}
 
-	@Override
 	public void dispose()
 	{
 	}

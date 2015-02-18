@@ -18,7 +18,6 @@ public class Window extends GUIelement
 		}
 	}
 
-	@Override
 	public void setEnable(boolean enabled)
 	{
 		super.setEnable(enabled);

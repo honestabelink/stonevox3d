@@ -64,21 +64,18 @@ public class VerticalScrollbar extends GUIelement
 				valueChanged(value);
 			}
 
-			@Override
 			public void mouseEnter()
 			{
 				getPlainBackground("bg").color = Color.lightGray.brighter(.7f);
 				super.mouseEnter();
 			}
 
-			@Override
 			public void mouseLeave()
 			{
 				getPlainBackground("bg").color = Color.lightGray;
 				super.mouseLeave();
 			}
 
-			@Override
 			public void setEnable(boolean enabled)
 			{
 				super.setEnable(ref.getEnabled());

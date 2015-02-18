@@ -23,19 +23,16 @@ public class PlainMarker implements GUIdecorator
 		ss = (float) Scale.vSizeScale(10f);
 	}
 
-	@Override
 	public boolean isEnabled()
 	{
 		return enabled;
 	}
 
-	@Override
 	public void setEnabled(boolean enabled)
 	{
 		this.enabled = enabled;
 	}
 
-	@Override
 	public void paint(float x, float y, float width, float height)
 	{
 		GL11.glColor3f(color.r * color.a, color.g * color.a, color.b * color.a);
@@ -50,7 +47,6 @@ public class PlainMarker implements GUIdecorator
 		GL11.glEnd();
 	}
 
-	@Override
 	public void dispose()
 	{
 	}

@@ -8,7 +8,6 @@ import stonevox.data.Undo;
 public class UndoAdd implements Undo
 {
 
-	@Override
 	public ArrayList<Float> undo(ArrayList<Float> data)
 	{
 		float x = 0;
@@ -35,7 +34,6 @@ public class UndoAdd implements Undo
 		return data;
 	}
 
-	@Override
 	public ArrayList<Float> redo(ArrayList<Float> data)
 	{
 		float x = 0;
@@ -62,7 +60,6 @@ public class UndoAdd implements Undo
 		return data;
 	}
 
-	@Override
 	public void resetTool()
 	{
 		Program.tooladd.resetUndoRedo();

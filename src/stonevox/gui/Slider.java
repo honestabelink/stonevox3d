@@ -44,7 +44,6 @@ public class Slider extends GUIelement
 				valueChanged(value);
 			}
 
-			@Override
 			public void mouseEnter()
 			{
 				getPlainBorder("border").color = Color.lightGray.brighter(.2f);
@@ -52,7 +51,6 @@ public class Slider extends GUIelement
 				super.mouseEnter();
 			}
 
-			@Override
 			public void mouseLeave()
 			{
 				getPlainBorder("border").color = Color.lightGray;
@@ -74,7 +72,6 @@ public class Slider extends GUIelement
 		GUI.layout.add(new GUIlayout(this.ID, false));
 	}
 
-	@Override
 	public void mouseClick(int b)
 	{
 		// float mouseX = (float) Scale.scale(Mouse.getX(), 0, Program.width, 0,

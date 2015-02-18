@@ -10,7 +10,6 @@ import stonevox.data.Undo;
 public class UndoPaint implements Undo
 {
 
-	@Override
 	public ArrayList<Float> undo(ArrayList<Float> data)
 	{
 		Color c = null;
@@ -52,13 +51,11 @@ public class UndoPaint implements Undo
 		return data;
 	}
 
-	@Override
 	public ArrayList<Float> redo(ArrayList<Float> data)
 	{
 		return undo(data);
 	}
 
-	@Override
 	public void resetTool()
 	{
 		Program.toolpainter.resetUndoRedo();

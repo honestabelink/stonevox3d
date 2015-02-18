@@ -59,7 +59,6 @@ public class Listbox extends GUIelement
 		{
 			Label s = new Label(GUI.getNextID(), "", Color.white)
 			{
-				@Override
 				public void mouseEnter()
 				{
 					// TODO Auto-generated method stub
@@ -72,7 +71,6 @@ public class Listbox extends GUIelement
 					}
 				}
 
-				@Override
 				public void mouseLeave()
 				{
 					// TODO Auto-generated method stub
@@ -85,7 +83,6 @@ public class Listbox extends GUIelement
 					}
 				}
 
-				@Override
 				public void mouseClick(int button)
 				{
 					int activeindex = (Integer) data.get("index");
@@ -123,7 +120,6 @@ public class Listbox extends GUIelement
 		{
 			GUIelement s = new GUIelement(GUI.getNextID())
 			{
-				@Override
 				public void mouseClick(int button)
 				{
 					if ((Boolean) data.get("allow"))
@@ -149,7 +145,6 @@ public class Listbox extends GUIelement
 					super.mouseClick(button);
 				}
 
-				@Override
 				public void setEnable(boolean enabled)
 				{
 					super.setEnable(enabled);
@@ -199,7 +194,6 @@ public class Listbox extends GUIelement
 
 		vs = new VerticalScrollbar(GUI.getNextID(), Program.model.numMatrices, 20, getUnScaleHeight() / 2f)
 		{
-			@Override
 			public void setEnable(boolean enabled)
 			{
 				if (Program.model.numMatrices > maxelements)
@@ -225,7 +219,6 @@ public class Listbox extends GUIelement
 				}
 			}
 
-			@Override
 			public void onMessageRecieved(String message, Object... args)
 			{
 				super.onMessageRecieved(message, args);
@@ -320,7 +313,6 @@ public class Listbox extends GUIelement
 		GUI.layout.add(new GUIlayout(vs.getScrollbar().ID, true));
 	}
 
-	@Override
 	public void setPositon(float x, float y, boolean scaleToParentBounds)
 	{
 		super.setPositon(x, y, scaleToParentBounds);
@@ -338,7 +330,6 @@ public class Listbox extends GUIelement
 		vs.getScrollbar().y -= this.y / 2f;
 	}
 
-	@Override
 	public void setParent(GUIelement el)
 	{
 		super.setParent(el);
@@ -395,7 +386,6 @@ public class Listbox extends GUIelement
 			activeIndex = -100;
 	}
 
-	@Override
 	public void render()
 	{
 		if (getEnabled() && hasParent())
