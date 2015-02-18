@@ -243,7 +243,7 @@ public class QbMatrixSide
 				vertexdata[bufferindex + 23] = -cubesize + z;
 
 				break;
-			case LEFT:
+			case RIGHT:
 
 				vertexdata[bufferindex + 0] = -cubesize + x;
 				vertexdata[bufferindex + 1] = -cubesize + y;
@@ -262,7 +262,7 @@ public class QbMatrixSide
 				vertexdata[bufferindex + 23] = -cubesize + z;
 
 				break;
-			case RIGHT:
+			case LEFT:
 
 				vertexdata[bufferindex + 0] = cubesize + x;
 				vertexdata[bufferindex + 1] = -cubesize + y;

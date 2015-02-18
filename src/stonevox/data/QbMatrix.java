@@ -914,6 +914,7 @@ public class QbMatrix
 				}
 			}
 		}
+
 		return rayhit.distance == 10000 ? null : rayhit;
 	}
 
@@ -1628,6 +1629,124 @@ public class QbMatrix
 		//
 		Program.floor.updatemesh();
 		GUI.Broadcast(GUI.MESSAGE_QB_MATRIX_RESIZED, this.getSizeString(), 100000);
+	}
+
+	public void hack_shift_model_upwards()
+	{
+		Color[][][] shift = new Color[(int) size.z][(int) size.y][(int) size.x];
+		Color old = null;
+
+		// copy old
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					old = cubecolor[z][y][x];
+					shift[z][y][x] = new Color(old.r, old.g, old.b, old.a);
+				}
+			}
+		}
+
+		// nukes top layer
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int x = 0; x < size.x; x++)
+			{
+				if (hasCube(x, 0, z))
+				{
+					removeVoxel(x, 0, z);
+				}
+			}
+		}
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = (int) (size.y - 1); y > 0; y--)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					if (shift[z][y - 1][x].a <= 0)
+					{
+						if (hasCube(x, y, z))
+						{
+							removeVoxel(x, y, z);
+						}
+						continue;
+					}
+
+					if (hasCube(x, y, z))
+					{
+						setVoxelColor(x, y, z, shift[z][y - 1][x]);
+					}
+					else
+						addVoxel(x, y, z, shift[z][y - 1][x]);
+				}
+			}
+		}
+
+		this.clean();
+
+	}
+
+	public void hack_shift_model_downward()
+	{
+		Color[][][] shift = new Color[(int) size.z][(int) size.y][(int) size.x];
+		Color old = null;
+
+		// copy old
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					old = cubecolor[z][y][x];
+					shift[z][y][x] = new Color(old.r, old.g, old.b, old.a);
+				}
+			}
+		}
+
+		// nukes top layer
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int x = 0; x < size.x; x++)
+			{
+				if (hasCube(x, (int) (size.y - 1), z))
+				{
+					removeVoxel(x, (int) (size.y - 1), z);
+				}
+			}
+		}
+
+		for (int z = 0; z < size.z; z++)
+		{
+			for (int y = 0; y < size.y - 1; y++)
+			{
+				for (int x = 0; x < size.x; x++)
+				{
+					if (shift[z][y + 1][x].a <= 0)
+					{
+						if (hasCube(x, y, z))
+						{
+							removeVoxel(x, y, z);
+						}
+						continue;
+					}
+
+					if (hasCube(x, y, z))
+					{
+						setVoxelColor(x, y, z, shift[z][y + 1][x]);
+					}
+					else
+						addVoxel(x, y, z, shift[z][y + 1][x]);
+				}
+			}
+		}
+
+		this.clean();
+
 	}
 
 	public void hack_shift_model_backwards()

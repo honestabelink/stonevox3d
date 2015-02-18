@@ -57,7 +57,6 @@ public class Textbox extends GUIelement
 		super.focusLost();
 	}
 
-	@Override
 	public boolean keyPress(int key)
 	{
 		if (focused)
