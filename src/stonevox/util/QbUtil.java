@@ -123,8 +123,6 @@ public class QbUtil
 								a = in.readUnsignedByte();
 								tz = model.zAxisOrientation == 0 ? z : (int) def.size.z - z - 1;
 
-								def.cubecolor[z][y][x] = new Color(r / 256f, g / 256f, b / 256f, a);
-
 								def.cubecolor[tz][y][x] = getColor(r, g, b, a, model.colorFormat);
 
 							}
