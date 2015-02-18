@@ -43,7 +43,7 @@ public class Camera
 		position =
 				new Vector3(Program.model.GetActiveMatrix().size.x * .5f - .5f,
 						Program.model.GetActiveMatrix().size.y * .5f * 3.0f,
-						-Program.model.GetActiveMatrix().size.z * .5f * 3.5f);
+						Program.model.GetActiveMatrix().size.z * .5f * 3.5f);
 
 		direction = Vector3.sub(Program.model.GetActiveMatrix().posSize, position);
 		direction.noramlize();
