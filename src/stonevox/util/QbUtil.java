@@ -147,7 +147,7 @@ public class QbUtil
 								{
 									int x = index % (int) def.size.x;
 									int y = index / (int) def.size.x;
-									def.cubecolor[tz][y][(int) def.size.x - x - 1] = new Color(0, 0, 0, 0);
+									def.cubecolor[tz][y][x] = new Color(0, 0, 0, 0);
 								}
 								break;
 							}
@@ -165,8 +165,7 @@ public class QbUtil
 										int x = index % (int) def.size.x;
 										int y = index / (int) def.size.x;
 										index++;
-										def.cubecolor[tz][y][(int) def.size.x - x - 1] =
-												getColor(r, g, b, a, model.colorFormat);
+										def.cubecolor[tz][y][x] = getColor(r, g, b, a, model.colorFormat);
 									}
 								}
 								else
@@ -174,8 +173,7 @@ public class QbUtil
 									int x = index % (int) def.size.x;
 									int y = index / (int) def.size.x;
 									index++;
-									def.cubecolor[tz][y][(int) def.size.x - x - 1] =
-											getColor(r, g, b, a, model.colorFormat);
+									def.cubecolor[tz][y][x] = getColor(r, g, b, a, model.colorFormat);
 								}
 							}
 						}
