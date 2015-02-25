@@ -1,0 +1,50 @@
+﻿#version 150
+
+in vec3 position;
+in float color;
+
+out vec4 _color;
+
+uniform mat4 modelview;
+uniform vec3 highlight;
+uniform vec3 normal;
+uniform float light = 1.0;
+
+uniform vec3 lowclamp = vec3(0,0,0);
+uniform vec3 highclamp = vec3(1,1,1);
+
+uniform float alpha = 1.0;
+
+uniform vec3 colors[64];
+	
+void interesting()
+{
+	vec4 v = vec4(position,1.0);
+	gl_Position =  modelview * v;
+	vec3 _step = clamp(colors[int(color)]*highlight + (-gl_Position.z*0.0015), lowclamp, highclamp);
+	_color = vec4(_step * light,alpha);
+}
+
+void _main()
+{
+	vec4 v = vec4(position,1.0);
+	gl_Position =  modelview * v;
+	vec3 _step = clamp(colors[int(color)]*highlight + length(vec3(normal.x * mod(position.x,2), normal.y *mod(position.y,2), normal.z *mod(position.z,2))), lowclamp, highclamp);
+	_color = vec4(_step * light,alpha);
+}
+
+void worksok()
+{
+	vec4 v = vec4(position,1.0);
+	gl_Position =  modelview * v;
+	vec3 _step = clamp(colors[int(color)]*highlight + mod(length(vec3(normal.x *position.x, normal.y *position.y, normal.z *position.z)),4), lowclamp, highclamp);
+	_color = vec4(_step * light,alpha);
+}
+
+void main()
+{
+	vec4 v = vec4(position,1.0);
+	gl_Position =  modelview * v;
+	vec3 _step = clamp(colors[int(color)]*highlight, lowclamp, highclamp);
+	_color = vec4(_step * light,alpha);
+}
