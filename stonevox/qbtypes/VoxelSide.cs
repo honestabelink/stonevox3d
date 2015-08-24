@@ -4,12 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class VoxelSide
+namespace stonevox
 {
-    public int bufferID;
-
-    public VoxelSide()
+    public class VoxelSide
     {
-        bufferID = -1;
+        public int bufferID;
+
+        public VoxelSide()
+        {
+            bufferID = -1;
+        }
     }
 }

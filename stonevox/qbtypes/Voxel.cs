@@ -5,52 +5,57 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public enum Side
+namespace stonevox
 {
-    Left,
-    Right,
-    Top,
-    Bottom,
-    Front,
-    Back
-}
-
-public class Voxel
-{
-    public int colorindex;
-    public byte alphamask;
-    public bool dirty;
-
-    public VoxelSide left;
-    public VoxelSide right;
-    public VoxelSide top;
-    public VoxelSide bottom;
-    public VoxelSide front;
-    public VoxelSide back;
-
-    public int x;
-    public int y;
-    public int z;
-    
-    public Voxel(int x, int y, int z, byte a, int colorindex)
+    public enum Side
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-
-        this.alphamask = a;
-        this.colorindex = colorindex;
-
-        left = new VoxelSide();
-        right = new VoxelSide();
-        top = new VoxelSide();
-        bottom = new VoxelSide();
-        front = new VoxelSide();
-        back = new VoxelSide();
+        Left,
+        Right,
+        Top,
+        Bottom,
+        Front,
+        Back
     }
 
-    public override string ToString()
+    public class Voxel
     {
-        return string.Format("voxel : {0}, {1}, {2}", x, y, z);
+        public int colorindex;
+        public byte alphamask;
+        public bool dirty;
+
+        public int left;
+        public int right;
+        public int top;
+        public int bottom;
+        public int front;
+        public int back;
+
+        public int x;
+        public int y;
+        public int z;
+
+        public bool removed;
+
+        public Voxel(int x, int y, int z, byte a, int colorindex)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+
+            this.alphamask = a;
+            this.colorindex = colorindex;
+
+            left = -1;
+            right = -1;
+            top = -1;
+            bottom = -1;
+            front = -1;
+            back = -1;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("voxel : {0}, {1}, {2}", x, y, z);
+        }
     }
 }
