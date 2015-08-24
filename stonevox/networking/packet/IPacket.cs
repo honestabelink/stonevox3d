@@ -5,9 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public interface IPacket
+namespace stonevox
 {
-    PacketID ID { get; }
-    void onclientrecieve(NetIncomingMessage message);
-    void onserverrecieve(NetIncomingMessage message);
+    public interface IPacket
+    {
+        PacketID ID { get; }
+        void onclientrecieve(NetIncomingMessage message);
+        void onserverrecieve(NetIncomingMessage message);
+    }
 }

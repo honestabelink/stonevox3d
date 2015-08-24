@@ -16,68 +16,69 @@ namespace stonevox
         void DragLeave();
         void Drop([In] IDataObject dataObject, [In] uint keyState, [In] Point pt, [In, Out] ref uint effect);
     }
-}
 
-static class NativeMethods
-{
-    public const int CF_HDROP = 15;
 
-    [DllImport("shell32.dll", CharSet=CharSet.Unicode)]
-    public static extern int DragQueryFile(HandleRef hDrop, int iFile, [Out] StringBuilder lpszFile, int cch);
-
-    [DllImport("ole32.dll")]
-    internal static extern void ReleaseStgMedium(ref STGMEDIUM medium);
-}
-
-public class DragDropTarget : stonevox.IDropTarget
-{
-    public void DragEnter(IDataObject dataObject, uint keyState, Point pt, ref uint effect)
+    static class NativeMethods
     {
+        public const int CF_HDROP = 15;
+
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        public static extern int DragQueryFile(HandleRef hDrop, int iFile, [Out] StringBuilder lpszFile, int cch);
+
+        [DllImport("ole32.dll")]
+        internal static extern void ReleaseStgMedium(ref STGMEDIUM medium);
     }
 
-    public void DragOver(uint keyState, Point pt, ref uint effect)
+    public class DragDropTarget : stonevox.IDropTarget
     {
-    }
-
-    public void DragLeave()
-    {
-    }
-
-    public void Drop(IDataObject dataObject, uint keyState, Point pt, ref uint effect)
-    {
-        FORMATETC format = new FORMATETC()
+        public void DragEnter(IDataObject dataObject, uint keyState, Point pt, ref uint effect)
         {
-            cfFormat = NativeMethods.CF_HDROP,
-            dwAspect = DVASPECT.DVASPECT_CONTENT,
-            tymed = TYMED.TYMED_HGLOBAL
-        };
-        STGMEDIUM medium;
-        string[] files;
-        dataObject.GetData(ref format, out medium);
-        try
+        }
+
+        public void DragOver(uint keyState, Point pt, ref uint effect)
         {
-            IntPtr dropHandle = medium.unionmember;
-            int fileCount = NativeMethods.DragQueryFile(new HandleRef(this, dropHandle), -1, null, 0);
-            files = new string[fileCount];
-            for (int x = 0; x < fileCount; ++x)
+        }
+
+        public void DragLeave()
+        {
+        }
+
+        public void Drop(IDataObject dataObject, uint keyState, Point pt, ref uint effect)
+        {
+            FORMATETC format = new FORMATETC()
             {
-                int size = NativeMethods.DragQueryFile(new HandleRef(this, dropHandle), x, null, 0);
-                if (size > 0)
+                cfFormat = NativeMethods.CF_HDROP,
+                dwAspect = DVASPECT.DVASPECT_CONTENT,
+                tymed = TYMED.TYMED_HGLOBAL
+            };
+            STGMEDIUM medium;
+            string[] files;
+            dataObject.GetData(ref format, out medium);
+            try
+            {
+                IntPtr dropHandle = medium.unionmember;
+                int fileCount = NativeMethods.DragQueryFile(new HandleRef(this, dropHandle), -1, null, 0);
+                files = new string[fileCount];
+                for (int x = 0; x < fileCount; ++x)
                 {
-                    StringBuilder fileName = new StringBuilder(size + 1);
-                    if (NativeMethods.DragQueryFile(new HandleRef(this, dropHandle), x, fileName, fileName.Capacity) > 0)
-                        files[x] = fileName.ToString();
+                    int size = NativeMethods.DragQueryFile(new HandleRef(this, dropHandle), x, null, 0);
+                    if (size > 0)
+                    {
+                        StringBuilder fileName = new StringBuilder(size + 1);
+                        if (NativeMethods.DragQueryFile(new HandleRef(this, dropHandle), x, fileName, fileName.Capacity) > 0)
+                            files[x] = fileName.ToString();
+                    }
                 }
             }
-        }
-        finally
-        {
-            NativeMethods.ReleaseStgMedium(ref medium);
-        }
+            finally
+            {
+                NativeMethods.ReleaseStgMedium(ref medium);
+            }
 
-        foreach (string file in files)
-        {
-            Client.stonevoxcalls.Add(() => { ImportExportUtil.import(file, out Client.window.model); });
+            foreach (string file in files)
+            {
+                Client.OpenGLContextThread.Add(() => { ImportExportUtil.import(file, out Client.window.model); });
+            }
         }
     }
 }

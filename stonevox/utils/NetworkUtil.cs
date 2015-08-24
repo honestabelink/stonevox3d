@@ -9,44 +9,47 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-public static class NetworkUtil
+namespace stonevox
 {
-    public static string getIP()
+    public static class NetworkUtil
     {
-        return getIPs()[0].ToString();
-    }
-
-    public static List<IPAddress> getIPs()
-    {
-        List<IPAddress> ipList = new List<IPAddress>();
-        foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+        public static string getIP()
         {
-            foreach (var ua in ni.GetIPProperties().UnicastAddresses)
+            return getIPs()[0].ToString();
+        }
+
+        public static List<IPAddress> getIPs()
+        {
+            List<IPAddress> ipList = new List<IPAddress>();
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
-                if (ua.Address.AddressFamily == AddressFamily.InterNetwork)
+                foreach (var ua in ni.GetIPProperties().UnicastAddresses)
                 {
-                    ipList.Add(ua.Address);
+                    if (ua.Address.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        ipList.Add(ua.Address);
+                    }
                 }
             }
+            return ipList;
         }
-        return ipList;
-    }
 
-    public static string getIP_WEBREQUEST()
-    {
-        String direction = "";
-        WebRequest request = WebRequest.Create("http://checkip.dyndns.org/");
-        using (WebResponse response = request.GetResponse())
-        using (StreamReader stream = new StreamReader(response.GetResponseStream()))
+        public static string getIP_WEBREQUEST()
         {
-            direction = stream.ReadToEnd();
+            String direction = "";
+            WebRequest request = WebRequest.Create("http://checkip.dzndns.org/");
+            using (WebResponse response = request.GetResponse())
+            using (StreamReader stream = new StreamReader(response.GetResponseStream()))
+            {
+                direction = stream.ReadToEnd();
+            }
+
+            //Search for the ip in the html
+            int first = direction.IndexOf("Address: ") + 9;
+            int last = direction.LastIndexOf("</body>");
+            direction = direction.Substring(first, last - first);
+
+            return direction;
         }
-
-        //Search for the ip in the html
-        int first = direction.IndexOf("Address: ") + 9;
-        int last = direction.LastIndexOf("</body>");
-        direction = direction.Substring(first, last - first);
-
-        return direction;
     }
 }

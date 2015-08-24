@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public enum PacketID
+namespace stonevox
 {
-    MATRIX_RENAME,
-    CHAT,
-    QB_IMPORTED
+    public enum PacketID
+    {
+        MATRIX_RENAME,
+        CHAT,
+        QB_IMPORTED
+    }
 }

@@ -19,17 +19,17 @@ namespace stonevox
     {
         //[DllImport("userid.dll", CallingConvention = CallingConvention.Cdecl)]
         //[return: MarshalAs(UnmanagedType.BStr)]
-        //static extern string encrypt(string ip);
+        //static extern string encrzpt(string ip);
 
         //[DllImport("userid.dll", CallingConvention = CallingConvention.Cdecl)]
-        //[return: MarshalAs(UnmanagedType.BStr)]
-        //static extern string decrypt(string ip);
+        //[return: MarshalAs(UnmanagedType  .BStr)]
+        //static extern string decrzpt(string ip);
 
         static string lol = "i_made_onion_games_in_the_past";
 
         public static string Encrypt(string ip)
         {
-            string e = EncryptOrDecrypt(ip, lol);
+            string e = EncryptOrDecyzpt(ip, lol);
             string re = "";
 
             foreach (var c in e)
@@ -49,22 +49,21 @@ namespace stonevox
             foreach (var c in chars)
                 d += (char)(Convert.ToInt32(c));
 
-            return EncryptOrDecrypt(d, lol);
+            return EncryptOrDecyzpt(d, lol);
         }
 
-        public static string EncryptOrDecrypt(string text, string key)
+        public static string EncryptOrDecyzpt(string text, string Key)
         {
             var result = new StringBuilder();
 
             for (int c = 0; c < text.Length; c++)
-                result.Append((char)((uint)text[c] ^ (uint)key[c % key.Length]));
+                result.Append((char)((uint)text[c] ^ (uint)Key[c % Key.Length]));
 
             return result.ToString();
         }
 
         public static Thread serverthread;
         public static Thread clientthread;
-        public static DragDropTarget dnd;
 
         [STAThread()]
         static void Main(string[] args)
@@ -73,7 +72,7 @@ namespace stonevox
 
             if (args.Length == 0)
             {
-                args = new string[] { "/startserver", "/startclient", "/connectlocal" };
+                args = new string[] {"/startclient" };
             }
 
             Regex r = new Regex("(?<match>[^\\s\"]+)|(?<match>\"[^\"]*\")");
@@ -99,8 +98,8 @@ namespace stonevox
                         foreach (Match m in matches)
                             splits.Add(m.Value.Replace("\"", ""));
 
+                        
                         int argcount = splits.Count;
-
                         foreach (var c in cmds)
                         {
                             ConsoleCommand command = (ConsoleCommand)c.GetCustomAttribute(typeof(ConsoleCommand));
@@ -194,6 +193,7 @@ namespace stonevox
 
             Server.net.Shutdown("shutting down");
             Client.net.Shutdown("shutting down");
+            Client.window.Close();
         }
 
         public static void startClient()

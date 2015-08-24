@@ -5,34 +5,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Packet_MatrixRename : Packet
+namespace stonevox
 {
-    public override PacketID ID
+    public class Packet_MatrixRename : Packet
     {
-        get { return PacketID.MATRIX_RENAME; }
-    }
+        public override PacketID ID
+        {
+            get { return PacketID.MATRIX_RENAME; }
+        }
 
-    public override void onclientrecieve(NetIncomingMessage message)
-    {
-        int matrixid = message.ReadInt32();
-        string name = message.ReadString();
+        public override void onclientrecieve(NetIncomingMessage message)
+        {
+            int matrixid = message.ReadInt32();
+            string name = message.ReadString();
 
-        base.onclientrecieve(message);
-    }
+            base.onclientrecieve(message);
+        }
 
-    public override void onserverrecieve(NetIncomingMessage message)
-    {
-        Packet_MatrixRename packet = PacketWriter.write<Packet_MatrixRename>(NetEndpoint.SERVER);
-        packet.outgoingmessage.Write(message.ReadInt32());
-        packet.outgoingmessage.Write(message.ReadString());
-        packet.send();
+        public override void onserverrecieve(NetIncomingMessage message)
+        {
+            Packet_MatrixRename packet = PacketWriter.write<Packet_MatrixRename>(NetEndpoint.SERVER);
+            packet.outgoingmessage.Write(message.ReadInt32());
+            packet.outgoingmessage.Write(message.ReadString());
+            packet.send();
 
-        base.onserverrecieve(message);
-    }
+            base.onserverrecieve(message);
+        }
 
-    public void write(int matrixID, string newname)
-    {
-        outgoingmessage.Write(matrixID);
-        outgoingmessage.Write(newname);
+        public void write(int matrixID, string newname)
+        {
+            outgoingmessage.Write(matrixID);
+            outgoingmessage.Write(newname);
+        }
     }
 }

@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public enum NetEndpoint
+namespace stonevox
 {
-    NONE,
-    CLIENT,
-    SERVER
+    public enum NetEndpoint
+    {
+        NONE,
+        CLIENT,
+        SERVER
+    }
 }

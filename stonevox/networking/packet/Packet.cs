@@ -5,60 +5,63 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public abstract class Packet : IPacket
+namespace stonevox
 {
-    public abstract PacketID ID { get; }
-
-    public NetOutgoingMessage outgoingmessage;
-    public NetEndpoint endpoint;
-
-    public void writedefault()
+    public abstract class Packet : IPacket
     {
-        outgoingmessage.Write((int)ID);
-    }
+        public abstract PacketID ID { get; }
 
-    public void send()
-    {
-        switch (endpoint)
+        public NetOutgoingMessage outgoingmessage;
+        public NetEndpoint endpoint;
+
+        public void writedefault()
         {
-            case NetEndpoint.NONE:
-                break;
-            case NetEndpoint.CLIENT:
-                Client.net.SendMessage(outgoingmessage, NetDeliveryMethod.ReliableOrdered);
-                break;
-            case NetEndpoint.SERVER:
-                Server.net.SendToAll(outgoingmessage, NetDeliveryMethod.ReliableOrdered);
-                break;
+            outgoingmessage.Write((int)ID);
         }
-    }
 
-    public void send(NetConnection exclude)
-    {
-        switch (endpoint)
+        public void send()
         {
-            case NetEndpoint.NONE:
-                break;
-            case NetEndpoint.CLIENT:
-                Client.net.SendMessage(outgoingmessage, NetDeliveryMethod.ReliableOrdered);
-                break;
-            case NetEndpoint.SERVER:
-                foreach (var c in Server.net.Connections)
-                {
-                    if (c.RemoteUniqueIdentifier != exclude.RemoteUniqueIdentifier)
+            switch (endpoint)
+            {
+                case NetEndpoint.NONE:
+                    break;
+                case NetEndpoint.CLIENT:
+                    Client.net.SendMessage(outgoingmessage, NetDeliveryMethod.ReliableOrdered);
+                    break;
+                case NetEndpoint.SERVER:
+                    Server.net.SendToAll(outgoingmessage, NetDeliveryMethod.ReliableOrdered);
+                    break;
+            }
+        }
+
+        public void send(NetConnection exclude)
+        {
+            switch (endpoint)
+            {
+                case NetEndpoint.NONE:
+                    break;
+                case NetEndpoint.CLIENT:
+                    Client.net.SendMessage(outgoingmessage, NetDeliveryMethod.ReliableOrdered);
+                    break;
+                case NetEndpoint.SERVER:
+                    foreach (var c in Server.net.Connections)
                     {
-                        Server.net.SendMessage(outgoingmessage, c, NetDeliveryMethod.ReliableOrdered);
-                        Server.print("info", "Send qbimport packet to client");
+                        if (c.RemoteUniqueIdentifier != exclude.RemoteUniqueIdentifier)
+                        {
+                            Server.net.SendMessage(outgoingmessage, c, NetDeliveryMethod.ReliableOrdered);
+                            Server.print("info", "Send qbimport packet to client");
+                        }
                     }
-                }
-                break;
+                    break;
+            }
         }
-    }
 
-    public virtual void onclientrecieve(NetIncomingMessage message)
-    {
-    }
+        public virtual void onclientrecieve(NetIncomingMessage message)
+        {
+        }
 
-    public virtual void onserverrecieve(NetIncomingMessage message)
-    {
+        public virtual void onserverrecieve(NetIncomingMessage message)
+        {
+        }
     }
 }

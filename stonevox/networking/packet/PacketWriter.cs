@@ -4,27 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public static class PacketWriter
+namespace stonevox
 {
-    public static T write<T>(NetEndpoint endpoint) where T:Packet, new()
+    public static class PacketWriter
     {
-        T t = new T();
-        t.endpoint = endpoint;
-
-        switch (endpoint)
+        public static T write<T>(NetEndpoint endpoint) where T : Packet, new()
         {
-            case NetEndpoint.NONE:
-                break;
-            case NetEndpoint.CLIENT:
-                t.outgoingmessage = Client.net.CreateMessage();
-                break;
-            case NetEndpoint.SERVER:
-                t.outgoingmessage = Server.net.CreateMessage();
-                break;
+            T t = new T();
+            t.endpoint = endpoint;
+
+            switch (endpoint)
+            {
+                case NetEndpoint.NONE:
+                    break;
+                case NetEndpoint.CLIENT:
+                    t.outgoingmessage = Client.net.CreateMessage();
+                    break;
+                case NetEndpoint.SERVER:
+                    t.outgoingmessage = Server.net.CreateMessage();
+                    break;
+            }
+
+            t.writedefault();
+
+            return t;
         }
-
-        t.writedefault();
-
-        return t;
     }
 }

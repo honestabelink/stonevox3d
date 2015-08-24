@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public interface IImporter
+namespace stonevox
 {
-    string extension { get; }
+    public interface IImporter
+    {
+        string extension { get; }
 
-    QbModel read(string path);
+        QbModel read(string path);
+    }
 }

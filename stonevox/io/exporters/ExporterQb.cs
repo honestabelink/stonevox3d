@@ -4,14 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class ExporterQb : IExporter
+namespace stonevox
 {
-    public string extension
+    public class ExporterQb : IExporter
     {
-        get { return ".qb"; }
-    }
+        public string extension
+        {
+            get { return ".qb"; }
+        }
 
-    public void write(string path, string name, QbModel datatype)
-    {
+        public void write(string path, string name, QbModel dataType)
+        {
+        }
     }
 }

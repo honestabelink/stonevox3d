@@ -5,122 +5,170 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
-public class SyncWindow : GameWindow, IGameWindow, INativeWindow, IDisposable
+namespace stonevox
 {
-    public SyncWindow(int width, int height, GraphicsMode mode)
-        :base(width, height, mode)
+    public class SyncWindow : GameWindow, IGameWindow, INativeWindow, IDisposable
     {
-    }
 
-    public void RunSimple(int targetFps)
-    {
-        base.Visible = true;
-        try
+        [DllImport("kernel32.dll", ExactSpelling = true)]
+        public static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        public int targetFps;
+
+        public SyncWindow(int width, int height, GraphicsMode mode)
+            : base(width, height, mode)
         {
-            TargetUpdateFrequency = targetFps;
-            TargetRenderFrequency = targetFps;
+        }
 
-            FrameEventArgs updateArgs = new FrameEventArgs();
-            FrameEventArgs renderArgs = new FrameEventArgs();
-
+        public void RunSimple(int targetFps)
+        {
+            this.targetFps = targetFps;
+            base.Visible = true;
             try
             {
-                OnLoad(EventArgs.Empty);
-                OnResize(EventArgs.Empty);
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine(String.Format("OnLoad failed: {0}", e.ToString()));
-                return;
-            }
+                TargetUpdateFrequency = this.targetFps;
+                TargetRenderFrequency = this.targetFps;
 
-            Debug.Print("Entering main loop.");
+                FrameEventArgs updateArgs = new FrameEventArgs();
+                FrameEventArgs renderArgs = new FrameEventArgs();
 
-            Stopwatch stopWatch = Stopwatch.StartNew();
-
-            int[] sleepTimes = new int[15];
-            for (int i = 0; i < sleepTimes.Length; i++) sleepTimes[i] = 1000 / targetFps;
-            int frameSleepTime = 0;
-
-            int frames = 0;
-            double previousElapsedSeconds = 0;
-            while (true)
-            {
-                frames++;
-
-                double totalElapsedSeconds = stopWatch.Elapsed.TotalSeconds;
-                double frameElapsedSeconds = totalElapsedSeconds - previousElapsedSeconds;
-                previousElapsedSeconds = totalElapsedSeconds;
-
-                if (totalElapsedSeconds >= 0.25)
+                try
                 {
-                    double fps = frames / totalElapsedSeconds;
+                    OnLoad(EventArgs.Empty);
+                    OnResize(EventArgs.Empty);
+                }
+                catch (Exception e)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("");
+                    Console.WriteLine("Exception Caught - exiting main loop.");
+                    Console.WriteLine(e.ToString());
+                    Console.WriteLine("");
+                    SetForegroundWindow(GetConsoleWindow());
+                    var result = MessageBox.Show("Would you like to copy crash info to the clipboard?", "StoneVox Encountered An Error", MessageBoxButtons.YesNo);
 
-                    if (fps < targetFps)
+                    if (result == DialogResult.Yes)
                     {
-                        int max = 0;
-                        for (int i = 1; i < sleepTimes.Length; i++)
-                        {
-                            if (sleepTimes[i] > sleepTimes[max]) max = i;
-                        }
-                        sleepTimes[max] = System.Math.Max(0, sleepTimes[max] - 1);
-                    }
-                    else
-                    {
-                        int min = 0;
-                        for (int i = 1; i < sleepTimes.Length; i++)
-                        {
-                            if (sleepTimes[i] < sleepTimes[min]) min = i;
-                        }
-                        sleepTimes[min] += 1;
+                        Clipboard.SetText(e.ToString());
                     }
 
-                    //Console.Write(string.Format("FPS:{0} Target:{1} SleepTimes:", fps, targetFps));
-                    //for (int i = 0; i < sleepTimes.Length; i++)
-                    //{
-                    //    Console.Write(string.Format(" {0}", sleepTimes[i]));
-                    //}
-                    //Console.Write("\n");
-
-                    stopWatch.Reset();
-                    stopWatch.Start();
-                    frames = 0;
-                    previousElapsedSeconds = 0;
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("");
+                    Console.WriteLine("Crash info copied to clipboard.");
+                    Console.WriteLine("");
+                    return;
                 }
 
-                ProcessEvents();
+                Debug.Print("Entering main loop.");
 
-                updateArgs = new FrameEventArgs(frameElapsedSeconds);
-                this.OnUpdateFrame(updateArgs);
+                Stopwatch stopWatch = Stopwatch.StartNew();
 
-                renderArgs = new FrameEventArgs(frameElapsedSeconds);
-                this.OnRenderFrame(renderArgs);
+                int[] sleepTimes = new int[15];
+                for (int i = 0; i < sleepTimes.Length; i++) sleepTimes[i] = 1000 / this.targetFps;
+                int frameSleepTime = 0;
 
-                System.Threading.Thread.Sleep(sleepTimes[frameSleepTime]);
-                frameSleepTime = (frameSleepTime + 1) % sleepTimes.Length;
+                int frames = 0;
+                double previousElapsedSeconds = 0;
+                while (true)
+                {
+                    frames++;
+
+                    double totalElapsedSeconds = stopWatch.Elapsed.TotalSeconds;
+                    double frameElapsedSeconds = totalElapsedSeconds - previousElapsedSeconds;
+                    previousElapsedSeconds = totalElapsedSeconds;
+
+                    if (totalElapsedSeconds >= 0.25)
+                    {
+                        double fps = frames / totalElapsedSeconds;
+
+                        if (fps < this.targetFps)
+                        {
+                            int max = 0;
+                            for (int i = 1; i < sleepTimes.Length; i++)
+                            {
+                                if (sleepTimes[i] > sleepTimes[max]) max = i;
+                            }
+                            sleepTimes[max] = System.Math.Max(0, sleepTimes[max] - 1);
+                        }
+                        else
+                        {
+                            int min = 0;
+                            for (int i = 1; i < sleepTimes.Length; i++)
+                            {
+                                if (sleepTimes[i] < sleepTimes[min]) min = i;
+                            }
+                            sleepTimes[min] += 1;
+                        }
+
+                        //Console.Write(string.Format("FPS:{0} Target:{1} SleepTimes:", fps, targetFps));
+                        //for (int i = 0; i < sleepTimes.Length; i++)
+                        //{
+                        //    Console.Write(string.Format(" {0}", sleepTimes[i]));
+                        //}
+                        //Console.Write("\n");
+
+                        stopWatch.Reset();
+                        stopWatch.Start();
+                        frames = 0;
+                        previousElapsedSeconds = 0;
+                    }
+
+                    ProcessEvents();
+
+                    updateArgs = new FrameEventArgs(frameElapsedSeconds);
+                    this.OnUpdateFrame(updateArgs);
+
+                    renderArgs = new FrameEventArgs(frameElapsedSeconds);
+                    this.OnRenderFrame(renderArgs);
+
+                    System.Threading.Thread.Sleep(sleepTimes[frameSleepTime]);
+                    frameSleepTime = (frameSleepTime + 1) % sleepTimes.Length;
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine("Exception Caught - exiting main loop.");
-        }
-        finally
-        {
-            Debug.Print("Restoring priority.");
-            Thread.CurrentThread.Priority = ThreadPriority.Normal;
-
-            OnUnload(EventArgs.Empty);
-
-            if (Exists)
+            catch (Exception ex)
             {
-                Context.Dispose();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("");
+                Console.WriteLine("Exception Caught - exiting main loop.");
+                Console.WriteLine(ex.ToString());
+                Console.WriteLine("");
+                SetForegroundWindow(GetConsoleWindow());
+                var result = MessageBox.Show("Would you like to copy crash info to the clipboard?", "StoneVox Encountered An Error", MessageBoxButtons.YesNo);
+
+                if (result == DialogResult.Yes)
+                {
+                    Clipboard.SetText(ex.ToString());
+                }
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("");
+                Console.WriteLine("Crash info copied to clipboard.");
+                Console.WriteLine("");
             }
-            while (this.Exists)
-                this.ProcessEvents();
+            finally
+            {
+                Debug.Print("Restoring priority.");
+                Thread.CurrentThread.Priority = ThreadPriority.Normal;
+
+                OnUnload(EventArgs.Empty);
+
+                if (Exists)
+                {
+                    Context.Dispose();
+                }
+                while (this.Exists)
+                    this.ProcessEvents();
+            }
         }
     }
 }
