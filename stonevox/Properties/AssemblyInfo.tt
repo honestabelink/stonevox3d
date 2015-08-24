@@ -1,4 +1,25 @@
-﻿using System.Reflection;
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Windows.Forms" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#
+    int incRevision = 1;
+    int incBuild = 1;
+
+    try { incRevision = Convert.ToInt32(this.Host.ResolveParameterValue("","","Debug"));} catch( Exception ) { incBuild=0; }
+    try { incBuild = Convert.ToInt32(this.Host.ResolveParameterValue("","","Release")); } catch( Exception ) { incRevision=0; }
+    try {
+        string currentDirectory = Path.GetDirectoryName(Host.TemplateFile);
+        string assemblyInfo = File.ReadAllText(Path.Combine(currentDirectory,"AssemblyInfo.cs"));
+        Regex pattern = new Regex("AssemblyVersion\\(\"\\d+\\.\\d+\\.(?<revision>\\d+)\\.(?<build>\\d+)\"\\)");
+        MatchCollection matches = pattern.Matches(assemblyInfo);
+        revision = 0;
+        build = Convert.ToInt32(matches[0].Groups["build"].Value) + incBuild;
+    }
+    catch( Exception ) { }
+#>
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -31,6 +52,10 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.0.0.693")]
-[assembly: AssemblyFileVersion("0.0.0.693")]
+[assembly: AssemblyVersion("0.0.<#= this.revision #>.<#= this.build #>")]
+[assembly: AssemblyFileVersion("0.0.<#= this.revision #>.<#= this.build #>")]
 
+<#+
+    int revision = 0;
+    int build = 0;
+#>
