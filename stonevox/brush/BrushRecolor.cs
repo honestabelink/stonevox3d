@@ -28,17 +28,22 @@ namespace stonevox
 
         public BrushRecolor()
         {
-            using (Bitmap bitmap = new Bitmap("./data/images/cursor_paint.png"))
-            {
-                bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                var data = bitmap.LockBits(
-                    new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                    System.Drawing.Imaging.ImageLockMode.ReadOnly,
-                    System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+            Bitmap bitmap = new Bitmap("./data/images/cursor_paint.png");
 
-                Cursor = new OpenTK.MouseCursor(
-                   0,0, data.Width, data.Height, data.Scan0);
-            }
+            if (Client.window.Width <= 1280)
+                bitmap = bitmap.ResizeImage(new Size((int)(bitmap.Width * .75f), (int)(bitmap.Height * .75f)));
+            else if (Client.window.Width <= 1400)
+                bitmap = bitmap.ResizeImage(new Size((int)(bitmap.Width * .8f), (int)(bitmap.Height * .8f)));
+
+            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            var data = bitmap.LockBits(
+                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+
+            Cursor = new OpenTK.MouseCursor(
+                0, 0, data.Width, data.Height, data.Scan0);
+
 
             Singleton<ClientInput>.INSTANCE.AddHandler(new InputHandler()
             {
