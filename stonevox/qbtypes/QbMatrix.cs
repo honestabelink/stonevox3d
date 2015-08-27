@@ -70,9 +70,37 @@ namespace stonevox
             return (int)(colors.Length - 1);
         }
 
+        public int GetColorIndex(float r, float g, float b, uint colorFormat)
+        {
+            if (colorFormat == 1)
+            {
+                float tmp = r;
+                r = b;
+                b = tmp;
+            }
+
+            Colort c;
+            for (int i = 0; i < colors.Length; i++)
+            {
+                c = colors[i];
+                if (c.R == r && c.G == g && c.B == b)
+                    return (int)i;
+            }
+            var cc = colors.ToList();
+            cc.Add(new Colort(r, g, b));
+            colors = cc.ToArray();
+
+            return (int)(colors.Length - 1);
+        }
+
         public int getcolorindex(byte r, byte g, byte b)
         {
             return GetColorIndex(r / 256f, g / 256f, b / 256f);
+        }
+
+        public int getcolorindex(byte r, byte g, byte b, uint colorFormat)
+        {
+            return GetColorIndex(r / 256f, g / 256f, b / 256f, colorFormat);
         }
 
         public bool GetColorIndex_Alphamask(int x, int y, int z, out int colorindex, out byte alphamask)

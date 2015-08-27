@@ -73,25 +73,66 @@ namespace stonevox
 
                                     if (a != 0)
                                     {
-                                        m.voxels.GetOrAdd(m.GetHash(x, y, zz), new Voxel(x, y, zz, a, m.getcolorindex(r, g, b)));
+                                        m.voxels.GetOrAdd(m.GetHash(x, y, zz), new Voxel(x, y, zz, a, m.getcolorindex(r, g, b, model.colorFormat)));
                                     }
                                 }
                     }
                     else
                     {
-                        throw new Exception("qb compression not implemented");
+                        for (int z = 0; z < m.size.Z; z++)
+                        {
+                            zz = model.zAxisOrientation == 0 ? z : (int)m.size.Z - z - 1;
+                            int index = 0;
+                            while (true)
+                            {
+                                r = reader.ReadByte();
+                                g = reader.ReadByte();
+                                b = reader.ReadByte();
+                                a = reader.ReadByte();
+                                if (r == 6 && g == 0 && b == 0 && a == 0) // NEXTSLICEFLAG
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    if (r == 2 && g == 0 && b == 0 && a == 0) //CODEFLAG
+                                    {
+                                        uint count = reader.ReadUInt32();
+                                        r = reader.ReadByte();
+                                        g = reader.ReadByte();
+                                        b = reader.ReadByte();
+                                        a = reader.ReadByte();
+                                        if (a != 0)
+                                        {
+                                            for (int j = 0; j < count; j++)
+                                            {
+                                                int x = index % (int)m.size.X;
+                                                int y = index / (int)m.size.X;
+                                                index++;
+                                                m.voxels.GetOrAdd(m.GetHash(x, y, zz), new Voxel(x, y, zz, a, m.getcolorindex(r, g, b, model.colorFormat)));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            index += (int)count;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        int x = index % (int)m.size.X;
+                                        int y = index / (int)m.size.X;
+                                        index++;
+                                        if (a != 0)
+                                        {
+                                            m.voxels.GetOrAdd(m.GetHash(x, y, zz), new Voxel(x, y, zz, a, m.getcolorindex(r, g, b, model.colorFormat)));
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-
-
-            //Console.WriteLine(string.Format("matrix count : {0}", model.matrices.Count));
-
-            //foreach (var c in model.matrices)
-            //{
-            //    Console.WriteLine(c.size.ToString());
-            //}
-
             return model;
         }
     }
