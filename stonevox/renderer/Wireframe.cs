@@ -44,6 +44,7 @@ namespace stonevox
                     }
                     else if (e.Key == Key.G && e.Shift)
                     {
+                        drawWireframe = true;
                         var values =Enum.GetValues(typeof(WireframeType));
 
                         var enumer = values.GetEnumerator();
