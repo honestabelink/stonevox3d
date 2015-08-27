@@ -15,6 +15,10 @@ A full list of planned features can be found here
 
 http://discourse.stonehearth.net/t/stonevox-3d-community-voxel-modeler-for-stonehearth-v-0-0-3/8664
 
+Dependencies
+    OpenTK
+    Lidgren.Network
+
 Questions
 ==========
 
