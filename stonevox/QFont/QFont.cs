@@ -590,7 +590,7 @@ namespace QuickFont
                 {
                     GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 }
-
+                
             }
 
             float xOffset = 0f;
@@ -1230,7 +1230,7 @@ namespace QuickFont
             if (popRequired)
                 GL.PopMatrix();
 
-
+            GL.Disable(EnableCap.Texture2D);
             return new SizeF(maxMeasuredWidth, yOffset + LineSpacing - yPos);
 
         }
