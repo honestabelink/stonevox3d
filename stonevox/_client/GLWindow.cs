@@ -58,23 +58,44 @@ namespace stonevox
         public bool isfocused = true;
 
         public QFont Qfont;
-
+        public QFont Qfont_1280;
+        public QFont Qfont_1400;
+        public QFont Qfont_1920;
 
         public GLWindow(int width, int height, GraphicsMode graphicsmode)
             : base(width, height, graphicsmode)
         {
-            
+            WindowState = WindowState.Maximized;
         }
 
         public DragDropTarget dnd;
 
         protected override void OnLoad(EventArgs e)
         {
+            SetForegroundWindow(this.WindowInfo.Handle);
+
             string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             Title = String.Format("StoneVox 3D - version {0}", version);
 
-            Qfont = new QFont("data\\fonts\\Bigfish.ttf", 15, new QFontBuilderConfiguration(true));
+            GL.Viewport(0, 0, Width, Height);
+                Qfont_1280 = new QFont("data\\fonts\\Bigfish.ttf", 11.2f, new QFontBuilderConfiguration(true, false));
+                Qfont_1400 = new QFont("data\\fonts\\Bigfish.ttf", 12f, new QFontBuilderConfiguration(true, false));
+                Qfont_1920 = new QFont("data\\fonts\\Bigfish.ttf", 15, new QFontBuilderConfiguration(true, false));
+            if (Width <= 1280)
+            {
+                Qfont = Qfont_1280;
+            }
+            else if (Width < 1400)
+            {
+                Qfont = Qfont_1400;
+            }
+            else
+            {
+                Qfont = Qfont_1920;
+            }
+
             this.Qfont.Options.Colour = Color.White;
+            //this.Qfont.Options.TransformToViewport = new TransformViewport(-1,-1,2,2);
 
             Scale.SetHScaling(0, Width);
             Scale.SetVScaling(0, Height);
@@ -98,15 +119,9 @@ namespace stonevox
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Viewport(0, 0, Width, Height);
 
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
-
-            //GL11.glEnable(GL11.GL_ALPHA_TEST);
-            //GL11.glAlphaFunc(GL11.GL._GREATER, 0.6f);
-            //GL11.glEnable(GL11.GL_BLEND);
-            //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
             int ole_hresult = OleInitialize(IntPtr.Zero);
             IntPtr handle = FindWindowByCaption(IntPtr.Zero, Title);
@@ -145,10 +160,23 @@ namespace stonevox
         {
             base.OnWindowStateChanged(e);
         }
+
         protected override void OnResize(EventArgs e)
         {
-            base.OnResize(e);
             GL.Viewport(0, 0, Width, Height);
+            QFont.ForceViewportRefresh();
+
+            if (Width <= 1280)
+                Qfont = Qfont_1280;
+            else if (Width < 1400)
+                Qfont = Qfont_1400;
+            else
+                Qfont = Qfont_1920;
+
+
+            Scale.SetHScaling(0, Width);
+            Scale.SetVScaling(0, Height);
+            base.OnResize(e);
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)

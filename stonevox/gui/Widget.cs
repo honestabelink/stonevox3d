@@ -61,7 +61,7 @@ namespace stonevox
         }
     }
 
-    public abstract class Widget
+    public class Widget
     {
         private bool enabled;
         private Widget parent;
@@ -86,7 +86,7 @@ namespace stonevox
 
         public WidgetTranslation translation;
 
-        private List<WidgetTranslation> translations;
+        public Dictionary<string, WidgetTranslation> translations;
 
         public WidgetData data;
 
@@ -151,7 +151,7 @@ namespace stonevox
             ID = -1;
             handler = new WidgetEventHandler();
             appearence = new WidgetAppearence(this);
-            translations = new List<WidgetTranslation>();
+            translations = new Dictionary<string, WidgetTranslation>();
         }
 
         public Widget(int id) : this()
@@ -292,7 +292,6 @@ namespace stonevox
                 Vector2.Lerp(ref location, ref translation.destination, (float)translation.time / translation.translationTime, out newLocation);
                 SetBoundsNoScaling(newLocation.X, newLocation.Y, null, null);
 
-
                 if ((translation.Destination - location).Length < .00001f)
                 {
                     translation.time = 0;
@@ -333,8 +332,8 @@ namespace stonevox
                 appearence.AddAppearence(appData.Name, appData.ToAppearence());
             }
 
-            translations.Clear();
-            translations.AddRange(data.translations);
+            //translations.Clear();
+            //translations.AddRange(data.translations);
 
             WidgetCommands.handlers.TryGetValue(Name, out handler);
 
@@ -356,6 +355,11 @@ namespace stonevox
         public int GetNextAvailableID()
         {
             return Singleton<ClientGUI>.INSTANCE.NextAvailableWidgeID;
+        }
+
+        public void DoTranslation(string name)
+        {
+            translations.TryGetValue(name, out translation);
         }
     }
 }

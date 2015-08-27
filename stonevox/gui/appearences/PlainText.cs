@@ -16,7 +16,6 @@ namespace stonevox
     [GUIAppearenceDataType(typeof(PlainTextData))]
     public class PlainText : Appearence
     {
-
         public static SizeF MeasureString(string text)
         {
             SizeF _return = Client.window.Qfont.Measure(text);
@@ -61,9 +60,8 @@ namespace stonevox
 
         public override void Render(float x, float y, float width, float height)
         {
-            float xx = Scale.hUnPosScale(x);
-            // changes in window resizing means this value will be inaccurate....
-            float yy = Client.window.Height - Scale.vUnPosScale(y) - Client.window.Qfont.fontData.maxGlyphHeight;
+            float xx = x.UnScaleHorizontal();
+            float yy = Client.window.Height - Scale.vUnPosScale(y) - height.UnScaleVerticlSize()*.50f;
 
             QFont.Begin();
             Client.window.Qfont.Options.Colour = color;
@@ -81,7 +79,7 @@ namespace stonevox
         {
             var size = Client.window.Qfont.Measure(text);
 
-            widget.SetBounds(null, null, size.Width * 2f, size.Height * 2f);
+            widget.SetBounds(null, null, size.Width*2f , size.Height*2f);
         }
 
         public override Appearence FromData(AppearenceData data)

@@ -76,7 +76,7 @@ namespace stonevox
             renderText = text;
             textAppearence.Text = text;
 
-            float unscaledWidth = Scale.hUnSizeScale(this.size.X); 
+            float unscaledWidth = (this.size.X).UnScaleHorizontalSize(); 
 
             while(PlainText.MeasureString(renderText).Width > unscaledWidth)
             {

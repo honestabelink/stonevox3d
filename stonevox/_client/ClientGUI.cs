@@ -26,16 +26,17 @@ namespace stonevox
         public const int RGB_G = 504;
         public const int RGB_B = 505;
 
-        public const int COLORPICKERWINDOW = 600;
+        public const int COLOR_PICKER_WINDOW = 600;
         public const int COLORQUAD = 601;
     
-        public const int START_COLORSELECTORS = 1000;
+        public const int START_COLOR_SELECTORS = 1000;
+
+        public const int MATRIX_LISTBOX_WINDOW = 700;
     }
 
     public class ClientGUI : Singleton<ClientGUI>
     {
-        private float clientWidth;
-        private float clientHeight;
+        public float scale = 1.0f;
 
         public List<Widget> widgets;
         private ClientInput input;
@@ -58,11 +59,8 @@ namespace stonevox
 
             window.Resize += (e, o) =>
             {
-                clientWidth = window.Width;
-                clientHeight = window.Height;
-
-                Scale.SetHScaling(0, window.Width);
-                Scale.SetVScaling(0, window.Height);
+                    UISaveState();
+                    ConfigureUI(window.Width);
             };
 
             this.input = input;
@@ -156,8 +154,6 @@ namespace stonevox
             //        //widgets.Add(widget.)
             //    }
             //}
-
-            ConfigureUI(window.Width >= 1280);
         }
 
         public void Update(FrameEventArgs e)
@@ -292,8 +288,6 @@ namespace stonevox
             Setup2D();
             Render2D();
 
-            GL.PopMatrix();
-            GL.PopMatrix();
 
             GL.Enable(EnableCap.DepthTest);
         }
@@ -302,12 +296,10 @@ namespace stonevox
         {
             ShaderUtil.resetshader();
             GL.MatrixMode(MatrixMode.Projection);
-            GL.PushMatrix();
             GL.LoadIdentity();
             GL.Ortho(-1f, 1f, -1f, 1f, -1, 1);
 
             GL.MatrixMode(MatrixMode.Modelview);
-            GL.PushMatrix();
             GL.LoadIdentity();
         }
 
@@ -333,11 +325,41 @@ namespace stonevox
 
         public T Get<T>(int ID) where  T : Widget
         {
-            return (T)widgets.Where((e) => {return e.ID == ID;  }).ToList().First();
+            var widget = widgets.Where((e) => { return e.ID == ID; });
+
+            if (widget.Count() > 0)
+                return (T)widget.First();
+            else
+            {
+                var w = Activator.CreateInstance<T>();
+                w.ID = 10000000;
+                return w;
+            }
         }
 
-        void ConfigureUI(bool _1080)
+        void UISaveState()
         {
+            widgetIDs = 100000;
+            object handler = null;
+            Get<EmptyWidget>(GUIID.COLOR_PICKER_WINDOW).customData.TryGetValue("inputhandler", out handler);
+            input.removehandler(handler as InputHandler);
+
+            lastWidgetFocusedID = -1;
+            lastWidgetOverIndex = -1;
+
+            widgets.Clear();
+        }
+
+        void ConfigureUI(int width)
+        {
+            if (width <= 1280)
+            {
+                scale = .75f;
+            }
+            else if (width <= 1400)
+                scale = .8f;
+            else scale = 1f;
+
             BuildUI();   
         }
 
@@ -346,6 +368,7 @@ namespace stonevox
             Build_BrushToolbar();
             Build_ColorPicker();
             Build_ColorToolbar();
+            Build_MatrixList();
         }
 
         void Build_BrushToolbar()
@@ -416,7 +439,7 @@ namespace stonevox
 
         void Build_ColorPicker()
         {
-            EmptyWidget background = new EmptyWidget(GUIID.COLORPICKERWINDOW);
+            EmptyWidget background = new EmptyWidget(GUIID.COLOR_PICKER_WINDOW);
             background.appearence.AddAppearence("background", new Picture("./data/images/save_window_background.png"));
             background.SetBoundsNoScaling(0 - background.size.X /2f, 0 - background.size.Y / 2f, null, null);
             background.Enable = false;
@@ -427,7 +450,7 @@ namespace stonevox
             colorQuad.appearence.AddAppearence("background", colorQuad_background);
             colorQuad.Parent = background;
             colorQuad.SetBoundsNoScaling(background.location.X+ background.size.X *.05f,
-                                         background.location.Y + background.size.Y * .3f, background.size.X * .6f, background.size.X *.9f );
+                                         background.location.Y + background.size.Y * .3f, background.size.X * .6f, background.size.Y - (background.size.Y * .38f));
             widgets.Add(colorQuad);
 
             EmptyWidget swatches = new EmptyWidget();
@@ -505,11 +528,13 @@ namespace stonevox
             Label hsv = new Label("H" + '\n' + '\n' + "S" + '\n' + '\n' + "V", Color.White);
             hsv.Parent = background;
             hsv.SetBoundsNoScaling(hue.Absolute_X+hsv.size.X*1.5f, hue.Absolute_Y - hsv.size.Y*.25f+ hue.size.Y);
+            hsv.size.Y /= 5f;
             widgets.Add(hsv);
 
             Label rgb = new Label("R" + '\n' + '\n' + "G" + '\n' + '\n' + "B", Color.White);
             rgb.Parent = background;
             rgb.SetBoundsNoScaling(hue.Absolute_X + hsv.size.X * 1.5f, hue.Absolute_Y+ rgb.size.Y*.85f);
+            rgb.size.Y /= 5f;
             widgets.Add(rgb);
 
             TextBox h = new TextBox(GUIID.HSV_H, "0", Color.White, 5);
@@ -518,19 +543,19 @@ namespace stonevox
             h.customData.Add("hsv_value", 0f);
             widgets.Add(h);
 
-            TextBox s = new TextBox(GUIID.HSV_S, "100", Color.White, 5);
+            TextBox s = new TextBox(GUIID.HSV_S, "0", Color.White, 5);
             s.Parent = background;
             s.SetBoundsNoScaling(hsv.Absolute_X + hsv.size.X * 1.2f, hsv.Absolute_Y - h.size.Y *2f);
             s.customData.Add("hsv_value", 1f);
             widgets.Add(s);
 
-            TextBox v = new TextBox(GUIID.HSV_V, "100", Color.White, 5);
+            TextBox v = new TextBox(GUIID.HSV_V, "0", Color.White, 5);
             v.Parent = background;
             v.SetBoundsNoScaling(hsv.Absolute_X + hsv.size.X * 1.2f, hsv.Absolute_Y - h.size.Y * 4f);
             v.customData.Add("hsv_value", 1f);
             widgets.Add(v);
 
-            TextBox r = new TextBox(GUIID.RGB_R, "255", Color.White, 5);
+            TextBox r = new TextBox(GUIID.RGB_R, "0", Color.White, 5);
             r.Parent = background;
             r.SetBoundsNoScaling(hsv.Absolute_X + hsv.size.X * 1.2f, rgb.Absolute_Y);
             widgets.Add(r);
@@ -798,20 +823,24 @@ namespace stonevox
                         Get<TextBox>(GUIID.HSV_V).customData["hsv_value"] = vi;
 
                         cur_bg.color = color.ToColor4();
-                        colorQuad_background.SetColor(ColorConversion.ColorFromHSV(hu, 1,1));
+                        colorQuad_background.SetColor(ColorConversion.ColorFromHSV(hu, 1, 1));
 
-                        colorQuadSelection.SetBoundsNoScaling(colorQuad.Absolute_X + colorQuad.size.X*sat - colorQuadSelection.size.X*.5f,
-                                                              colorQuad.Absolute_Y + colorQuad.size.Y*vi - colorQuadSelection.size.Y*.5f);
+                        colorQuadSelection.SetBoundsNoScaling(colorQuad.Absolute_X + colorQuad.size.X * sat - colorQuadSelection.size.X * .5f,
+                                                              colorQuad.Absolute_Y + colorQuad.size.Y * vi - colorQuadSelection.size.Y * .5f);
 
                         if (vi < .35f)
                             colorQuadImage.color = Color.White;
                         else
                             colorQuadImage.color = Color.Black;
                     }
+                    else if (message == Message.WindowOpened)
+                    {
+                        background.Enable = false;
+                    }
                 }
             };
 
-            input.AddHandler(new InputHandler()
+            background.customData["inputhandler"] = new InputHandler()
             {
                 Keydownhandler = (e) =>
                 {
@@ -828,7 +857,9 @@ namespace stonevox
                         }
                     }
                 }
-            });
+            };
+
+            input.AddHandler(background.customData["inputhandler"] as InputHandler);
 
             Button ok = new Button("./data/images/colorpicker_ok.png",
                                                         "./data/images/colorpicker_ok_highlight.png");
@@ -877,11 +908,11 @@ namespace stonevox
             background.SetBoundsNoScaling(-1, 0 - background.size.Y / 2f, null, null);
             widgets.Add(background);
 
-            float startY = 0 - background.size.Y / 2f+ (54f).ScaleVerticlSize();
+            float startY = 0 - background.size.Y / 2f + (54f).ScaleVerticlSize();
 
             for (int i = 0; i < 10; i++)
             {
-                EmptyWidget colorselector = new EmptyWidget(GUIID.START_COLORSELECTORS + i);
+                EmptyWidget colorselector = new EmptyWidget(GUIID.START_COLOR_SELECTORS + i);
 
                 PlainBackground bg = new PlainBackground(new Color4(1f - (10 - i) * .1f, 1f - ((10 - i) * .06f),
                             1f - ((10 - i) * .03f), 1f));
@@ -891,13 +922,13 @@ namespace stonevox
                 PlainBorder border = new PlainBorder(3f, Color4.Gray);
 
                 colorselector.appearence.AddAppearence("border", border);
-                colorselector.SetBoundsNoScaling(-.993f, startY, background.size.X / 1.3f, (background.size.Y-(70*2f).ScaleVerticlSize()) /10f - (13f).ScaleVerticlSize());
+                colorselector.SetBoundsNoScaling(-.993f, startY, background.size.X / 1.3f, (background.size.Y - (70 * 2f).ScaleVerticlSize()) / 10f - (13f).ScaleVerticlSize());
 
                 colorselector.customData.Add("active", false);
 
                 colorselector.handler = new WidgetEventHandler()
                 {
-                    mousedownhandler = (e,s) =>
+                    mousedownhandler = (e, s) =>
                     {
                         if (s.Button != MouseButton.Left) return;
                         bool active = (bool)e.customData["active"];
@@ -910,7 +941,13 @@ namespace stonevox
                         }
                         else
                         {
-                            Get<EmptyWidget>(GUIID.COLORPICKERWINDOW).Enable = true;
+                            var colorpicker = Get<EmptyWidget>(GUIID.COLOR_PICKER_WINDOW);
+
+                            if (!colorpicker.Enable)
+                            {
+                                colorpicker.Enable = true;
+                                Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowOpened, colorpicker);
+                            }
                         }
                     },
                     mouseover = (e) =>
@@ -953,11 +990,98 @@ namespace stonevox
                 };
 
                 widgets.Add(colorselector);
-                startY += ((background.size.Y - (70*2f).ScaleVerticlSize()) /10f) + (5f).ScaleVerticlSize();
+                startY += ((background.size.Y - (70 * 2f).ScaleVerticlSize()) / 10f) + (5f).ScaleVerticlSize();
 
                 if (i == 9)
                     colorselector.HandleMouseDown(new MouseButtonEventArgs(0, 0, MouseButton.Left, true));
             }
+
+        }
+        void Build_MatrixList()
+        {
+            EmptyWidget background = new EmptyWidget(GUIID.MATRIX_LISTBOX_WINDOW);
+            background.appearence.AddAppearence("background", new Picture("./data/images/project_settings.png"));
+            background.SetBoundsNoScaling(1 - background.size.X * .145f,-background.size.Y /2f);
+            background.translations.Add("transistion_on", new WidgetTranslation()
+            {
+                Destination = new Vector2(background.Absolute_X - background.size.X * .85f, background.Absolute_Y),
+                translationTime = 2f
+            });
+            background.translations.Add("transistion_off", new WidgetTranslation()
+            {
+                Destination = new Vector2(1f - background.size.X * .145f, background.Absolute_Y),
+                translationTime = 2f
+            });
+            widgets.Add(background);
+
+            Button windowbuttonON = new Button("./data/images/project_settings_button_on.png",
+                                                        "./data/images/project_settings_button_on_highlight.png");
+            windowbuttonON.Parent = background;
+            windowbuttonON.SetBoundsNoScaling(background.Absolute_X + background.size.X *.025f, background.Absolute_Y + background.size.Y * .838f);
+            widgets.Add(windowbuttonON);
+
+            Button windowbuttonOFF = new Button("./data/images/project_settings_button_off.png",
+                                                      "./data/images/project_settings_button_off_highlight.png");
+            windowbuttonOFF.Parent = background;
+            windowbuttonOFF.Enable = false;
+            windowbuttonOFF.SetBoundsNoScaling(background.Absolute_X + background.size.X * .025f, background.Absolute_Y + background.size.Y * .838f);
+            widgets.Add(windowbuttonOFF);
+
+            windowbuttonON.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    e.Enable = false;
+                    windowbuttonOFF.Enable = true;
+                    background.DoTranslation("transistion_on");
+
+                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowOpened, background);
+                }
+            };
+
+
+            windowbuttonOFF.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    e.Enable = false;
+                    windowbuttonON.Enable = true;
+                    background.DoTranslation("transistion_off");
+
+                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowClosed, background);
+                }
+            };
+
+            background.handler = new WidgetEventHandler()
+            {
+                messagerecived = (e, message, widget, args) =>
+                {
+                    if (message == Message.WindowOpened)
+                    {
+                        windowbuttonOFF.Enable = false;
+                        windowbuttonON.Enable = true;
+                        background.DoTranslation("transistion_off");
+                    }
+                }
+            };
+
+            Label martixListLabel = new Label("Matrix List", Color.White);
+            martixListLabel.Parent = background;
+            martixListLabel.SetBoundsNoScaling(background.Absolute_X + background.size.X * .2f, background.Absolute_Y + background.size.Y * .92f);
+
+            martixListLabel.handler = new WidgetEventHandler()
+            {
+                mouseenter =  (e) =>
+                {
+                    martixListLabel.color = Color.Blue;
+                },
+                mouseleave= (e) =>
+                {
+                    martixListLabel.color = Color.White;
+                }
+            };
+
+            widgets.Add(martixListLabel);
         }
     }
 }

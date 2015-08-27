@@ -64,8 +64,8 @@ namespace stonevox
 
         public void MatchTextureBounds(Widget widget)
         {
-            widget.size.X = Scale.hSizeScale(texture.Width)*2;
-            widget.size.Y = Scale.vSizeScale(texture.Height)*2;
+            widget.size.X = Scale.hSizeScale(texture.Width) * 2 * Singleton<ClientGUI>.INSTANCE.scale;
+            widget.size.Y = Scale.vSizeScale(texture.Height)*2 * Singleton<ClientGUI>.INSTANCE.scale;
         }
 
         public void SetImage(string path)
