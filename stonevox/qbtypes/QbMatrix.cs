@@ -188,15 +188,15 @@ namespace stonevox
 
             if (RayIntersectsPlane(ref front.normal, ref Singleton<Camera>.INSTANCE.direction))
             {
-               front.Render(shader);
+                front.Render(shader);
             }
             if (RayIntersectsPlane(ref back.normal, ref Singleton<Camera>.INSTANCE.direction))
             {
-               back.Render(shader);
+                back.Render(shader);
             }
             if (RayIntersectsPlane(ref top.normal, ref Singleton<Camera>.INSTANCE.direction))
             {
-               top.Render(shader);
+                top.Render(shader);
             }
             if (RayIntersectsPlane(ref bottom.normal, ref Singleton<Camera>.INSTANCE.direction))
             {
@@ -204,11 +204,11 @@ namespace stonevox
             }
             if (RayIntersectsPlane(ref left.normal, ref Singleton<Camera>.INSTANCE.direction))
             {
-               left.Render(shader);
+                left.Render(shader);
             }
             if (RayIntersectsPlane(ref right.normal, ref Singleton<Camera>.INSTANCE.direction))
             {
-              right.Render(shader);
+                right.Render(shader);
             }
         }
 
@@ -414,20 +414,24 @@ namespace stonevox
             }
             else alpha += 2;
 
-            return alpha > 1 ? alpha : (byte)0;
+            return alpha >= 1 ? alpha : (byte)0;
         }
 
         public bool Remove(int x, int y, int z, bool setDirty = true, bool ignoreDirt = true)
         {
             if (voxels.TryGetValue(GetHash(x, y, z), out voxel))
             {
-                if ((ignoreDirt && voxel.dirty) || voxel.alphamask <= 1) return false;
-                voxel.alphamask = 0;
-                voxel.dirty = setDirty;
-                UpdateVoxel();
+                if (ignoreDirt && voxel.dirty || voxel.alphamask == 0) return false;
 
-                // on clean code check for 0 alphas and remove
-                //voxels.TypeRemove(gethash(x, y, z), out voxel);
+                if (voxel.alphamask > 1)
+                {
+                    voxel.alphamask = 0;
+                    UpdateVoxel();
+                }
+                else
+                    voxel.alphamask = 0;
+
+                voxel.dirty = setDirty;
 
                 if (voxels.TryGetValue(GetHash(x, y, z + 1), out voxel))
                 {
@@ -500,10 +504,10 @@ namespace stonevox
         {
             if (voxels.TryGetValue(GetHash(x, y, z), out voxel))
             {
-                if (voxel.alphamask > 0) return false;
+                if (voxel.alphamask != 0) return false;
                 else
                 {
-                    voxels.TryRemove(GetHash(x, y, z), out voxel);
+                    if (!voxels.TryRemove(GetHash(x, y, z), out voxel)) return false;
                     voxel = new Voxel(x, y, z, GetAlphaMask(x, y, z), GetColorIndex(color.R, color.G, color.B));
                     if (voxels.TryAdd(GetHash(x, y, z), voxel))
                     {
