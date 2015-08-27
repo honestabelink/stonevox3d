@@ -14,7 +14,6 @@
         string assemblyInfo = File.ReadAllText(Path.Combine(currentDirectory,"AssemblyInfo.cs"));
         Regex pattern = new Regex("AssemblyVersion\\(\"\\d+\\.\\d+\\.(?<revision>\\d+)\\.(?<build>\\d+)\"\\)");
         MatchCollection matches = pattern.Matches(assemblyInfo);
-        revision = 0;
         build = Convert.ToInt32(matches[0].Groups["build"].Value) + incBuild;
     }
     catch( Exception ) { }
