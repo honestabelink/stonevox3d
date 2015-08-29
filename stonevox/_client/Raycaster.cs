@@ -760,7 +760,7 @@ namespace stonevox
 
         public override string ToString()
         {
-            return string.Format("{0} : {1} : {2} , SIDE : {3}", x, y, z, side.ToString());
+            return string.Format("SIDE : {0} \nLocation : {1} : {2} : {3}", side.ToString(),x, y, z);
         }
     }
 }
