@@ -50,7 +50,7 @@ namespace stonevox
             if (dirty)
             {
                 dirty = false;
-                lasthit = Raycaster.lasthit;
+                lasthit = Singleton<Raycaster>.INSTANCE.lastHit;
                 switch (lasthit.side)
                 {
                     case Side.Front:
@@ -177,6 +177,8 @@ namespace stonevox
                 GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, (IntPtr)(sizeof(float) * 16), buffer);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
+                Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.StatusStripUpdate, lasthit.ToString());
+
                 handledselectionchange = brushes.onselectionchanged(input, QbManager.getactivematrix(), lasthit);
 
                 if (handledselectionchange)
@@ -202,7 +204,7 @@ namespace stonevox
 
         public void render(Shader shader)
         {
-            if (Raycaster.lasthit.distance != 10000)
+            if (Singleton<Raycaster>.INSTANCE.lastHit.distance != 10000)
             {
                 shader.WriteUniform("highlight", new Vector3(1, 1, 1));
 

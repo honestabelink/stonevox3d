@@ -25,14 +25,14 @@ namespace stonevox
             Vector3.Subtract(ref p2,ref p1, out e1);
             Vector3.Subtract(ref p3, ref p1, out e2);
 
-            Vector3.Cross(ref Raycaster.rayDirection, ref e2, out p);
+            //Vector3.Cross(ref Raycaster.rayDirection, ref e2, out p);
 
             Vector3.Dot(ref e1, ref p, out det);
 
             if (det > -Epsilon && det < Epsilon) { return false; }
             invDet = 1.0f / det;
 
-            Vector3.Subtract(ref Raycaster.near, ref p1, out t);
+            //Vector3.Subtract(ref Raycaster.near, ref p1, out t);
 
             float temp;
             Vector3.Dot(ref t, ref p, out temp);
@@ -42,7 +42,7 @@ namespace stonevox
 
             Vector3.Cross(ref t, ref e1, out q);
 
-            Vector3.Dot(ref Raycaster.rayDirection, ref q, out temp);
+            //Vector3.Dot(ref Raycaster.rayDirection, ref q, out temp);
             v = temp * invDet;
 
             if (v < 0 || u + v > 1) { return false; }

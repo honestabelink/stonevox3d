@@ -71,7 +71,7 @@ namespace stonevox
                     if (input.mousedown(MouseButton.Left))
                     {
                         state = ToolState.Base;
-                        Raycaster.testdirt = false;
+                        Singleton<Raycaster>.INSTANCE.testdirt = false;
                         startPosition = new VoxelLocation(hit);
                         endPosition = new VoxelLocation(hit);
                         volume = new VoxelVolume(startPosition, endPosition);

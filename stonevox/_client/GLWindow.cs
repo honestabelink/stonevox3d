@@ -44,6 +44,7 @@ namespace stonevox
         ClientBrush brushes;
         ClientGUI gui;
         ClientBroadcaster broadcaster;
+        Raycaster raycaster;
         IRenderer renderer;
 
         // not sure about these yet, need another place
@@ -131,7 +132,7 @@ namespace stonevox
             dnd = new DragDropTarget();
             int dnd_hresult = RegisterDragDrop(handle, dnd);
 
-            Raycaster.init(this, camera, selection, input);
+            raycaster = new Raycaster(this, camera, selection, input);
 
             Client.Initialized = true;
             base.OnLoad(e);
@@ -143,7 +144,6 @@ namespace stonevox
         }
         public override void Dispose()
         {
-            Raycaster.Dispose();
             base.Dispose();
         }
 

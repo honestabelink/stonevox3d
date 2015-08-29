@@ -49,15 +49,27 @@ namespace stonevox
             {
                 mousewheelhandler = (e) =>
                     {
-                        if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
-
-                        if (e.Delta < 0)
+                        if (!Singleton<ClientGUI>.INSTANCE.OverWidget)
                         {
-                            position -= direction * 6 * 1f;
+                            if (e.Delta < 0)
+                            {
+                                position -= direction * 6 * 1f;
+                            }
+                            else if (e.Delta > 0)
+                            {
+                                position += direction * 6 * 1f;
+                            }
                         }
-                        else if (e.Delta > 0)
+                        else if (Singleton<ClientGUI>.INSTANCE.lastWidgetOver.Drag)
                         {
-                            position += direction * 6 * 1f;
+                            if (e.Delta < 0)
+                            {
+                                position -= direction * 6 * 1f;
+                            }
+                            else if (e.Delta > 0)
+                            {
+                                position += direction * 6 * 1f;
+                            }
                         }
                     }
             };
@@ -94,6 +106,53 @@ namespace stonevox
                     position.Z += camerar.Z * 25f * delta;
                 }
 
+                if (input.mousedown(MouseButton.Right))
+                {
+                    Vector3 camright = cameraright;
+                    Vector3 camup = cameraup;
+
+                    float rotz2 = (float)MathHelper.DegreesToRadians(-input.mousedx * .15f);
+                    float rotX2 = (float)MathHelper.DegreesToRadians(-input.mousedy * .15f);
+
+                    camright.Normalize();
+                    camup.Normalize();
+
+                    Vector3 focus = position - QbManager.getactivematrix().centerposition;
+                    float length = focus.Length;
+                    focus.Normalize();
+
+                    focus = Vector3.Transform(focus, Quaternion.FromAxisAngle(camup, rotz2));
+                    focus = Vector3.Transform(focus, Quaternion.FromAxisAngle(camright, rotX2));
+
+                    position = focus * length + QbManager.getactivematrix().centerposition;
+
+                    direction = Vector3.Transform(direction, Quaternion.FromAxisAngle(camup, rotz2));
+                    direction = Vector3.Transform(direction, Quaternion.FromAxisAngle(camright, rotX2));
+                    direction.Normalize();
+                }
+
+                if (input.mousedown(MouseButton.Middle))
+                {
+                    Vector3 camright = Vector3.Cross(direction, Vector3.UnitY);
+
+                    camright.Normalize();
+
+                    Vector3 camup = Vector3.Cross(camright, direction);
+
+                    camup.Normalize();
+
+                    camright *= -input.mousedx;
+                    camup *= input.mousedy;
+
+                    camright += camup;
+
+                    position.X += camright.X * .06f;
+                    position.Y += camright.Y * .06f;
+                    position.Z += camright.Z * .06f;
+                }
+            }
+            else if (Singleton<ClientGUI>.INSTANCE.lastWidgetOver.Drag)
+            {
                 if (input.mousedown(MouseButton.Right))
                 {
                     Vector3 camright = cameraright;
