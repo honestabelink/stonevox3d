@@ -176,6 +176,12 @@
     <Content Include="data\images\screenshot_cancel_highlight.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="data\images\target.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\target_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\shaders\QuadInterpolation.fs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -262,6 +268,7 @@
     <Compile Include="utils\Native.cs" />
     <Compile Include="utils\Scale.cs" />
     <Compile Include="utils\SideUtil.cs" />
+    <Compile Include="utils\StatusText.cs" />
     <Compile Include="utils\StopwatchUtil.cs" />
     <Compile Include="utils\ToolUtil.cs" />
     <Compile Include="_client\Camera.cs" />
@@ -425,6 +432,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="data\images\colorpicker_ok.psd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\target.psd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="data\shaders\SSAO_geometry.vs">
