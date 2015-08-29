@@ -62,6 +62,9 @@ namespace stonevox
         public QFont Qfont_1400;
         public QFont Qfont_1920;
 
+        public event EventHandler SVReizeEvent;
+        private int lastWidth;
+
         public GLWindow(int width, int height, GraphicsMode graphicsmode)
             : base(width, height, graphicsmode)
         {
@@ -166,16 +169,28 @@ namespace stonevox
             GL.Viewport(0, 0, Width, Height);
             QFont.ForceViewportRefresh();
 
-            if (Width <= 1280)
-                Qfont = Qfont_1280;
-            else if (Width < 1400)
-                Qfont = Qfont_1400;
-            else
-                Qfont = Qfont_1920;
-
-
             Scale.SetHScaling(0, Width);
             Scale.SetVScaling(0, Height);
+
+            if (Width <= 1280 && lastWidth != 1280)
+            {
+                lastWidth = 1280;
+                Qfont = Qfont_1280;
+                SVReizeEvent?.Invoke(this, EventArgs.Empty);
+            }
+            else if (Width >1280 && Width <= 1400 && lastWidth !=1400)
+            {
+                lastWidth = 1400;
+                Qfont = Qfont_1400;
+                SVReizeEvent?.Invoke(this, EventArgs.Empty);
+            }
+            else if (Width > 1400 && lastWidth != 1920)
+            {
+                lastWidth = 1920;
+                Qfont = Qfont_1920;
+                SVReizeEvent?.Invoke(this, EventArgs.Empty);
+            }
+
             base.OnResize(e);
         }
 
