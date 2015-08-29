@@ -63,5 +63,20 @@ namespace stonevox
         {
             matrices.ForEach(t => t.RenderAll(shader));
         }
+
+        public void UseMatrixColors()
+        {
+            matrices.ForEach(t => t.UseMatrixColors());
+        }
+
+        //public void UseWireframeColors()
+        //{
+        //    matrices.ForEach(t => t.UseWireframeColors());
+        //}
+
+        //public void UseOutlineColors()
+        //{
+        //    matrices.ForEach(t => t.UseOutlineColors());
+        //}
     }
 }

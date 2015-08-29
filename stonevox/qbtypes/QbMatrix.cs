@@ -20,6 +20,9 @@ namespace stonevox
         public Colort highlight;
 
         public Colort[] colors;
+        public Colort[] matrixcolors;
+        //public Colort[] wireframecolors;
+        //public Colort[] outlinecolors;
         public ConcurrentDictionary<double, Voxel> voxels;
         public ConcurrentStack<VoxelModifier> modifiedvoxels;
 
@@ -33,10 +36,15 @@ namespace stonevox
         private Voxel voxel;
         private VoxelModifier modified;
 
+        private int colorIndex = 0;
+
         public QbMatrix()
         {
             highlight = new Colort(1f, 1f, 1f);
-            colors = new Colort[0];
+            matrixcolors = new Colort[64];
+            colors = matrixcolors;
+            //wireframecolors = new Colort[64];
+            //outlinecolors = new Colort[64];
             voxels = new ConcurrentDictionary<double, Voxel>();
             modifiedvoxels = new ConcurrentStack<VoxelModifier>();
 
@@ -63,11 +71,26 @@ namespace stonevox
                 if (c.R == r && c.G == g && c.B == b)
                     return (int)i;
             }
-            var cc = colors.ToList();
-            cc.Add(new Colort(r, g, b));
-            colors = cc.ToArray();
+            matrixcolors[colorIndex] = new Colort(r, g, b);
 
-            return (int)(colors.Length - 1);
+            // wireframes and outline....
+            // right now my hsv to rbg is not working correctly and fails generating a few colors
+            // later on this will be used over doing the conversion on a shader
+
+            //Color4 color = new Color4(r, g, b, 1);
+
+            //double hue, sat, vi;
+            //ColorConversion.ColorToHSV(color.ToSystemDrawingColor(), out hue, out sat, out vi);
+
+            //var outline = ColorConversion.ColorFromHSV(hue, (sat + .5d).Clamp(0, 1), vi );
+            //outlinecolors[colorIndex] = outline.ToColor4();
+
+            //var wireframe = ColorConversion.ColorFromHSV(hue, (sat + .1d).Clamp(0,1), (vi+.1d).Clamp(0,1));
+            //wireframecolors[colorIndex] = wireframe.ToColor4();
+
+            colorIndex++;
+
+            return colorIndex - 1;
         }
 
         public int GetColorIndex(float r, float g, float b, uint colorFormat)
@@ -86,11 +109,26 @@ namespace stonevox
                 if (c.R == r && c.G == g && c.B == b)
                     return (int)i;
             }
-            var cc = colors.ToList();
-            cc.Add(new Colort(r, g, b));
-            colors = cc.ToArray();
+            matrixcolors[colorIndex] = new Colort(r, g, b);
 
-            return (int)(colors.Length - 1);
+            // wireframes and outline....
+            // right now my hsv to rbg is not working correctly and fails generating a few colors
+            // later on this will be used over doing the conversion on a shader
+
+            //Color4 color = new Color4(r, g, b, 1);
+
+            //double hue, sat, vi;
+            //ColorConversion.ColorToHSV(color.ToSystemDrawingColor(), out hue, out sat, out vi);
+
+            //var outline = ColorConversion.ColorFromHSV(hue, (sat + .5d).Clamp(0, 1), vi );
+            //outlinecolors[colorIndex] = outline.ToColor4();
+
+            //var wireframe = ColorConversion.ColorFromHSV(hue, (sat + .1d).Clamp(0,1), (vi+.1d).Clamp(0,1));
+            //wireframecolors[colorIndex] = wireframe.ToColor4();
+
+            colorIndex++;
+
+            return colorIndex-1;
         }
 
         public int getcolorindex(byte r, byte g, byte b)
@@ -299,6 +337,21 @@ namespace stonevox
             left.Render();
             right.Render();
         }
+
+        public void UseMatrixColors()
+        {
+            colors = matrixcolors;
+        }
+
+        //public void UseWireframeColors()
+        //{
+        //    colors = wireframecolors;
+        //}
+
+        //public void UseOutlineColors()
+        //{
+        //    colors = outlinecolors;
+        //}
 
         private static bool RayIntersectsPlane(ref Vector3 normal, ref Vector3 rayVector)
         {
