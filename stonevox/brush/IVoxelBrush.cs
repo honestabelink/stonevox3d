@@ -11,6 +11,7 @@ namespace stonevox
     {
         VoxelBrushTypes BrushType { get; }
         bool Active { get; set; }
+        string CursorPath { get; }
         MouseCursor Cursor { get; set; }
 
         void Enable();
