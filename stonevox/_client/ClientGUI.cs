@@ -503,7 +503,7 @@ namespace stonevox
             target.SetBoundsNoScaling(background.location.X - target.size.X * .76f, -1, target.size.X * .75f, target.size.Y * .75f);
             target.StatusText = StatusText.button_target;
 
-            target.customData.Add("activematrix", Client.window.model.activematrix);
+            target.customData.Add("activematrix", -1);
 
             var c = new Action( () =>
             {

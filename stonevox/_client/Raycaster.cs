@@ -26,8 +26,6 @@ namespace stonevox
         public Vector3 near = new Vector3();
         public Vector3 far = new Vector3();
 
-        private QbModel model;
-
         float clientwidth;
         float clientheight;
 
@@ -74,14 +72,15 @@ namespace stonevox
         bool _bottom;
         Vector3 testout;
 
-        public RaycastHit lastHit;
+        public RaycastHit lastHit = new RaycastHit()
+        {
+            distance = 10000
+        };
 
         Thread thread;
 
         public Raycaster(GLWindow window, Camera camera, Selection selection, ClientInput input)
         {
-            model = window.model;
-
             this.window = window;
             this.camera = camera;
             this.input = input;
@@ -103,7 +102,7 @@ namespace stonevox
         {
             while (true)
             {
-                if (model == null || !enabled)
+                if (Client.window.model == null || !enabled)
                 {
                     Thread.Sleep(400);
                     continue;
