@@ -28,7 +28,9 @@ namespace stonevox
         ColorSelectionCommit,
 
         WindowOpened,
-        WindowClosed
+        WindowClosed,
+
+        StatusStripUpdate,
     }
 
     // allows widgets or others to handle the broadcast and stop it from carring further

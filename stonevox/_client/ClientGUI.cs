@@ -11,7 +11,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -45,7 +47,7 @@ namespace stonevox
         public int NextAvailableWidgeID { get { widgetIDs++; return widgetIDs; } }
         
         private int lastWidgetOverIndex = -1;
-        private Widget lastWidgetOver { get { return widgets[lastWidgetOverIndex]; } }
+        public Widget lastWidgetOver { get { return widgets[lastWidgetOverIndex]; } }
 
         private int lastWidgetFocusedID = -1;
         private Widget lastWidgetFocused { get { return widgets[lastWidgetFocusedID]; } }
@@ -57,7 +59,7 @@ namespace stonevox
         {
             Singleton<ClientBroadcaster>.INSTANCE.SetGUI(this);
 
-            window.Resize += (e, o) =>
+            window.SVReizeEvent += (e, o) =>
             {
                     UISaveState();
                     ConfigureUI(window.Width);
@@ -121,8 +123,8 @@ namespace stonevox
                 {
                     if (lastWidgetOverIndex != -1 && lastWidgetOver.Enable)
                     {
-                        lastWidgetOver.HandleMouseUp(e);
                         lastWidgetOver.Drag = false;
+                        lastWidgetOver.HandleMouseUp(e);
 
                         //float scaledmouseX = (float)Scale.hPosScale(input.mousex);
                         //float scaledmousez = (float)Scale.vPosScale(input.mouseY);
@@ -269,14 +271,19 @@ namespace stonevox
 
                 if (lastWidgetOverIndex == -1)
                 {
-                    Raycaster.Enabled = true;
-                    Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                    Singleton<Raycaster>.INSTANCE.Enabled = true;
 
+                    if (Client.window.Cursor != Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor)
+                        Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
                 }
                 else
                 {
-                    Raycaster.Enabled = false;
-                    Client.window.Cursor = lastWidgetOver.cursor != null ? lastWidgetOver.cursor : MouseCursor.Default;
+                    Singleton<Raycaster>.INSTANCE.Enabled = false;
+                    
+                    MouseCursor cursor = lastWidgetOver.cursor != null ? lastWidgetOver.cursor : MouseCursor.Default;
+
+                    if (Client.window.Cursor != cursor)
+                        Client.window.Cursor = cursor;
                 }
             }
         }
@@ -376,8 +383,16 @@ namespace stonevox
             // background
             EmptyWidget background = new EmptyWidget();
             background.appearence.AddAppearence("background", new Picture("./data/images/toolmenu_background.png"));
-            background.SetBoundsNoScaling(0 - background.size.X /2f, -1, null, null);
+            background.SetBoundsNoScaling(0 - background.size.X / 2f, -1, null, null);
             widgets.Add(background);
+
+            background.handler = new WidgetEventHandler()
+            {
+                mouseleave = (e) =>
+                {
+                    e.cursor = null;
+                }
+            };
 
             // tools
 
@@ -388,6 +403,7 @@ namespace stonevox
 
             Button recolor = new Button(NextAvailableWidgeID, "./data/images/brush.png",
                                                                "./data/images/brush_highlight.png");
+            PlainBorder recolorb = new PlainBorder(2, Color.FromArgb(59, 56, 56));
             recolor.handler = new WidgetEventHandler()
             {
                 mousedownhandler = (e, s) =>
@@ -395,7 +411,14 @@ namespace stonevox
                     if (s.Button == MouseButton.Left)
                     {
                         Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushTypes.Recolor);
+                        e.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        background.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        Client.window.Cursor = e.cursor;
                     }
+                },
+                mouseleave = (e) =>
+                {
+                    e.cursor = null;
                 }
             };
             recolor.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 2f) + selection.size.X, -1);
@@ -403,6 +426,7 @@ namespace stonevox
 
             Button add = new Button(NextAvailableWidgeID, "./data/images/add.png",
                                                          "./data/images/add_highlight.png");
+            add.StatusText = StatusText.button_add;
             add.handler = new WidgetEventHandler()
             {
                 mousedownhandler = (e, s) =>
@@ -410,14 +434,22 @@ namespace stonevox
                     if (s.Button == MouseButton.Left)
                     {
                         Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushTypes.Add);
+                        e.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        background.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        Client.window.Cursor = e.cursor;
                     }
+                },
+                mouseleave = (e) =>
+                {
+                    e.cursor = null;
                 }
             };
-            add.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 3f) + selection.size.X*2f, -1);
+            add.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 3f) + selection.size.X * 2f, -1);
             widgets.Add(add);
 
             Button remove = new Button(NextAvailableWidgeID, "./data/images/remove.png",
                                                          "./data/images/remove_highlight.png");
+            remove.StatusText = StatusText.button_remove;
             remove.handler = new WidgetEventHandler()
             {
                 mousedownhandler = (e, s) =>
@@ -425,7 +457,14 @@ namespace stonevox
                     if (s.Button == MouseButton.Left)
                     {
                         Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushTypes.Remove);
+                        e.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        background.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        Client.window.Cursor = e.cursor;
                     }
+                },
+                mouseleave = (e) =>
+                {
+                    e.cursor = null;
                 }
             };
             remove.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 4f) + selection.size.X * 3f, -1);
@@ -435,6 +474,123 @@ namespace stonevox
                                                          "./data/images/save_highlight.png");
             save.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 5f) + selection.size.X * 4f, -1);
             widgets.Add(save);
+
+            Label status = new Label("", Color.Yellow);
+            status.SetBoundsNoScaling(-1, -1);
+            status.handler = new WidgetEventHandler()
+            {
+                messagerecived = (e, message, widget, args) =>
+                {
+                    if (message == Message.WidgetMouseEnter && widget.ID != status.ID)
+                    {
+                        if (!string.IsNullOrEmpty(widget.StatusText))
+                        {
+                            status.text = widget.StatusText;
+                        }
+                        else status.text = "";
+                    }
+                    else if (message == Message.StatusStripUpdate)
+                    {
+                        string m = args[0].ToString();
+                        status.text = m;
+                    }
+                }
+            };
+            widgets.Add(status);
+
+            Button target = new Button(NextAvailableWidgeID, "./data/images/target.png",
+                                                   "./data/images/target_highlight.png");
+            target.SetBoundsNoScaling(background.location.X - target.size.X * .76f, -1, target.size.X * .75f, target.size.Y * .75f);
+            target.StatusText = StatusText.button_target;
+
+            target.customData.Add("activematrix", Client.window.model.activematrix);
+
+            var c = new Action( () =>
+            {
+                while (true)
+                {
+                    int lastid = (int)target.customData["activematrix"];
+                    int id = -1;
+
+                    RaycastHit hit = new RaycastHit()
+                    {
+                        distance = 10000
+                    };
+
+                    for (int i = 0; i < Client.window.model.numMatrices; i++)
+                    {
+                        Singleton<Raycaster>.INSTANCE.ScreenToMouseRay(input.mousex, input.mousey);
+                        RaycastHit tempHit = Singleton<Raycaster>.INSTANCE.RaycastTest(Singleton<Camera>.INSTANCE.position, Client.window.model.matrices[i]);
+
+                        Console.WriteLine(tempHit.distance.ToString() + " " + tempHit.ToString());
+
+                        if (tempHit.distance < hit.distance)
+                        {
+                            id = i;
+                            hit = tempHit;
+                        }
+                    }
+
+                    if (id > -1 && lastid != id)
+                    {
+                        Client.window.model.getactivematrix.highlight = Color4.White;
+                        target.customData["activematrix"] = id;
+                        Client.window.model.activematrix = id;
+                        Client.window.model.getactivematrix.highlight = new Colort(1.5f, 1.5f, 1.5f);
+                        string name = Client.window.model.getactivematrix.name;
+                        status.text = string.Format("Over Matrix : {0}", name);
+                    }
+                    else if (id == -1)
+                    {
+                        if (lastid != -1)
+                        {
+                            Client.window.model.matrices[lastid].highlight = Color4.White;
+                            target.customData["activematrix"] = -1;
+                            status.text = "";
+                        }
+                    }
+
+                    Thread.Sleep(25);
+                }
+            });
+
+            target.customData.Add("thread", new Thread(() =>c()));
+
+            target.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    float mouseX = (float)Scale.hPosScale(input.mousex);
+                    float mouseY = (float)Scale.vPosScale(input.mousey);
+
+                    if (mouse.Button != MouseButton.Left || !isMouseWithin(mouseX, mouseY, e)) return;
+
+                    Thread thread = new Thread(() => c());
+
+                    target.customData["activematrix"] = -1;
+                    target.customData["thread"] = thread;
+                    thread.Start();
+                },
+                mouseuphandler = (e, mouse) =>
+                {
+                    if (mouse.Button == MouseButton.Right)
+                        e.Drag = true;
+                    else if (mouse.Button == MouseButton.Left)
+                    {
+                        int lastid = (int)target.customData["activematrix"];
+
+                        var thread = (Thread)target.customData["thread"];
+                        thread.Abort();
+
+                        if (lastid > -1)
+                            Client.window.model.matrices[lastid].highlight = Color4.White;
+                        target.customData["activematrix"] = -1;
+                        status.text = "";
+                    }
+                }
+            };
+
+            widgets.Add(target);
         }
 
         void Build_ColorPicker()

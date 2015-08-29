@@ -96,6 +96,8 @@ namespace stonevox
 
         public MouseCursor cursor;
 
+        public string StatusText;
+
         void UpdateEnable(bool value)
         {
             children.ForEach(t => t.Enable = value);
