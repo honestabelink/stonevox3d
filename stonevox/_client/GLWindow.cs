@@ -116,7 +116,7 @@ namespace stonevox
 
             selection.GenerateVertexArray();
 
-            ImportExportUtil.import(@"C:\Users\daniel\Desktop\dining_table.qb", out model);
+            //ImportExportUtil.import(@"C:\Users\daniel\Desktop\dining_table.qb", out model);
 
             backcolor = new Color4(0, 0, 0, 256);
 
