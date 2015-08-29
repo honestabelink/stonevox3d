@@ -93,7 +93,12 @@ namespace stonevox
                 window = new GLWindow(1280, 720, new GraphicsMode(new ColorFormat(32), 8, 0, 0));
             }
             window.Context.SwapInterval = 0;
-            window.RunSimple(120);
+
+#if DEBUG
+            window.Run_NoErrorCatching(120);
+#else
+            window.Run_WithErrorCatching(120);
+#endif
         }
 
         public static void update()

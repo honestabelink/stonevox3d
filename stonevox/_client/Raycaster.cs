@@ -107,6 +107,7 @@ namespace stonevox
                     Thread.Sleep(400);
                     continue;
                 }
+
                 ScreenToMouseRay(input.mousex, input.mousey);
                 RaycastHit hit = new RaycastHit();
                 hit.distance = 10000;
