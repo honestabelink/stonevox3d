@@ -33,7 +33,7 @@ namespace stonevox
                 errored = true;
                 string renderer = GL.GetString(StringName.Renderer);
                 Client.print("info", vertexshaderlog);
-                MessageBox.Show("Error occured in StoneVox. your graphics card seems to be unsupported. you are welcome to continue to use StoneVox, but likely run into visual errors. try updating your graphics card driver. Here's the name of your graphics card - " + renderer, "Error - Vertex Shader", MessageBoxButtons.OK);
+                //MessageBox.Show("Error occured in StoneVox. your graphics card seems to be unsupported. you are welcome to continue to use StoneVox, but likely run into visual errors. try updating your graphics card driver. Here's the name of your graphics card - " + renderer, "Error - Vertex Shader", MessageBoxButtons.OK);
             }
 
             GL.CompileShader(fragmentshaderid);
@@ -44,7 +44,7 @@ namespace stonevox
                 errored = true;
                 string renderer = GL.GetString(StringName.Renderer);
                 Client.print("info", fragmentshaderlog);
-                MessageBox.Show("Error occured in StoneVox. your graphics card seems to be unsupported. you are welcome to continue to use StoneVox, but likely run into visual errors. try updating your graphics card driver. Here's the name of your graphics card - " + renderer, "Error - Fragment Shader", MessageBoxButtons.OK);
+                //MessageBox.Show("Error occured in StoneVox. your graphics card seems to be unsupported. you are welcome to continue to use StoneVox, but likely run into visual errors. try updating your graphics card driver. Here's the name of your graphics card - " + renderer, "Error - Fragment Shader", MessageBoxButtons.OK);
             }
 
             int shaderid = GL.CreateProgram();
@@ -59,7 +59,7 @@ namespace stonevox
                 errored = true;
                 string renderer = GL.GetString(StringName.Renderer);
                 Client.print("info", shaderlog);
-                MessageBox.Show("Error occured in StoneVox. your graphics card seems to be unsupported. you are welcome to continue to use StoneVox, but likely run into visual errors. try updating your graphics card driver. Here's the name of your graphics card - " + renderer, "Error - Linking Shader", MessageBoxButtons.OK);
+                //MessageBox.Show("Error occured in StoneVox. your graphics card seems to be unsupported. you are welcome to continue to use StoneVox, but likely run into visual errors. try updating your graphics card driver. Here's the name of your graphics card - " + renderer, "Error - Linking Shader", MessageBoxButtons.OK);
             }
 
             Shader shader = new Shader(shaderid, vertexshaderid, fragmentshaderid);
