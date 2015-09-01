@@ -44,6 +44,7 @@ namespace stonevox
         ClientBrush brushes;
         ClientGUI gui;
         ClientBroadcaster broadcaster;
+        UndoRedo undoredo;
         Raycaster raycaster;
         IRenderer renderer;
 
@@ -82,9 +83,9 @@ namespace stonevox
             Title = String.Format("StoneVox 3D - version {0}", version);
 
             GL.Viewport(0, 0, Width, Height);
-                Qfont_1280 = new QFont("data\\fonts\\Bigfish.ttf", 11.2f, new QFontBuilderConfiguration(true, false));
-                Qfont_1400 = new QFont("data\\fonts\\Bigfish.ttf", 12f, new QFontBuilderConfiguration(true, false));
-                Qfont_1920 = new QFont("data\\fonts\\Bigfish.ttf", 15, new QFontBuilderConfiguration(true, false));
+            Qfont_1280 = new QFont("data\\fonts\\Bigfish.ttf", 11.2f, new QFontBuilderConfiguration(true, false));
+            Qfont_1400 = new QFont("data\\fonts\\Bigfish.ttf", 12f, new QFontBuilderConfiguration(true, false));
+            Qfont_1920 = new QFont("data\\fonts\\Bigfish.ttf", 15, new QFontBuilderConfiguration(true, false));
             if (Width <= 1280)
             {
                 Qfont = Qfont_1280;
@@ -113,10 +114,11 @@ namespace stonevox
             renderer = new Wireframe(camera, selection, input);
             broadcaster = new ClientBroadcaster();
             gui = new ClientGUI(this, input);
+            undoredo = new UndoRedo(input);
 
             selection.GenerateVertexArray();
 
-            //ImportExportUtil.import(@"C:\Users\daniel\Desktop\dining_table.qb", out model);
+            ImportExportUtil.import(@"C:\Users\daniel\Desktop\dining_table.qb", out model);
 
             backcolor = new Color4(0, 0, 0, 256);
 
@@ -144,6 +146,9 @@ namespace stonevox
         }
         public override void Dispose()
         {
+            Qfont_1280.Dispose();
+            Qfont_1400.Dispose();
+            Qfont_1920.Dispose();
             base.Dispose();
         }
 
@@ -233,36 +238,6 @@ namespace stonevox
             {
                 GUIEditor editor = new GUIEditor();
                 editor.Show();
-            }
-            else if (e.Key == Key.T)
-            {
-                Colort colort = new Colort(1, 0, 0);
-
-                Stopwatch w = new Stopwatch();
-                w.Start();
-                for (short z = 0; z < 25; z++)
-                    for (short y = 0; y < 25; y++)
-                        for (short x = 0; x < 25; x++)
-                        {
-                            model.getactivematrix.Add(x, y, z, colort);
-                        }
-                w.Stop();
-                Debug.Print(string.Format("total time : {0}", w.ElapsedMilliseconds));
-            }
-            else if (e.Key == Key.Y)
-            {
-                Colort colort = new Colort(1, 0, 0);
-
-                Stopwatch w = new Stopwatch();
-                w.Start();
-                for (short z = 0; z < 25; z++)
-                    for (short y = 0; y < 25; y++)
-                        for (short x = 0; x < 25; x++)
-                        {
-                            model.getactivematrix.Remove(x, y, z);
-                        }
-                w.Stop();
-                Debug.Print(string.Format("total time : {0}", w.ElapsedMilliseconds));
             }
 
             base.OnKeyDown(e);
