@@ -42,6 +42,7 @@ namespace stonevox
 
         public List<Widget> widgets;
         private ClientInput input;
+        private GLWindow window;
 
         private int widgetIDs = 100000;
         public int NextAvailableWidgeID { get { widgetIDs++; return widgetIDs; } }
@@ -57,9 +58,10 @@ namespace stonevox
         public ClientGUI(GLWindow window, ClientInput input)
              : base()
         {
+            this.window = window;
             Singleton<ClientBroadcaster>.INSTANCE.SetGUI(this);
 
-            window.SVReizeEvent += (e, o) =>
+            window.Resize += (e, o) =>
             {
                     UISaveState();
                     ConfigureUI(window.Width);
@@ -410,7 +412,7 @@ namespace stonevox
                 {
                     if (s.Button == MouseButton.Left)
                     {
-                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushTypes.Recolor);
+                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushType.Recolor);
                         e.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
                         background.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
                         Client.window.Cursor = e.cursor;
@@ -433,7 +435,7 @@ namespace stonevox
                 {
                     if (s.Button == MouseButton.Left)
                     {
-                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushTypes.Add);
+                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushType.Add);
                         e.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
                         background.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
                         Client.window.Cursor = e.cursor;
@@ -456,7 +458,7 @@ namespace stonevox
                 {
                     if (s.Button == MouseButton.Left)
                     {
-                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushTypes.Remove);
+                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushType.Remove);
                         e.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
                         background.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
                         Client.window.Cursor = e.cursor;
@@ -505,6 +507,22 @@ namespace stonevox
 
             target.customData.Add("activematrix", -1);
 
+            Bitmap bitmap = new Bitmap("./data/images/target_cursor.png");
+
+            if (window.Width <= 1280)
+                bitmap = bitmap.ResizeImage(new Size((int)(bitmap.Width * .75f), (int)(bitmap.Height * .75f)));
+            else if (window.Width <= 1400)
+                bitmap = bitmap.ResizeImage(new Size((int)(bitmap.Width * .8f), (int)(bitmap.Height * .8f)));
+
+            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            var data = bitmap.LockBits(
+                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+
+            target.customData.Add("cursor",new OpenTK.MouseCursor(
+                data.Width/2, data.Height /2, data.Width, data.Height, data.Scan0));
+
             var c = new Action( () =>
             {
                 while (true)
@@ -517,12 +535,10 @@ namespace stonevox
                         distance = 10000
                     };
 
-                    for (int i = 0; i < Client.window.model.numMatrices; i++)
+                    for (int i = 0; i < Client.window.model?.numMatrices; i++)
                     {
                         Singleton<Raycaster>.INSTANCE.ScreenToMouseRay(input.mousex, input.mousey);
                         RaycastHit tempHit = Singleton<Raycaster>.INSTANCE.RaycastTest(Singleton<Camera>.INSTANCE.position, Client.window.model.matrices[i]);
-
-                        Console.WriteLine(tempHit.distance.ToString() + " " + tempHit.ToString());
 
                         if (tempHit.distance < hit.distance)
                         {
@@ -569,6 +585,10 @@ namespace stonevox
 
                     target.customData["activematrix"] = -1;
                     target.customData["thread"] = thread;
+
+                    window.Cursor = (MouseCursor)target.customData["cursor"];
+                    target.cursor = (MouseCursor)target.customData["cursor"];
+
                     thread.Start();
                 },
                 mouseuphandler = (e, mouse) =>
@@ -586,6 +606,21 @@ namespace stonevox
                             Client.window.model.matrices[lastid].highlight = Color4.White;
                         target.customData["activematrix"] = -1;
                         status.text = "";
+
+                        target.cursor = null;
+
+                        if (lastWidgetOverIndex == -1)
+                            Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        else
+                        {
+                            if (lastWidgetOver != target)
+                            {
+                                MouseCursor cursor = lastWidgetOver.cursor != null ? lastWidgetOver.cursor : MouseCursor.Default;
+                                Client.window.Cursor = cursor;
+                            }
+                            else
+                                Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        }
                     }
                 }
             };
