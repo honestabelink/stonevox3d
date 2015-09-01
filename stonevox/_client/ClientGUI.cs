@@ -34,6 +34,8 @@ namespace stonevox
         public const int START_COLOR_SELECTORS = 1000;
 
         public const int MATRIX_LISTBOX_WINDOW = 700;
+
+        public const int STATUS_TEXT = 750;
     }
 
     public class ClientGUI : Singleton<ClientGUI>
@@ -477,7 +479,7 @@ namespace stonevox
             save.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 5f) + selection.size.X * 4f, -1);
             widgets.Add(save);
 
-            Label status = new Label("", Color.Yellow);
+            Label status = new Label(GUIID.STATUS_TEXT,"", Color.Yellow, true);
             status.SetBoundsNoScaling(-1, -1);
             status.handler = new WidgetEventHandler()
             {

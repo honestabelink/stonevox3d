@@ -10,7 +10,8 @@ namespace stonevox
     {
         Add,
         Remove,
-        Recolor
+        Recolor,
+        MatrixSelect
         //Select,
         //Area_Fill,
         //Area_Remove,

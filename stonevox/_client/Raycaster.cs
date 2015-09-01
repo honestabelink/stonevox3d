@@ -11,7 +11,8 @@ namespace stonevox
     public enum RaycastMode
     {
         ActiveMatrix,
-        FullModel
+        FullModel,
+        MatrixSelection // super hacks
     }
 
     public class Raycaster : Singleton<Raycaster>
@@ -112,7 +113,7 @@ namespace stonevox
 
                 ScreenToMouseRay(input.mousex, input.mousey);
                 RaycastHit hit = new RaycastHit();
-                hit.distance = 10001;
+                hit.distance = 10000;
                 switch (Mode)
                 {
                     case RaycastMode.ActiveMatrix:
@@ -156,6 +157,41 @@ namespace stonevox
                             HasHit = false;
                         }
                         lastHit = hit;
+                        break;
+
+                    case RaycastMode.MatrixSelection: // super hacks
+
+                        for (int i = 0; i < Client.window.model.numMatrices; i++)
+                        {
+                            RaycastHit tempHit = RaycastTest(camera.position, Client.window.model.matrices[i]);
+
+                            if (tempHit.distance != 10000 && tempHit.distance < hit.distance && !tempHit.matches(hit))
+                            {
+                                Client.window.model.activematrix = i;
+                                hit = tempHit;
+                            }
+                        }
+
+                        if (hit.distance != 10000)
+                        {
+                            HasHit = true;
+                        }
+                        else if (hit.distance == 10000)
+                        {
+                            HasHit = false;
+                        }
+                        if (!hit.matches(lastHit))
+                        {
+                            // ohhh my...
+                            // super super hacks
+                            if (HasHit)
+                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, Client.window.model.getactivematrix, hit);
+                            else
+                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, null, hit);
+
+                        }
+                        lastHit = hit;
+
                         break;
                 }
                 Thread.Sleep(15);

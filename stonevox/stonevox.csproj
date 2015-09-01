@@ -140,6 +140,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="brush\BrushMatrixSelection.cs" />
     <Compile Include="brush\VoxelBrushType.cs" />
     <Compile Include="_client\UndoRedo.cs" />
     <Content Include="data\images\center_aligned.png">

@@ -27,6 +27,7 @@ namespace stonevox
             brushes.Add(VoxelBrushType.Add, new BrushAdd());
             brushes.Add(VoxelBrushType.Remove, new BrushRemove());
             brushes.Add(VoxelBrushType.Recolor, new BrushRecolor());
+            brushes.Add(VoxelBrushType.MatrixSelect, new BrushMatrixSelection());
 
             input.AddHandler(new InputHandler()
             {
@@ -43,7 +44,7 @@ namespace stonevox
             {
                 var values = Enum.GetValues(typeof(VoxelBrushType));
                 var enumer = values.GetEnumerator();
-                while(enumer.MoveNext())
+                while (enumer.MoveNext())
                 {
                     string path = brushes[(VoxelBrushType)enumer.Current].CursorPath;
 
@@ -60,8 +61,13 @@ namespace stonevox
                         System.Drawing.Imaging.ImageLockMode.ReadOnly,
                         System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
 
-                    brushes[(VoxelBrushType)enumer.Current].Cursor = new OpenTK.MouseCursor(
-                        0, 0, data.Width, data.Height, data.Scan0);
+                    // super hacks
+                    if ((VoxelBrushType)enumer.Current == VoxelBrushType.MatrixSelect)
+                        brushes[(VoxelBrushType)enumer.Current].Cursor = new OpenTK.MouseCursor(
+                            data.Width / 2, data.Height / 2, data.Width, data.Height, data.Scan0);
+                    else
+                        brushes[(VoxelBrushType)enumer.Current].Cursor = new OpenTK.MouseCursor(
+                            0, 0, data.Width, data.Height, data.Scan0);
                 }
             };
 
@@ -73,10 +79,23 @@ namespace stonevox
             if (previousBrush != null)
             {
                 currentBrush.Disable();
-                previousBrush = currentBrush;
+
+                //super super hacks
+                if (currentBrush.BrushType != VoxelBrushType.MatrixSelect)
+                    previousBrush = currentBrush;
+            }
+            else
+            {
+                if (currentBrush?.BrushType != VoxelBrushType.MatrixSelect)
+                    previousBrush = currentBrush;
             }
             currentBrush = brushes[type];
             currentBrush.Enable();
+
+            // ensure onselectionchanged is called when changing brushes
+            // even if the raycaster isn't over a new voxel
+            if (Singleton<Raycaster>.INSTANCE != null)
+                Singleton<Raycaster>.INSTANCE.lastHit = new RaycastHit() { distance = 10000 };
 
             if (Singleton<ClientGUI>.INSTANCE?.OverWidget == false)
                 window.Cursor = currentBrush.Cursor;
@@ -97,6 +116,9 @@ namespace stonevox
                     {
                         if (enumer.MoveNext())
                         {
+                            // kinda hacky but so is the matrix selection tool...
+                            if ((VoxelBrushType)enumer.Current == VoxelBrushType.MatrixSelect)
+                                continue;
                             SetCurrentBrush((VoxelBrushType)enumer.Current);
                             return;
                         }
