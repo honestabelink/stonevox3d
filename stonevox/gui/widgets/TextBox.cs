@@ -115,8 +115,17 @@ namespace stonevox
             base.HandleKeyDown(e);
         }
 
+        public override void HandleFocusedGained()
+        {
+            appearence.Get<PlainBorder>("border").color = new Color4(164f / 256f, 146f / 256f, 110f / 256f, 1f);
+
+            base.HandleFocusedGained();
+        }
+
         public override void HandleFocusedLost()
         {
+            appearence.Get<PlainBorder>("border").color = new Color4(122f / 256f, 106f / 256f, 70f / 256f, 1f);
+
             HandleTextCommit();
             base.HandleFocusedLost();
         }
