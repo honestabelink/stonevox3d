@@ -26,7 +26,7 @@
     <SupportUrl>http://discourse.stonehearth.net/t/stonevox-3d-community-voxel-modeler-for-stonehearth-v-0-0-6/8664/</SupportUrl>
     <ProductName>StoneVox 3D</ProductName>
     <PublisherName>StoneVox 3D</PublisherName>
-    <ApplicationRevision>690</ApplicationRevision>
+    <ApplicationRevision>1162</ApplicationRevision>
     <ApplicationVersion>0.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -55,6 +55,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>B7E0ACD6DCB0BE5D1B12D21FAADB7B33E63F9DF6</ManifestCertificateThumbprint>
@@ -139,7 +140,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="brush\VoxelBrushTypes.cs" />
+    <Compile Include="brush\VoxelBrushType.cs" />
+    <Compile Include="_client\UndoRedo.cs" />
     <Content Include="data\images\center_aligned.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -179,6 +181,9 @@
     <Content Include="data\images\target.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="data\images\target_cursor.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\images\target_highlight.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -186,6 +191,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Compile Include="gui\appearences\SmoothBackground.cs" />
+    <Compile Include="gui\widgets\QbModelMatrixListbox.cs" />
     <Compile Include="memory\VoxelSideBuffer.cs" />
     <Content Include="Properties\AssemblyInfo.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -435,6 +441,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="data\images\target.psd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\target_cursor.psd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="data\shaders\SSAO_geometry.vs">
