@@ -27,10 +27,11 @@ namespace stonevox
         {
             voxelShader = ShaderUtil.CreateShader("qb", "./data/shaders/voxel.vs", "./data/shaders/voxel.fs");
             wireframeShader = ShaderUtil.CreateShader("wireframe_qb", "./data/shaders/wireframe.vs", "./data/shaders/wireframe.fs");
-            Shader s = ShaderUtil.CreateShader("s", "./data/shaders/QuadInterpolation.vs", "./data/shaders/QuadInterpolation.fs");
 
             this.camera = camera;
             this.selection = selection;
+
+            // bug mouse leaving matrix while dragging tools
 
             input.AddHandler(new InputHandler()
             {
@@ -81,16 +82,16 @@ namespace stonevox
                         wireframeShader.WriteUniform("modelview", camera.modelviewprojection);
                         model.RenderAll(wireframeShader);
                     }
-
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    GL.LineWidth(2);
                     voxelShader.UseShader();
                     voxelShader.WriteUniform("modelview", camera.modelviewprojection);
                     selection.render(voxelShader);
-                    model.RenderAll(voxelShader);
 
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    model.RenderAll(voxelShader);
                     break;
                 case WireframeType.ColorMatch:
-
                     if (drawWireframe)
                     {
                         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
@@ -100,16 +101,16 @@ namespace stonevox
                         wireframeShader.WriteUniform("modelview", camera.modelviewprojection);
                         model.RenderAll(wireframeShader);
                     }
-
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    GL.LineWidth(2);
                     voxelShader.UseShader();
                     voxelShader.WriteUniform("modelview", camera.modelviewprojection);
                     selection.render(voxelShader);
-                    model.RenderAll(voxelShader);
 
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    model.RenderAll(voxelShader);
                     break;
                 case WireframeType.Outline:
-
                     if (drawWireframe)
                     {
                         GL.CullFace(CullFaceMode.Front);
@@ -119,16 +120,16 @@ namespace stonevox
                         wireframeShader.WriteUniform("vHSV", new Vector3(1, 1.5f, 1.0f));
                         wireframeShader.WriteUniform("modelview", camera.modelviewprojection);
                         model.RenderAll(wireframeShader);
-                        GL.CullFace(CullFaceMode.Back);
-                        selection.render(voxelShader);
                     }
-
                     GL.CullFace(CullFaceMode.Back);
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    GL.LineWidth(2);
                     voxelShader.UseShader();
                     voxelShader.WriteUniform("modelview", camera.modelviewprojection);
-                    model.RenderAll(voxelShader);
+                    selection.render(voxelShader);
 
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    model.RenderAll(voxelShader);
                     break;
             }
         }
