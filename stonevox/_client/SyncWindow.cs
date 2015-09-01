@@ -54,7 +54,6 @@ namespace stonevox
                     Console.WriteLine("Exception Caught - exiting main loop.");
                     Console.WriteLine(e.ToString());
                     Console.WriteLine("");
-                    SetForegroundWindow(GetConsoleWindow());
                     var result = MessageBox.Show("Would you like to copy crash info to the clipboard?", "StoneVox Encountered An Error", MessageBoxButtons.YesNo);
 
                     if (result == DialogResult.Yes)
@@ -68,8 +67,6 @@ namespace stonevox
                     Console.WriteLine("");
                     return;
                 }
-
-                Debug.Print("Entering main loop.");
 
                 Stopwatch stopWatch = Stopwatch.StartNew();
 
@@ -176,34 +173,9 @@ namespace stonevox
                 FrameEventArgs updateArgs = new FrameEventArgs();
                 FrameEventArgs renderArgs = new FrameEventArgs();
 
-                try
-                {
-                    OnLoad(EventArgs.Empty);
-                    OnResize(EventArgs.Empty);
-                }
-                catch (Exception e)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("");
-                    Console.WriteLine("Exception Caught - exiting main loop.");
-                    Console.WriteLine(e.ToString());
-                    Console.WriteLine("");
-                    SetForegroundWindow(GetConsoleWindow());
-                    var result = MessageBox.Show("Would you like to copy crash info to the clipboard?", "StoneVox Encountered An Error", MessageBoxButtons.YesNo);
-
-                    if (result == DialogResult.Yes)
-                    {
-                        Clipboard.SetText(e.ToString());
-                    }
-
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine("");
-                    Console.WriteLine("Crash info copied to clipboard.");
-                    Console.WriteLine("");
-                    return;
-                }
-
-                Debug.Print("Entering main loop.");
+                OnLoad(EventArgs.Empty);
+                OnResize(EventArgs.Empty);
+                SetForegroundWindow(GetConsoleWindow());
 
                 Stopwatch stopWatch = Stopwatch.StartNew();
 
