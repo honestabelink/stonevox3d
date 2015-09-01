@@ -14,7 +14,7 @@ namespace stonevox
         public IVoxelBrush currentBrush;
         public IVoxelBrush previousBrush;
 
-        private Dictionary<VoxelBrushTypes, IVoxelBrush> brushes;
+        public Dictionary<VoxelBrushType, IVoxelBrush> brushes;
 
         private GLWindow window;
 
@@ -23,10 +23,10 @@ namespace stonevox
         {
             this.window = window;
 
-            brushes = new Dictionary<VoxelBrushTypes, IVoxelBrush>();
-            brushes.Add(VoxelBrushTypes.Add, new BrushAdd());
-            brushes.Add(VoxelBrushTypes.Remove, new BrushRemove());
-            brushes.Add(VoxelBrushTypes.Recolor, new BrushRecolor());
+            brushes = new Dictionary<VoxelBrushType, IVoxelBrush>();
+            brushes.Add(VoxelBrushType.Add, new BrushAdd());
+            brushes.Add(VoxelBrushType.Remove, new BrushRemove());
+            brushes.Add(VoxelBrushType.Recolor, new BrushRecolor());
 
             input.AddHandler(new InputHandler()
             {
@@ -41,11 +41,11 @@ namespace stonevox
 
             window.SVReizeEvent += (e, o) =>
             {
-                var values = Enum.GetValues(typeof(VoxelBrushTypes));
+                var values = Enum.GetValues(typeof(VoxelBrushType));
                 var enumer = values.GetEnumerator();
                 while(enumer.MoveNext())
                 {
-                    string path = brushes[(VoxelBrushTypes)enumer.Current].CursorPath;
+                    string path = brushes[(VoxelBrushType)enumer.Current].CursorPath;
 
                     Bitmap bitmap = new Bitmap(path);
 
@@ -60,7 +60,7 @@ namespace stonevox
                         System.Drawing.Imaging.ImageLockMode.ReadOnly,
                         System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
 
-                    brushes[(VoxelBrushTypes)enumer.Current].Cursor = new OpenTK.MouseCursor(
+                    brushes[(VoxelBrushType)enumer.Current].Cursor = new OpenTK.MouseCursor(
                         0, 0, data.Width, data.Height, data.Scan0);
                 }
             };
@@ -68,7 +68,7 @@ namespace stonevox
             NextBrush();
         }
 
-        public void SetCurrentBrush(VoxelBrushTypes type)
+        public void SetCurrentBrush(VoxelBrushType type)
         {
             if (previousBrush != null)
             {
@@ -84,20 +84,20 @@ namespace stonevox
 
         public void NextBrush()
         {
-            var values = Enum.GetValues(typeof(VoxelBrushTypes));
+            var values = Enum.GetValues(typeof(VoxelBrushType));
             var enumer = values.GetEnumerator();
             enumer.MoveNext();
-            VoxelBrushTypes first = (VoxelBrushTypes)enumer.Current;
+            VoxelBrushType first = (VoxelBrushType)enumer.Current;
 
             if (currentBrush != null)
             {
                 do
                 {
-                    if ((VoxelBrushTypes)enumer.Current == currentBrush.BrushType)
+                    if ((VoxelBrushType)enumer.Current == currentBrush.BrushType)
                     {
                         if (enumer.MoveNext())
                         {
-                            SetCurrentBrush((VoxelBrushTypes)enumer.Current);
+                            SetCurrentBrush((VoxelBrushType)enumer.Current);
                             return;
                         }
                     }
@@ -107,9 +107,9 @@ namespace stonevox
             SetCurrentBrush(first);
         }
 
-        public bool onselectionchanged(ClientInput input, QbMatrix matrix, RaycastHit hit)
+        public bool onselectionchanged(ClientInput input, QbMatrix matrix, RaycastHit hit, MouseButtonEventArgs e = null)
         {
-            return currentBrush.OnRaycastHitchanged(input, matrix, hit, ref brushColor);
+            return currentBrush.OnRaycastHitchanged(input, matrix, hit, ref brushColor, e);
         }
     }
 }

@@ -18,11 +18,11 @@ namespace stonevox
         VoxelVolume volume;
         VoxelVolume lastvolume;
         QbMatrix lastmatrix;
-        Dictionary<double, int> modifiedVoxels = new Dictionary<double, int>();
+        Dictionary<double, VoxelUndoData> modifiedVoxels = new Dictionary<double, VoxelUndoData>();
         public MouseCursor Cursor { get; set; }
 
 
-        public VoxelBrushTypes BrushType { get { return VoxelBrushTypes.Recolor; } }
+        public VoxelBrushType BrushType { get { return VoxelBrushType.Recolor; } }
 
         public bool Active { get; set; }
 
@@ -38,7 +38,7 @@ namespace stonevox
         {
             Singleton<ClientInput>.INSTANCE.AddHandler(new InputHandler()
             {
-                mouseuphandler = new MouseHandler((MouseButtonEventArgs e) =>
+                mouseuphandler = (e) =>
                 {
                     if (!Active) return;
 
@@ -57,17 +57,17 @@ namespace stonevox
                         state = ToolState.Start;
                         CleanForToolReset();
                     }
-                })
+                }
             });
         }
 
-        public bool OnRaycastHitchanged(ClientInput input, QbMatrix matrix, RaycastHit hit, ref Colort color)
+        public bool OnRaycastHitchanged(ClientInput input, QbMatrix matrix, RaycastHit hit, ref Colort color, MouseButtonEventArgs e)
         {
             lastmatrix = matrix;
             switch (state)
             {
                 case ToolState.Start:
-                    if (input.mousedown(MouseButton.Left))
+                    if ((e != null && e.IsPressed && e.Button == MouseButton.Left) || (e == null && input.mousedown(MouseButton.Left)))
                     {
                         state = ToolState.Base;
                         Singleton<Raycaster>.INSTANCE.testdirt = true;
@@ -75,27 +75,28 @@ namespace stonevox
                         endPosition = new VoxelLocation(hit, false);
                         volume = new VoxelVolume(startPosition, endPosition);
                         modifiedVoxels.Clear();
-                        EnumerateVolume(volume, matrix, ref color);
+                        EnumerateVolume(volume, lastvolume, matrix, ref color, modifiedVoxels);
                         lastvolume = volume;
                         return true;
                     }
                     break;
                 case ToolState.Base:
-                    if (input.mousedown(MouseButton.Left))
+                    if ((e != null && e.IsPressed && e.Button == MouseButton.Left) || (e == null && input.mousedown(MouseButton.Left)))
                     {
                         endPosition = new VoxelLocation(hit, false);
                         volume = new VoxelVolume(startPosition, endPosition);
 
-                        EnumerateVolume(volume, matrix, ref color);
-                        CleanLastVolume(lastvolume, volume, matrix);
+                        EnumerateVolume(volume, lastvolume, matrix, ref color, modifiedVoxels);
+                        CleanLastVolume(lastvolume, volume, matrix, modifiedVoxels);
                         lastvolume = volume;
 
                         return true;
                     }
-                    else if (input.mouseup(MouseButton.Left))
+                    else if ((e != null && !e.IsPressed && e.Button == MouseButton.Left) || (e == null && input.mousedown(MouseButton.Left)))
                     {
                         state = ToolState.Start;
                         lastvolume = VoxelVolume.NEGATIVE_ZERO;
+                        Singleton<UndoRedo>.INSTANCE.AddUndo(BrushType, matrix, volume, color, modifiedVoxels);
                         return true;
                     }
                     break;
@@ -105,7 +106,7 @@ namespace stonevox
             return false;
         }
 
-        void EnumerateVolume(VoxelVolume volume, QbMatrix matrix, ref Colort color)
+        public void EnumerateVolume(VoxelVolume volume, VoxelVolume currentVolume, QbMatrix matrix, ref Colort color, Dictionary<double, VoxelUndoData> modifiedVoxels)
         {
             double hash;
             Voxel voxel = null;
@@ -117,16 +118,16 @@ namespace stonevox
 
                         if (!modifiedVoxels.ContainsKey(hash) && matrix.voxels.TryGetValue(hash, out voxel) && voxel.alphamask > 1)
                         {
-                            modifiedVoxels.Add(hash, matrix.voxels[hash].colorindex);
+                            modifiedVoxels.Add(hash, new VoxelUndoData(matrix.voxels[hash].colorindex, 0));
                             matrix.Color(x, y, z, color);
                         }
                     }
         }
 
-        void CleanLastVolume(VoxelVolume volume, VoxelVolume currentVolume, QbMatrix matrix)
+        public void CleanLastVolume(VoxelVolume volume, VoxelVolume currentVolume, QbMatrix matrix, Dictionary<double, VoxelUndoData> modifiedVoxels)
         {
             double hash;
-            int colorindex;
+            VoxelUndoData voxel = new VoxelUndoData();
             for (int z = volume.minz; z <= volume.maxz; z++)
                 for (int y = volume.miny; y <= volume.maxy; y++)
                     for (int x = volume.minx; x <= volume.maxx; x++)
@@ -134,9 +135,9 @@ namespace stonevox
                         if (!currentVolume.ContainsPoint(x, y, z))
                         {
                             hash = matrix.GetHash(x, y, z);
-                            if (modifiedVoxels.TryGetValue(hash, out colorindex))
+                            if (modifiedVoxels.TryGetValue(hash, out voxel))
                             {
-                                matrix.Color(x, y, z, colorindex, false, true);
+                                matrix.Color(x, y, z, voxel.colorindex, false, true);
                                 modifiedVoxels.Remove(hash);
                             }
                         }
@@ -145,23 +146,42 @@ namespace stonevox
 
         void CleanForToolReset()
         {
-            RemoveVolume(volume);
+            RemoveVolume(volume, lastmatrix, modifiedVoxels);
             modifiedVoxels.Clear();
             lastvolume = VoxelVolume.NEGATIVE_ZERO;
         }
 
-        void RemoveVolume(VoxelVolume volume)
+        public void RemoveVolume(VoxelVolume volume, QbMatrix matrix, Dictionary<double, VoxelUndoData> modifiedVoxels)
         {
             double hash;
-            int colorindex;
+            VoxelUndoData voxel = new VoxelUndoData();
             for (int z = volume.minz; z <= volume.maxz; z++)
                 for (int y = volume.miny; y <= volume.maxy; y++)
                     for (int x = volume.minx; x <= volume.maxx; x++)
                     {
-                        hash = lastmatrix.GetHash(x, y, z);
-                        if (modifiedVoxels.TryGetValue(hash, out colorindex))
+                        hash = matrix.GetHash(x, y, z);
+                        if (modifiedVoxels.TryGetValue(hash, out voxel))
                         {
-                            lastmatrix.Color(x, y, z, colorindex, false, true);
+                            matrix.Color(x, y, z, voxel.colorindex, false, true);
+                            modifiedVoxels.Remove(hash);
+                        }
+                    }
+        }
+
+        public void AddVolume(VoxelVolume volume, QbMatrix matrix, ref Colort color, Dictionary<double, VoxelUndoData> modifiedVoxels)
+        {
+            double hash;
+            Voxel voxel = null;
+            for (int z = volume.minz; z <= volume.maxz; z++)
+                for (int y = volume.miny; y <= volume.maxy; y++)
+                    for (int x = volume.minx; x <= volume.maxx; x++)
+                    {
+                        hash = matrix.GetHash(x, y, z);
+
+                        if (!modifiedVoxels.ContainsKey(hash) && matrix.voxels.TryGetValue(hash, out voxel) && voxel.alphamask > 1)
+                        {
+                            modifiedVoxels.Add(hash, new VoxelUndoData(matrix.voxels[hash].colorindex, 0));
+                            matrix.Color(x, y, z, color);
                         }
                     }
         }

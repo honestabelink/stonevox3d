@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace stonevox
 {
-    public enum VoxelBrushTypes
+    public enum VoxelBrushType
     {
         Add,
         Remove,

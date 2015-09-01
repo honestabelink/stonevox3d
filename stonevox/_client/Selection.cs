@@ -38,6 +38,35 @@ namespace stonevox
             color = new Colort(1, 0, 0);
 
             buffer = new float[16];
+
+
+            input.AddHandler(new InputHandler()
+            {
+                mousedownhandler = (e) =>
+                {
+                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
+
+                    if (e.Button == MouseButton.Left && !dirty && handledselectionchange && Singleton<Raycaster>.INSTANCE.HasHit)
+                    {
+                        handledselectionchange = brushes.onselectionchanged(input, QbManager.getactivematrix(), lasthit, e);
+
+                        if (handledselectionchange)
+                            needscleaning = true;
+                    }
+                },
+                mouseuphandler = (e) =>
+                {
+                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
+
+                    if (e.Button == MouseButton.Left && !dirty && handledselectionchange)
+                    {
+                        handledselectionchange = brushes.onselectionchanged(input, QbManager.getactivematrix(), lasthit, e);
+
+                        if (handledselectionchange)
+                            needscleaning = true;
+                    }
+                }
+            });
         }
 
         public void GenerateVertexArray()
