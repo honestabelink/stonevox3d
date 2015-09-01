@@ -37,6 +37,8 @@ namespace stonevox
         public Vector3 rayOrigin;
         public Vector3 rayDirection;
 
+        public bool HasHit;
+
         bool enabled = true;
         public bool Enabled { get { return enabled; } set { enabled = value; if (!value) selection.handledselectionchange = true; } }
         public bool testdirt = false;
@@ -104,25 +106,28 @@ namespace stonevox
             {
                 if (Client.window.model == null || !enabled)
                 {
-                    Thread.Sleep(400);
+                    Thread.Sleep(200);
                     continue;
                 }
 
                 ScreenToMouseRay(input.mousex, input.mousey);
                 RaycastHit hit = new RaycastHit();
-                hit.distance = 10000;
+                hit.distance = 10001;
                 switch (Mode)
                 {
                     case RaycastMode.ActiveMatrix:
                         hit = RaycastTest(camera.position, Client.window.model.getactivematrix);
 
-                        if (hit.distance != 10000 && !hit.matches(lastHit))
+                        if (hit.distance != 10000)
                         {
-                            selection.dirty = true;
+                            HasHit = true;
+                            if (!hit.matches(lastHit))
+                                selection.dirty = true;
                         }
                         else if (hit.distance == 10000)
                         {
                             selection.handledselectionchange = true;
+                            HasHit = false;
                         }
                         lastHit = hit;
                         break;
@@ -139,13 +144,16 @@ namespace stonevox
                             }
                         }
 
-                        if (hit.distance != 10000 && !hit.matches(lastHit))
+                        if (hit.distance != 10000)
                         {
-                            selection.dirty = true;
+                            HasHit = true;
+                            if (!hit.matches(lastHit))
+                                selection.dirty = true;
                         }
                         else if (hit.distance == 10000)
                         {
                             selection.handledselectionchange = true;
+                            HasHit = false;
                         }
                         lastHit = hit;
                         break;
