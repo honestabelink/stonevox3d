@@ -14,8 +14,10 @@ namespace stonevox
         static ImportExportUtil()
         {
             importers.Add(new ImporterQb());
+            importers.Add(new ImporterSVP());
 
             exporters.Add(new ExporterQb());
+            exporters.Add(new ExporterSVP());
             exporters.Add(new ExporterObj());
         }
 
