@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -118,9 +119,9 @@ namespace stonevox
 
             selection.GenerateVertexArray();
 
-            //ImportExportUtil.import(@"C:\Users\daniel\Desktop\dining_table.qb", out model);
+            ImportExportUtil.import(@"C:\Users\daniel\Desktop\dining_table.qb", out model);
 
-            backcolor = new Color4(0, 0, 0, 256);
+            backcolor = new Color4(0, 0, 0, 0);
 
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
@@ -221,23 +222,27 @@ namespace stonevox
             {
                 var save = new SaveFileDialog();
                 save.Title = "Save .obj File";
-                save.DefaultExt = ".obj";
+                save.Filter = "StoneVox Project (.svp)|*.svp|Qubicle Binary (.qb)|*.qb|Wavefront OBJ (.obj)|*.obj|All files (*.*)|*.*";
+                save.DefaultExt = ".svp";
 
                 var result = save.ShowDialog();
 
                 if (result == DialogResult.OK)
                 {
-                    ExporterObj objexporter = new ExporterObj();
                     model.name = save.FileName.Split('\\').Last();
                     if (model.name.Contains('.'))
                         model.name = model.name.Split('.').First();
-                    objexporter.write(save.FileName.Replace("\\"+model.name + ".obj", ""), model.name, model);
+                    ImportExportUtil.export(save.FileName.Split('\\').Last().Replace(model.name, ""), model.name, Path.GetDirectoryName(save.FileName), model);
                 }
             }
             else if (e.Modifiers == KeyModifiers.Control && e.Key == Key.F12)
             {
                 GUIEditor editor = new GUIEditor();
                 editor.Show();
+            }
+            else if (e.Key == Key.T)
+            {
+                ImportExportUtil.export(".svp", "shouldwork", Environment.GetFolderPath(Environment.SpecialFolder.Desktop), model);
             }
 
             base.OnKeyDown(e);
@@ -291,7 +296,6 @@ namespace stonevox
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            Client.update();
             input.update();
             gui.Update(e);
 
@@ -308,7 +312,7 @@ namespace stonevox
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GL.ClearColor(backcolor.R, backcolor.G, backcolor.B, 1);
+            GL.ClearColor(backcolor.R, backcolor.G, backcolor.B, backcolor.A);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             ee += e.Time;
@@ -331,6 +335,9 @@ namespace stonevox
             gui.Render();
 
             SwapBuffers();
+
+            Client.update();
+
             base.OnRenderFrame(e);
         }
     }
