@@ -57,6 +57,11 @@ namespace stonevox
 
         public bool OverWidget { get { return lastWidgetOverIndex != -1; } }
 
+        public bool Visible = true;
+
+        int activecolorindex;
+        List<Color4> colorpallete = new List<Color4>();
+
         public ClientGUI(GLWindow window, ClientInput input)
              : base()
         {
@@ -65,8 +70,9 @@ namespace stonevox
 
             window.Resize += (e, o) =>
             {
-                    UISaveState();
-                    ConfigureUI(window.Width);
+                UISaveState();
+                ConfigureUI(window.Width);
+                UILoadState();
             };
 
             this.input = input;
@@ -294,6 +300,8 @@ namespace stonevox
 
         public void Render()
         {
+            if (!Visible) return;
+
             GL.Disable(EnableCap.DepthTest);
 
             Setup2D();
@@ -350,6 +358,18 @@ namespace stonevox
 
         void UISaveState()
         {
+            colorpallete.Clear();
+            for (int i = 0; i < 10; i++)
+            {
+                var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                if (c.customData.Count > 0 && (bool)c.customData["active"])
+                {
+                    activecolorindex = i;
+                }
+
+                if (c.appearence.Count > 0)
+                    colorpallete.Add(c.appearence.Get<PlainBackground>("background").color);
+            }
             widgetIDs = 100000;
             object handler = null;
             Get<EmptyWidget>(GUIID.COLOR_PICKER_WINDOW).customData.TryGetValue("inputhandler", out handler);
@@ -359,6 +379,28 @@ namespace stonevox
             lastWidgetOverIndex = -1;
 
             widgets.Clear();
+        }
+
+        void UILoadState()
+        {
+            if (colorpallete.Count > 0)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                    c.customData["active"] = false;
+                    c.appearence.Get<PlainBackground>("background").color = colorpallete[i];
+                }
+
+                for (int i = 0; i < 10; i++)
+                {
+                    var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                    if (i == activecolorindex)
+                    {
+                        c.HandleMouseDown(new MouseButtonEventArgs(0, 0, MouseButton.Left, true));
+                    }
+                }
+            }
         }
 
         void ConfigureUI(int width)
