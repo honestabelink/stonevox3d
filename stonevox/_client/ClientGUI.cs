@@ -419,9 +419,9 @@ namespace stonevox
         void BuildUI()
         {
             Build_BrushToolbar();
-            Build_ColorPicker();
             Build_ColorToolbar();
             Build_MatrixList();
+            Build_ColorPicker();
         }
 
         void Build_BrushToolbar()
@@ -679,6 +679,35 @@ namespace stonevox
             background.SetBoundsNoScaling(0 - background.size.X /2f, 0 - background.size.Y / 2f, null, null);
             background.Enable = false;
             widgets.Add(background);
+
+            EmptyWidget background_header = new EmptyWidget();
+            background_header.appearence.AddAppearence("background", new Picture("./data/images/colorpicker_header.png"));
+            background_header.Parent = background;
+            background_header.SetBoundsNoScaling(background.Absolute_X, background.Absolute_Y + background.size.Y-background_header.size.Y *.35f);
+            background_header.StatusText = StatusText.picture_colorpicker_header;
+
+            background_header.handler = new WidgetEventHandler()
+            {
+                mousemovehandler= (e, mouse) =>
+                {
+                    float newposX = (float)Scale.hSizeScale(mouse.XDelta) * 2f + background.Absolute_X;
+                    float newposY = (float)Scale.vSizeScale(mouse.YDelta) * -1f * 2f + background.Absolute_Y;
+
+                    if (newposX + background.size.X > 1)
+                        newposX = 1 - background.size.X;
+                    else if (newposX < -1)
+                        newposX = -1;
+
+                    if (newposY + background.size.Y + background_header.size.Y * .35f > 1)
+                        newposY = 1 - background.size.Y- background_header.size.Y * .35f;
+                    else if (newposY < -1)
+                        newposY = -1;
+
+                    background.SetBoundsNoScaling(newposX, newposY);
+                }
+            };
+
+            widgets.Add(background_header);
 
             EmptyWidget colorQuad = new EmptyWidget(GUIID.COLORQUAD);
             SmoothBackground  colorQuad_background = new SmoothBackground();
