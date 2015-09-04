@@ -44,7 +44,7 @@ namespace stonevox
             {
                 mousedownhandler = (e) =>
                 {
-                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
+                    if (Singleton<ClientGUI>.INSTANCE.OverWidget || Client.window.model == null) return;
 
                     if (e.Button == MouseButton.Left && !dirty && handledselectionchange && Singleton<Raycaster>.INSTANCE.HasHit)
                     {
@@ -56,7 +56,7 @@ namespace stonevox
                 },
                 mouseuphandler = (e) =>
                 {
-                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
+                    if (Singleton<ClientGUI>.INSTANCE.OverWidget || Client.window.model == null) return;
 
                     if (e.Button == MouseButton.Left && !dirty && handledselectionchange)
                     {
