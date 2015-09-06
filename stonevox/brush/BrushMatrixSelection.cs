@@ -59,6 +59,8 @@ namespace stonevox
                         Singleton<ClientGUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = "";
                         if (lastmatrix != null)
                         {
+                            Client.window.model.activematrix = Client.window.model.matrices.IndexOf(lastmatrix);
+                            Singleton<Camera>.INSTANCE.LookAtMatrix();
                             lastmatrix.highlight = Color4.White;
                             lastmatrix = null;
                         }

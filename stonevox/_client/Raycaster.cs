@@ -161,13 +161,14 @@ namespace stonevox
 
                     case RaycastMode.MatrixSelection: // super hacks
 
+                        int index = 0;
                         for (int i = 0; i < Client.window.model.numMatrices; i++)
                         {
                             RaycastHit tempHit = RaycastTest(camera.position, Client.window.model.matrices[i]);
 
                             if (tempHit.distance != 10000 && tempHit.distance < hit.distance && !tempHit.matches(hit))
                             {
-                                Client.window.model.activematrix = i;
+                                index = i;
                                 hit = tempHit;
                             }
                         }
@@ -185,7 +186,7 @@ namespace stonevox
                             // ohhh my...
                             // super super hacks
                             if (HasHit)
-                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, Client.window.model.getactivematrix, hit);
+                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, Client.window.model.matrices[index], hit);
                             else
                                 Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, null, hit);
 
