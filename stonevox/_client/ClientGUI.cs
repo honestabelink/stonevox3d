@@ -59,8 +59,12 @@ namespace stonevox
 
         public bool Visible = true;
 
-        int activecolorindex;
+        int activecolorindex = 9;
         List<Color4> colorpallete = new List<Color4>();
+
+        public bool Dirty = true;
+        int framebuffer;
+        int color;
 
         public ClientGUI(GLWindow window, ClientInput input)
              : base()
@@ -68,11 +72,32 @@ namespace stonevox
             this.window = window;
             Singleton<ClientBroadcaster>.INSTANCE.SetGUI(this);
 
+            framebuffer = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
+
+            color = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, color);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, window.Width, window.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, color, 0);
+
+            GL.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+
             window.Resize += (e, o) =>
             {
                 UISaveState();
                 ConfigureUI(window.Width);
                 UILoadState();
+
+                int width = Client.window.Width;
+                int height = Client.window.Height;
+
+                GL.BindTexture(TextureTarget.Texture2D, color);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, window.Width, window.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
             };
 
             this.input = input;
@@ -305,8 +330,46 @@ namespace stonevox
             GL.Disable(EnableCap.DepthTest);
 
             Setup2D();
-            Render2D();
 
+            if (Dirty)
+            {
+                Dirty = false;
+                GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
+                GL.DrawBuffers(1, new DrawBuffersEnum[] { DrawBuffersEnum.ColorAttachment0 });
+
+                GL.ClearColor(0, 0, 0, 0f);
+                GL.Clear(ClearBufferMask.ColorBufferBit);
+
+                Render2D();
+
+                GL.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+            }
+
+            float x = -1;
+            float y = -1;
+            float width = 2;
+            float height = 2;
+
+            GL.Enable(EnableCap.Texture2D);
+            GL.BindTexture(TextureTarget.Texture2D, color);
+            GL.Color4(Color4.White);
+            GL.Begin(PrimitiveType.Quads);
+
+            GL.TexCoord2(0f, 0f);
+            GL.Vertex2(x, y);
+
+            GL.TexCoord2(1f, 0f);
+            GL.Vertex2(x + width, y);
+
+            GL.TexCoord2(1f, 1f);
+            GL.Vertex2(x + width, y + height);
+
+            GL.TexCoord2(0f, 1f);
+            GL.Vertex2(x, y + height);
+
+            GL.End();
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.Disable(EnableCap.Texture2D);
 
             GL.Enable(EnableCap.DepthTest);
         }
@@ -392,13 +455,14 @@ namespace stonevox
                     c.appearence.Get<PlainBackground>("background").color = colorpallete[i];
                 }
 
-                for (int i = 0; i < 10; i++)
+            }
+            for (int i = 0; i < 10; i++)
+            {
+                var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                if (i == activecolorindex)
                 {
-                    var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
-                    if (i == activecolorindex)
-                    {
-                        c.HandleMouseDown(new MouseButtonEventArgs(0, 0, MouseButton.Left, true));
-                    }
+                    c.HandleMouseDown(new MouseButtonEventArgs(0, 0, MouseButton.Left, true));
+                    break;
                 }
             }
         }
@@ -467,6 +531,7 @@ namespace stonevox
                     e.cursor = null;
                 }
             };
+            recolor.StatusText = StatusText.button_recolor;
             recolor.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 2f) + selection.size.X, -1);
             widgets.Add(recolor);
 
@@ -647,7 +712,10 @@ namespace stonevox
                         thread.Abort();
 
                         if (lastid > -1)
+                        {
                             Client.window.model.matrices[lastid].highlight = Color4.White;
+                            Singleton<Camera>.INSTANCE.LookAtMatrix();
+                        }
                         target.customData["activematrix"] = -1;
                         status.text = "";
 
@@ -1059,6 +1127,8 @@ namespace stonevox
                     {
                         Color4 color = (Color4)args[0];
 
+                        Singleton<ClientBrush>.INSTANCE.brushColor = color;
+
                         double hu;
                         double sat;
                         double vi;
@@ -1200,7 +1270,6 @@ namespace stonevox
                         {
                             e.customData["active"] = true;
                             border.color = Color4.Yellow;
-                            Singleton<ClientBrush>.INSTANCE.brushColor = bg.color;
                             Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, e, bg.color);
                         }
                         else
@@ -1255,9 +1324,6 @@ namespace stonevox
 
                 widgets.Add(colorselector);
                 startY += ((background.size.Y - (70 * 2f).ScaleVerticlSize()) / 10f) + (5f).ScaleVerticlSize();
-
-                if (i == 9)
-                    colorselector.HandleMouseDown(new MouseButtonEventArgs(0, 0, MouseButton.Left, true));
             }
 
         }

@@ -40,10 +40,16 @@ namespace stonevox
 
                 for (int i = 0; i < 10; i++)
                 {
-                    var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS+ i).appearence.Get<PlainBackground>("background");
+                    var colorpal = Singleton< ClientGUI >.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+
+                    var c = colorpal.appearence.Get<PlainBackground>("background");
                     c.color.R = reader.ReadSingle();
                     c.color.G = reader.ReadSingle();
                     c.color.B = reader.ReadSingle();
+
+                    bool e =(bool)colorpal.customData["active"];
+                    if (e)
+                        Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, colorpal, c.color);
                 }
 
                 model.version = reader.ReadUInt32();

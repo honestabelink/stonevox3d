@@ -80,6 +80,7 @@ namespace stonevox
 
         public void Broadcast(Message message, Widget widget, params object[] args)
         {
+            gui.Dirty = true;
             BroadcastMessage m = new BroadcastMessage()
             {
                 messgae = message,

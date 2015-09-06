@@ -265,6 +265,8 @@ namespace stonevox
 
             if (height.HasValue)
                 size.Y = Scale.vSizeScale(height.Value);
+
+            Singleton<ClientGUI>.INSTANCE.Dirty = true;
         }
 
         public virtual void SetBoundsNoScaling(float? x, float? z, float? width = null, float? height = null)
@@ -283,6 +285,8 @@ namespace stonevox
 
             if (height.HasValue)
                 size.Y = height.Value;
+
+            Singleton<ClientGUI>.INSTANCE.Dirty = true;
         }
 
         public void Update(FrameEventArgs e)
