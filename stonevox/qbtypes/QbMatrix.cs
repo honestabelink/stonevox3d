@@ -26,6 +26,16 @@ namespace stonevox
         public ConcurrentDictionary<double, Voxel> voxels;
         public ConcurrentStack<VoxelModifier> modifiedvoxels;
 
+        public int minx = 10000;
+        public int miny = 10000;
+        public int minz = 10000;
+        public int maxx = 0;
+        public int maxy = 0;
+        public int maxz = 0;
+        public int sizex = 0;
+        public int sizey =0;       
+        public int sizez =0;
+
         private QbMatrixSide left;
         private QbMatrixSide right;
         private QbMatrixSide top;
@@ -59,7 +69,6 @@ namespace stonevox
         public void setsize(int x, int y, int z)
         {
             size = new Vector3(x, y, z);
-            centerposition = new Vector3(x * .5f - .5f, y * .5f - .5f, z * .5f - .5f);
         }
 
         public int GetColorIndex(float r, float g, float b)
@@ -168,6 +177,21 @@ namespace stonevox
         {
             foreach (var c in voxels.Values)
             {
+                if (c.x < minx)
+                    minx = c.x;
+                if (c.x > maxx)
+                    maxx = c.x;
+
+                if (c.y < miny)
+                    miny = c.y;
+                if (c.y > maxy)
+                    maxy = c.y;
+
+                if (c.z < minz)
+                    minz = c.z;
+                if (c.z > maxz)
+                    maxz = c.z;
+
                 if (c.alphamask > 1)
                 {
                     //front
@@ -207,6 +231,12 @@ namespace stonevox
                     }
                 }
             }
+
+            sizex =       maxx - minx;
+            sizey =       maxy - miny;
+            sizez =       maxz - minz;
+
+            centerposition = new Vector3((minx + ((maxx - minx) / 2)), (miny + ((maxy - miny) / 2)), (minz + ((maxz - minz) / 2)));
         }
 
         public void Render(Shader shader)
@@ -377,9 +407,30 @@ namespace stonevox
         {
             foreach (var v in voxels.Values)
             {
+                if (v.x < minx)
+                    minx = v.x;
+                if (v.x > maxx)
+                    maxx = v.x;
+
+                if (v.y < miny)
+                    miny = v.y;
+                if (v.y > maxy)
+                    maxy = v.y;
+
+                if (v.z < minz)
+                    minz = v.z;
+                if (v.z > maxz)
+                    maxz = v.z;
+
                 if (v.dirty)
                     v.dirty = false;
             }
+
+            sizex = maxx - minx;
+            sizey = maxy - miny;
+            sizez = maxz - minz;
+                
+            centerposition = new Vector3((minx + ((maxx- minx) /2)), (miny + ((maxy- miny) / 2)) , (minz + ((maxz - minz) / 2)));
         }
 
         public double GetHash(int x, int y, int z)

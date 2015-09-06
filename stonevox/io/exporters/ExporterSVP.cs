@@ -49,13 +49,51 @@ namespace stonevox
                 GL.ClearColor(0, 0, 0, 0);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-                var direction = new Vector3(0f, 0f, 1f);
-                var position =
-                   new Vector3(QbManager.getactivematrix().size.X * .5f - 3.5f,
-                           QbManager.getactivematrix().size.Y * .5f * 2.0f,
-                           QbManager.getactivematrix().size.Z * .5f * 4.5f);
+                int minx = 10000;
+                int miny = 10000;
+                int minz = 10000;
+                int maxx = 0;
+                int maxy = 0;
+                int maxz = 0;
+                int sizex = 0;
+                int sizey = 0;
+                int sizez = 0;
 
-                Vector3.Subtract(ref QbManager.getactivematrix().centerposition, ref position, out direction);
+                foreach (var matrix in Client.window.model.matrices)
+                {
+                    if (matrix.minx < minx)
+                        minx = matrix.minx;
+                    if (matrix.maxx > maxx)
+                        maxx = matrix.maxx;
+
+                    if (matrix.miny < miny)
+                        miny = matrix.miny;
+                    if (matrix.maxy > maxy)
+                        maxy = matrix.maxy;
+
+                    if (matrix.minz < minz)
+                        minz = matrix.minz;
+                    if (matrix.maxz > maxz)
+                        maxz = matrix.maxz;
+                }
+
+                sizex = maxx - minx;
+                sizey = maxy - miny;
+                sizez = maxz - minz;
+
+                float backup = 0;
+
+                if (sizey * 1.5f > 20)
+                    backup = sizey * 1.5f;
+                else if (sizex * 1.5f > 20)
+                    backup = sizex * 1.5f;
+                else backup = 20;
+
+                var centerpos = new Vector3((minx + ((maxx - minx) / 2)), (miny + ((maxy - miny) / 2)), (minz + ((maxz - minz) / 2)));
+                var position = centerpos + new Vector3(.5f, sizey * .65f, backup);
+                Vector3 direction;
+
+                Vector3.Subtract(ref centerpos, ref position, out direction);
                 direction.Normalize();
 
                 var cameraright = Vector3.Cross(direction, VectorUtils.UP);
@@ -76,6 +114,7 @@ namespace stonevox
                 using (FileStream f = new FileStream(fullpath, FileMode.OpenOrCreate))
                 {
                     var bit = Screenshot.ScreenShot(ReadBufferMode.ColorAttachment0);
+                    bit = cropImage(bit, new Rectangle(width /4, 0, width - ((width/4)*2), height));
                     bit = bit.ResizeImage(ResizeKeepAspect(bit.Size, 400, 400));
                     byte[] buffer = new byte[0];
                     using (MemoryStream m = new MemoryStream())
@@ -174,6 +213,12 @@ namespace stonevox
                 newWidth = (int)Math.Round((Decimal)(newWidth / divider));
             }
             return new Size(newWidth, newHeight);
+        }
+
+        private Bitmap cropImage(Bitmap img, Rectangle cropArea)
+        {
+            Bitmap bmpImage = new Bitmap(img);
+            return bmpImage.Clone(cropArea, bmpImage.PixelFormat);
         }
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace stonevox
@@ -26,6 +27,16 @@ namespace stonevox
         float fov = 45f;
         float nearPlane = 1f;
         float farPlane = 300;
+
+        Task lookatMatrixTask;
+
+        bool dotransition;
+        Vector3 startpos;
+        Vector3 startdir;
+        Vector3 _goto;
+        Vector3 centerposition;
+        float time = 0;
+
 
         public Camera(GLWindow window, ClientInput input)
             : base()
@@ -199,22 +210,130 @@ namespace stonevox
                 }
             }
 
+            if (dotransition)
+            {
+                time += delta;
+                if ((_goto - position).Length < 1f)
+                {
+                    position = _goto;
+                    direction = (centerposition - position).Normalized();
+                    dotransition = false;
+                    time = 0;
+                }
+                else
+                {
+                    position = Vector3.Lerp(startpos, _goto, time / .5f);
+                    direction = Vector3.Lerp(startdir, (centerposition - position).Normalized(), time / .5f);
+                    direction.Normalize();
+                }
+            }
+
             view = Matrix4.LookAt(position, position + direction, Vector3.UnitY);
             modelviewprojection = view * projection;
         }
 
         public void LookAtModel()
         {
-            position =
-                    new Vector3(QbManager.getactivematrix().size.X * .5f - .5f,
-                            QbManager.getactivematrix().size.Y * .5f * 3.0f,
-                            QbManager.getactivematrix().size.Z * .5f * 3.5f);
+            int minx = 10000;
+            int miny = 10000;
+            int minz = 10000;
+            int maxx = 0;
+            int maxy = 0;
+            int maxz = 0;
+            int sizex = 0;
+            int sizey = 0;
+            int sizez = 0;
 
-            Vector3.Subtract(ref QbManager.getactivematrix().centerposition, ref position, out direction);
+            foreach (var matrix in Client.window.model.matrices)
+            {
+                if (matrix.minx < minx)
+                    minx = matrix.minx;
+                if (matrix.maxx > maxx)
+                    maxx = matrix.maxx;
+
+                if (matrix.miny < miny)
+                    miny = matrix.miny;
+                if (matrix.maxy > maxy)
+                    maxy = matrix.maxy;
+
+                if (matrix.minz < minz)
+                    minz = matrix.minz;
+                if (matrix.maxz > maxz)
+                    maxz = matrix.maxz;
+            }
+
+            sizex = maxx - minx;
+            sizey = maxy - miny;
+            sizez = maxz - minz;
+
+            float backup = 0;
+
+            if (sizey * 1.5f > 20)
+                backup = sizey * 1.5f;
+            else if (sizex * 1.5f > 20)
+                backup = sizex * 1.5f;
+            else backup = 20;
+
+            var centerpos = new Vector3((minx + ((maxx - minx) / 2)), (miny + ((maxy - miny) / 2)), (minz + ((maxz - minz) / 2)));
+            position = centerpos + new Vector3(.5f, sizey * .65f, backup);
+
+            Vector3.Subtract(ref centerpos, ref position, out direction);
             direction.Normalize();
 
             view = Matrix4.LookAt(position, position + direction, cameraup);
             modelviewprojection = Matrix4.CreateScale(.1f) * projection * view;
+        }
+
+        public void LookAtMatrix()
+        {
+            startpos = position;
+            startdir = direction;
+
+            var mat = QbManager.getactivematrix();
+            _goto = mat.centerposition;
+            centerposition = mat.centerposition;
+
+            float height = (mat.maxy - mat.miny);
+            float width = (mat.maxx - mat.minx);
+            float length = (mat.maxz - mat.minz);
+
+            float distance;
+
+            if (height < 18 && width < 18 && length < 18)
+            {
+                height = (mat.maxy - mat.miny) * 3.5f;
+                width = (mat.maxx - mat.minx) * 3.5f;
+                length = (mat.maxz - mat.minz) * 3.5f;
+
+                distance = Math.Max(Math.Max(height, width), length);
+            }
+            else
+            {
+                height = (mat.maxy - mat.miny) * 1.5f;
+                width = (mat.maxx - mat.minx) * 1.5f;
+                length = (mat.maxz - mat.minz) * 1.5f;
+
+                distance = Math.Max(Math.Max(height, width), length);
+            }
+
+            Vector3 offset = direction;
+            bool x = false;
+
+            if (Math.Abs(direction.X) > Math.Abs(direction.Z))
+            {
+                offset = new Vector3(1, 0, 0);
+                x = true;
+            }
+            else
+                offset = new Vector3(0, 0, 1);
+
+            if (x)
+                offset *= -Math.Sign(direction.X);
+            else
+                offset *= -Math.Sign(direction.Z);
+
+            _goto += offset * distance;
+            dotransition = true;
         }
     }
 }
