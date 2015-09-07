@@ -42,11 +42,10 @@ namespace stonevox
         {
             AddAppearence();
 
-            Text = text;
             Color = fontColor;
             charDisplaySize = charDisplayWidth;
-
             BaseSize(charDisplaySize);
+            Text = text;
         }
 
         void AddAppearence()
@@ -68,7 +67,7 @@ namespace stonevox
             }
 
             SizeF s = PlainText.MeasureString(matchSize);
-            this.SetBounds(0, 0, s.Width, s.Height);
+            this.SetBounds(null, null, s.Width, s.Height);
         }
 
         void SetText(string text)
@@ -88,7 +87,10 @@ namespace stonevox
 
         public override void HandleKeyPress(KeyPressEventArgs e)
         {
-            Text += handler.textboxfilter(this, e.KeyChar.ToString());
+            if (handler.textboxfilter != null)
+                Text += handler.textboxfilter(this, e.KeyChar.ToString());
+            else
+                Text += e.KeyChar.ToString();
             HandleTextChanged();
             base.HandleKeyPress(e);
         }
@@ -104,7 +106,7 @@ namespace stonevox
                     HandleTextChanged();
                 }
             }
-            else if (e.Key == Key.Enter)
+            else if (e.Key == Key.Enter || e.Key == Key.KeypadEnter)
             {
                 if (Text != lastText)
                 {
@@ -134,12 +136,16 @@ namespace stonevox
         {
             if (handler.textboxtextchange != null)
                 handler.textboxtextchange(this);
+
+            Singleton<ClientGUI>.INSTANCE.Dirty = true;
         }
 
         public void HandleTextCommit()
         {
             if (handler.textboxtextcommit != null)
                 handler.textboxtextcommit(this);
+
+            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.TextboxTextCommited, this, text);
         }
 
         public override Widget FromWidgetData(WidgetData data)
