@@ -101,6 +101,7 @@ namespace stonevox
         void UpdateEnable(bool value)
         {
             children.ForEach(t => t.Enable = value);
+            Singleton<ClientGUI>.INSTANCE.Dirty = true;
         }
 
         float DetermineLocationX()
