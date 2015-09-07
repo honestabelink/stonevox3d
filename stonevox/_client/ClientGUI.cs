@@ -30,7 +30,7 @@ namespace stonevox
 
         public const int COLOR_PICKER_WINDOW = 600;
         public const int COLORQUAD = 601;
-    
+
         public const int START_COLOR_SELECTORS = 1000;
 
         public const int MATRIX_LISTBOX_WINDOW = 700;
@@ -48,7 +48,7 @@ namespace stonevox
 
         private int widgetIDs = 100000;
         public int NextAvailableWidgeID { get { widgetIDs++; return widgetIDs; } }
-        
+
         private int lastWidgetOverIndex = -1;
         public Widget lastWidgetOver { get { return widgets[lastWidgetOverIndex]; } }
 
@@ -120,7 +120,7 @@ namespace stonevox
                     }
                 },
 
-                mousedownhandler = (e) => 
+                mousedownhandler = (e) =>
                 {
                     if (lastWidgetOverIndex != -1 && lastWidgetOver.Enable)
                     {
@@ -150,11 +150,11 @@ namespace stonevox
                     {
                         if (lastWidgetFocused.Drag)
                         {
-                               lastWidgetFocused.HandleMouseMove(e);
+                            lastWidgetFocused.HandleMouseMove(e);
                         }
                     }
                 },
-                mouseuphandler = (e) => 
+                mouseuphandler = (e) =>
                 {
                     if (lastWidgetOverIndex != -1 && lastWidgetOver.Enable)
                     {
@@ -172,7 +172,7 @@ namespace stonevox
                         //}
                     }
                 },
-                mousewheelhandler = (e) => 
+                mousewheelhandler = (e) =>
                 {
                     if (lastWidgetOverIndex != -1 && lastWidgetOver.Enable)
                     {
@@ -314,7 +314,7 @@ namespace stonevox
                 else
                 {
                     Singleton<Raycaster>.INSTANCE.Enabled = false;
-                    
+
                     MouseCursor cursor = lastWidgetOver.cursor != null ? lastWidgetOver.cursor : MouseCursor.Default;
 
                     if (Client.window.Cursor != cursor)
@@ -387,7 +387,7 @@ namespace stonevox
 
         void Render2D()
         {
-            for (int i =0; i < widgets.Count; i++)
+            for (int i = 0; i < widgets.Count; i++)
             {
                 widgets[i].Render();
             }
@@ -400,12 +400,12 @@ namespace stonevox
             float widget_y = widget.Absolute_Y;
 
             float widget_width = widget.size.X;
-            float widget_height= widget.size.Y;
+            float widget_height = widget.size.Y;
 
             return (x <= widget_x + widget_width && x >= widget_x && y >= widget_y && y <= widget_y + widget_height);
         }
 
-        public T Get<T>(int ID) where  T : Widget
+        public T Get<T>(int ID) where T : Widget
         {
             var widget = widgets.Where((e) => { return e.ID == ID; });
 
@@ -477,7 +477,7 @@ namespace stonevox
                 scale = .8f;
             else scale = 1f;
 
-            BuildUI();   
+            BuildUI();
         }
 
         void BuildUI()
@@ -485,6 +485,7 @@ namespace stonevox
             Build_BrushToolbar();
             Build_ColorToolbar();
             Build_MatrixList();
+            Build_Screenshot();
             Build_ColorPicker();
         }
 
@@ -586,7 +587,7 @@ namespace stonevox
             save.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 5f) + selection.size.X * 4f, -1);
             widgets.Add(save);
 
-            Label status = new Label(GUIID.STATUS_TEXT,"", Color.Yellow, true);
+            Label status = new Label(GUIID.STATUS_TEXT, "", Color.Yellow, true);
             status.SetBoundsNoScaling(-1, -1);
             status.handler = new WidgetEventHandler()
             {
@@ -629,60 +630,64 @@ namespace stonevox
                 System.Drawing.Imaging.ImageLockMode.ReadOnly,
                 System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
 
-            target.customData.Add("cursor",new OpenTK.MouseCursor(
-                data.Width/2, data.Height /2, data.Width, data.Height, data.Scan0));
+            target.customData.Add("cursor", new OpenTK.MouseCursor(
+                data.Width / 2, data.Height / 2, data.Width, data.Height, data.Scan0));
 
-            var c = new Action( () =>
-            {
-                while (true)
-                {
-                    int lastid = (int)target.customData["activematrix"];
-                    int id = -1;
+            var c = new Action(() =>
+           {
+               while (true)
+               {
+                   int lastid = (int)target.customData["activematrix"];
+                   int id = -1;
 
-                    RaycastHit hit = new RaycastHit()
-                    {
-                        distance = 10000
-                    };
+                   RaycastHit hit = new RaycastHit()
+                   {
+                       distance = 10000
+                   };
 
-                    for (int i = 0; i < Client.window.model?.numMatrices; i++)
-                    {
-                        Singleton<Raycaster>.INSTANCE.ScreenToMouseRay(input.mousex, input.mousey);
-                        RaycastHit tempHit = Singleton<Raycaster>.INSTANCE.RaycastTest(Singleton<Camera>.INSTANCE.position, Client.window.model.matrices[i]);
+                   for (int i = 0; i < Client.window.model?.numMatrices; i++)
+                   {
+                       Singleton<Raycaster>.INSTANCE.ScreenToMouseRay(input.mousex, input.mousey);
+                       RaycastHit tempHit = Singleton<Raycaster>.INSTANCE.RaycastTest(Singleton<Camera>.INSTANCE.position, Client.window.model.matrices[i]);
 
-                        if (tempHit.distance < hit.distance)
-                        {
-                            id = i;
-                            hit = tempHit;
-                        }
-                    }
+                       if (tempHit.distance < hit.distance)
+                       {
+                           id = i;
+                           hit = tempHit;
+                       }
+                   }
 
-                    if (id > -1 && lastid != id)
-                    {
-                        Client.window.model.getactivematrix.highlight = Color4.White;
-                        target.customData["activematrix"] = id;
-                        Client.window.model.activematrix = id;
-                        Client.window.model.getactivematrix.highlight = new Colort(1.5f, 1.5f, 1.5f);
-                        string name = Client.window.model.getactivematrix.name;
-                        status.text = string.Format("Over Matrix : {0}", name);
-                    }
-                    else if (id == -1)
-                    {
-                        if (lastid != -1)
-                        {
-                            Client.window.model.matrices[lastid].highlight = Color4.White;
-                            target.customData["activematrix"] = -1;
-                            status.text = "";
-                        }
-                    }
+                   if (id > -1 && lastid != id)
+                   {
+                       Client.window.model.getactivematrix.highlight = Color4.White;
+                       target.customData["activematrix"] = id;
+                       Client.window.model.activematrix = id;
+                       Client.window.model.getactivematrix.highlight = new Colort(1.5f, 1.5f, 1.5f);
+                       string name = Client.window.model.getactivematrix.name;
+                       status.text = string.Format("Over Matrix : {0}", name);
+                   }
+                   else if (id == -1)
+                   {
+                       if (lastid != -1)
+                       {
+                           Client.window.model.matrices[lastid].highlight = Color4.White;
+                           target.customData["activematrix"] = -1;
+                           status.text = "";
+                       }
+                   }
 
-                    Thread.Sleep(25);
-                }
-            });
+                   Thread.Sleep(25);
+               }
+           });
 
-            target.customData.Add("thread", new Thread(() =>c()));
+            target.customData.Add("thread", new Thread(() => c()));
 
             target.handler = new WidgetEventHandler()
             {
+                mouseleave = (e) =>
+                {
+                    status.text = "";
+                },
                 mousedownhandler = (e, mouse) =>
                 {
                     float mouseX = (float)Scale.hPosScale(input.mousex);
@@ -744,51 +749,51 @@ namespace stonevox
         {
             EmptyWidget background = new EmptyWidget(GUIID.COLOR_PICKER_WINDOW);
             background.appearence.AddAppearence("background", new Picture("./data/images/save_window_background.png"));
-            background.SetBoundsNoScaling(0 - background.size.X /2f, 0 - background.size.Y / 2f, null, null);
+            background.SetBoundsNoScaling(0 - background.size.X / 2f, 0 - background.size.Y / 2f, null, null);
             background.Enable = false;
             widgets.Add(background);
 
             EmptyWidget background_header = new EmptyWidget();
             background_header.appearence.AddAppearence("background", new Picture("./data/images/colorpicker_header.png"));
             background_header.Parent = background;
-            background_header.SetBoundsNoScaling(background.Absolute_X, background.Absolute_Y + background.size.Y-background_header.size.Y *.35f);
+            background_header.SetBoundsNoScaling(background.Absolute_X, background.Absolute_Y + background.size.Y - background_header.size.Y * .35f);
             background_header.StatusText = StatusText.picture_colorpicker_header;
 
             background_header.handler = new WidgetEventHandler()
             {
-                mousemovehandler= (e, mouse) =>
-                {
-                    float newposX = (float)Scale.hSizeScale(mouse.XDelta) * 2f + background.Absolute_X;
-                    float newposY = (float)Scale.vSizeScale(mouse.YDelta) * -1f * 2f + background.Absolute_Y;
+                mousemovehandler = (e, mouse) =>
+                 {
+                     float newposX = (float)Scale.hSizeScale(mouse.XDelta) * 2f + background.Absolute_X;
+                     float newposY = (float)Scale.vSizeScale(mouse.YDelta) * -1f * 2f + background.Absolute_Y;
 
-                    if (newposX + background.size.X > 1)
-                        newposX = 1 - background.size.X;
-                    else if (newposX < -1)
-                        newposX = -1;
+                     if (newposX + background.size.X > 1)
+                         newposX = 1 - background.size.X;
+                     else if (newposX < -1)
+                         newposX = -1;
 
-                    if (newposY + background.size.Y + background_header.size.Y * .35f > 1)
-                        newposY = 1 - background.size.Y- background_header.size.Y * .35f;
-                    else if (newposY < -1)
-                        newposY = -1;
+                     if (newposY + background.size.Y + background_header.size.Y * .35f > 1)
+                         newposY = 1 - background.size.Y - background_header.size.Y * .35f;
+                     else if (newposY < -1)
+                         newposY = -1;
 
-                    background.SetBoundsNoScaling(newposX, newposY);
-                }
+                     background.SetBoundsNoScaling(newposX, newposY);
+                 }
             };
 
             widgets.Add(background_header);
 
             EmptyWidget colorQuad = new EmptyWidget(GUIID.COLORQUAD);
-            SmoothBackground  colorQuad_background = new SmoothBackground();
+            SmoothBackground colorQuad_background = new SmoothBackground();
             colorQuad.appearence.AddAppearence("background", colorQuad_background);
             colorQuad.Parent = background;
-            colorQuad.SetBoundsNoScaling(background.location.X+ background.size.X *.05f,
+            colorQuad.SetBoundsNoScaling(background.location.X + background.size.X * .05f,
                                          background.location.Y + background.size.Y * .3f, background.size.X * .6f, background.size.Y - (background.size.Y * .38f));
             widgets.Add(colorQuad);
 
             EmptyWidget swatches = new EmptyWidget();
             swatches.appearence.AddAppearence("background", new Picture("./data/images/colorpicker_swatches.png"));
             swatches.Parent = background;
-            swatches.SetBoundsNoScaling(colorQuad.Absolute_X+colorQuad.size.X - swatches.size.X, colorQuad.Absolute_Y - swatches.size.Y*1.04f);
+            swatches.SetBoundsNoScaling(colorQuad.Absolute_X + colorQuad.size.X - swatches.size.X, colorQuad.Absolute_Y - swatches.size.Y * 1.04f);
 
             swatches.handler = new WidgetEventHandler()
             {
@@ -842,10 +847,10 @@ namespace stonevox
                 {
                     colorQuad.HandleMouseDown(mouse);
                 },
-                mousemovehandler= (e, mouse) =>
-                {
-                    colorQuad.HandleMouseMove(mouse);
-                }
+                mousemovehandler = (e, mouse) =>
+                 {
+                     colorQuad.HandleMouseMove(mouse);
+                 }
             };
 
             widgets.Add(colorQuadSelection);
@@ -853,31 +858,31 @@ namespace stonevox
             EmptyWidget hue = new EmptyWidget();
             hue.appearence.AddAppearence("background", new Picture("./data/images/hue.png"));
             hue.Parent = background;
-            hue.SetBoundsNoScaling(background.location.X + background.size.X * .06f+ colorQuad.size.X *1.03f,
+            hue.SetBoundsNoScaling(background.location.X + background.size.X * .06f + colorQuad.size.X * 1.03f,
                                          background.location.Y + background.size.Y * .3f, hue.size.X, colorQuad.size.Y);
             widgets.Add(hue);
 
             Label hsv = new Label("H" + '\n' + '\n' + "S" + '\n' + '\n' + "V", Color.White);
             hsv.Parent = background;
-            hsv.SetBoundsNoScaling(hue.Absolute_X+hsv.size.X*1.5f, hue.Absolute_Y - hsv.size.Y*.25f+ hue.size.Y);
+            hsv.SetBoundsNoScaling(hue.Absolute_X + hsv.size.X * 1.5f, hue.Absolute_Y - hsv.size.Y * .25f + hue.size.Y);
             hsv.size.Y /= 5f;
             widgets.Add(hsv);
 
             Label rgb = new Label("R" + '\n' + '\n' + "G" + '\n' + '\n' + "B", Color.White);
             rgb.Parent = background;
-            rgb.SetBoundsNoScaling(hue.Absolute_X + hsv.size.X * 1.5f, hue.Absolute_Y+ rgb.size.Y*.85f);
+            rgb.SetBoundsNoScaling(hue.Absolute_X + hsv.size.X * 1.5f, hue.Absolute_Y + rgb.size.Y * .85f);
             rgb.size.Y /= 5f;
             widgets.Add(rgb);
 
             TextBox h = new TextBox(GUIID.HSV_H, "0", Color.White, 5);
             h.Parent = background;
-            h.SetBoundsNoScaling(hsv.Absolute_X+ hsv.size.X *1.2f, hsv.Absolute_Y);
+            h.SetBoundsNoScaling(hsv.Absolute_X + hsv.size.X * 1.2f, hsv.Absolute_Y);
             h.customData.Add("hsv_value", 0f);
             widgets.Add(h);
 
             TextBox s = new TextBox(GUIID.HSV_S, "0", Color.White, 5);
             s.Parent = background;
-            s.SetBoundsNoScaling(hsv.Absolute_X + hsv.size.X * 1.2f, hsv.Absolute_Y - h.size.Y *2f);
+            s.SetBoundsNoScaling(hsv.Absolute_X + hsv.size.X * 1.2f, hsv.Absolute_Y - h.size.Y * 2f);
             s.customData.Add("hsv_value", 1f);
             widgets.Add(s);
 
@@ -892,7 +897,7 @@ namespace stonevox
             r.SetBoundsNoScaling(hsv.Absolute_X + hsv.size.X * 1.2f, rgb.Absolute_Y);
             widgets.Add(r);
 
-            TextBox g = new TextBox(GUIID.RGB_G,"0", Color.White, 5);
+            TextBox g = new TextBox(GUIID.RGB_G, "0", Color.White, 5);
             g.Parent = background;
             g.SetBoundsNoScaling(hsv.Absolute_X + hsv.size.X * 1.2f, rgb.Absolute_Y - h.size.Y * 2f);
             widgets.Add(g);
@@ -958,16 +963,16 @@ namespace stonevox
                     if (e.ID >= GUIID.HSV_H && e.ID <= GUIID.HSV_V)
                     {
                         float hu = h.Text.SafeToFloat();
-                        float sat= s.Text.SafeToFloat()/100f;
-                        float vi = v.Text.SafeToFloat()/100f;
+                        float sat = s.Text.SafeToFloat() / 100f;
+                        float vi = v.Text.SafeToFloat() / 100f;
 
                         Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
                     }
                     else if (e.ID >= GUIID.RGB_R && e.ID <= GUIID.RGB_B)
                     {
-                        int red   = r.Text.SafeToInt32();
+                        int red = r.Text.SafeToInt32();
                         int green = g.Text.SafeToInt32();
-                        int blue  = b.Text.SafeToInt32();
+                        int blue = b.Text.SafeToInt32();
 
                         double hu;
                         double sat;
@@ -1003,7 +1008,7 @@ namespace stonevox
                     float sat = Scale.scale(mouseX, x, x + e.size.X, 0, 1);
                     float vi = Scale.scale(mouseY, y, y + e.size.Y, 0, 1);
 
-                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate,  hu, sat, vi);
+                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
                 },
                 mousemovehandler = (e, mouse) =>
                 {
@@ -1035,7 +1040,7 @@ namespace stonevox
 
             hue.handler = new WidgetEventHandler()
             {
-                mousedownhandler = (e,mouse) =>
+                mousedownhandler = (e, mouse) =>
                 {
                     if (mouse.Button != MouseButton.Left) return;
 
@@ -1082,7 +1087,7 @@ namespace stonevox
             EmptyWidget currentColor = new EmptyWidget();
             currentColor.Parent = background;
             currentColor.SetBoundsNoScaling(colorQuad.Absolute_X,
-                                             background.Absolute_Y + background.size.Y * .05f+ background.size.Y * .12f,
+                                             background.Absolute_Y + background.size.Y * .05f + background.size.Y * .12f,
                                              background.size.X * .12f,
                                              background.size.Y * .12f);
 
@@ -1198,7 +1203,7 @@ namespace stonevox
             Button ok = new Button("./data/images/colorpicker_ok.png",
                                                         "./data/images/colorpicker_ok_highlight.png");
             ok.Parent = background;
-            ok.SetBoundsNoScaling(h.Absolute_X + h.size.X - ok.size.X, hue.Absolute_Y - ok.size.Y *2.3f);
+            ok.SetBoundsNoScaling(h.Absolute_X + h.size.X - ok.size.X, hue.Absolute_Y - ok.size.Y * 2.3f);
 
             ok.handler = new WidgetEventHandler()
             {
@@ -1331,7 +1336,7 @@ namespace stonevox
         {
             EmptyWidget background = new EmptyWidget(GUIID.MATRIX_LISTBOX_WINDOW);
             background.appearence.AddAppearence("background", new Picture("./data/images/project_settings.png"));
-            background.SetBoundsNoScaling(1 - background.size.X * .145f,-background.size.Y /2f);
+            background.SetBoundsNoScaling(1 - background.size.X * .145f, -background.size.Y / 2f);
             background.translations.Add("transistion_on", new WidgetTranslation()
             {
                 Destination = new Vector2(background.Absolute_X - background.size.X * .85f, background.Absolute_Y),
@@ -1347,7 +1352,7 @@ namespace stonevox
             Button windowbuttonON = new Button("./data/images/project_settings_button_on.png",
                                                         "./data/images/project_settings_button_on_highlight.png");
             windowbuttonON.Parent = background;
-            windowbuttonON.SetBoundsNoScaling(background.Absolute_X + background.size.X *.025f, background.Absolute_Y + background.size.Y * .838f);
+            windowbuttonON.SetBoundsNoScaling(background.Absolute_X + background.size.X * .025f, background.Absolute_Y + background.size.Y * .838f);
             widgets.Add(windowbuttonON);
 
             Button windowbuttonOFF = new Button("./data/images/project_settings_button_off.png",
@@ -1401,17 +1406,296 @@ namespace stonevox
 
             martixListLabel.handler = new WidgetEventHandler()
             {
-                mouseenter =  (e) =>
-                {
-                    martixListLabel.color = Color.Blue;
-                },
-                mouseleave= (e) =>
-                {
-                    martixListLabel.color = Color.White;
-                }
+                mouseenter = (e) =>
+               {
+                   martixListLabel.color = Color.Blue;
+               },
+                mouseleave = (e) =>
+                 {
+                     martixListLabel.color = Color.White;
+                 }
             };
 
             widgets.Add(martixListLabel);
+        }
+
+        void Build_Screenshot()
+        {
+            EmptyWidget background = new EmptyWidget();
+            background.appearence.AddAppearence("background", new Picture("./data/images/screenshot_bg.png"));
+            background.SetBoundsNoScaling(1 - background.size.X, 0 - background.size.Y / 2f, null, null);
+            widgets.Add(background);
+
+            Button openscreenshot = new Button("./data/images/camera.png",
+                                     "./data/images/camera_highlight.png");
+            openscreenshot.SetBoundsNoScaling(1 - openscreenshot.size.X, -1);
+            openscreenshot.StatusText = StatusText.button_screenshot_open;
+
+            openscreenshot.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.Button == MouseButton.Left && mouse.IsPressed)
+                    {
+                        background.Enable = !background.Enable;
+
+                        if (background.Enable)
+                            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowOpened, background);
+                        else
+                            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowClosed, background);
+                    }
+                },
+                messagerecived = (e, message, widget, args) =>
+                {
+                    if (message == Message.WindowOpened && background.ID != widget.ID)
+                    {
+                        background.Enable = false;
+                    }
+                }
+            };
+            widgets.Add(openscreenshot);
+
+            float x = window.Width / 2 - 600 / 4f;
+            float y = window.Height / 2 - 600 / 4f;
+
+            EmptyWidget halfwidth = new EmptyWidget();
+            PlainBorder widthborder = new PlainBorder(2, Color.White);
+            halfwidth.appearence.AddAppearence("border", widthborder);
+            widgets.Add(halfwidth);
+            halfwidth.Enable = false;
+
+            EmptyWidget halfheight = new EmptyWidget();
+            PlainBorder heightborder = new PlainBorder(2, Color.White);
+            halfheight.appearence.AddAppearence("border", heightborder);
+            widgets.Add(halfheight);
+            halfheight.Enable = false;
+
+            EmptyWidget full = new EmptyWidget();
+            full.Parent = background;
+            // scalling issue of some sort...
+            full.SetBounds(x, y, 600, 600);
+            PlainBorder fullborder = new PlainBorder(2, Color.White);
+            full.appearence.AddAppearence("border", fullborder);
+            widgets.Add(full);
+
+            halfwidth.Parent = full;
+            halfheight.Parent = full;
+            // scalling issue of some sort...
+            halfwidth.SetBounds(x, y, 600 / 2f, 600);
+            halfheight.SetBounds(x, y, 600, 600 / 2f);
+
+            Label widthlabel = new Label("Width :", Color.White);
+            widthlabel.Parent = background;
+            widthlabel.SetBoundsNoScaling(background.Absolute_X + background.size.X * .15f, background.Absolute_Y + background.size.Y * .85f);
+            widgets.Add(widthlabel);
+
+            TextBox widthtextbox = new TextBox("300", Color.White, 5);
+            widthtextbox.Parent = background;
+            widthtextbox.SetBoundsNoScaling(background.Absolute_X + background.size.X * .15f, widthlabel.Absolute_Y - widthtextbox.size.Y * 1.25f);
+            widthtextbox.StatusText = StatusText.textbox_screenshot_width;
+            widgets.Add(widthtextbox);
+
+            Label heightlabel = new Label("Height :", Color.White);
+            heightlabel.Parent = background;
+            heightlabel.SetBoundsNoScaling(background.Absolute_X + background.size.X * .15f, background.Absolute_Y + background.size.Y * .6f);
+            widgets.Add(heightlabel);
+
+            TextBox heighttextbox = new TextBox("300", Color.White, 5);
+            heighttextbox.Parent = background;
+            heighttextbox.SetBoundsNoScaling(background.Absolute_X + background.size.X * .15f, heightlabel.Absolute_Y - heighttextbox.size.Y * 1.25f);
+            heighttextbox.StatusText = StatusText.textbox_screenshot_height;
+            widgets.Add(heighttextbox);
+
+            full.handler = new WidgetEventHandler()
+            {
+                mouseenter = (e) =>
+                {
+                    halfheight.Enable = true;
+                    halfwidth.Enable = true;
+                },
+                mouseleave = (e) =>
+                {
+                    halfheight.Enable = false;
+                    halfwidth.Enable = false;
+                },
+                mousemovehandler = (e, Mouse) =>
+                {
+                    if (Mouse.Mouse.IsButtonDown(MouseButton.Left))
+                    {
+                        float mouseX = (float)Scale.hSizeScale(Mouse.XDelta) * 2f + full.Absolute_X;
+                        float mouseY = (float)Scale.vSizeScale(Mouse.YDelta) * -2f + full.Absolute_Y;
+
+                        full.SetBoundsNoScaling(mouseX, mouseY);
+
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine($"{mouseX.UnScaleHorizontal()},  {mouseY.UnScaleVertical()}");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"{ full.Absolute_X.UnScaleHorizontal()},  { full.Absolute_Y.UnScaleVertical()}");
+                    }
+                },
+                mousewheelhandler = (e, mouse) =>
+                {
+                    var camera = Singleton<Camera>.INSTANCE;
+
+                    if (mouse.Delta < 0)
+                    {
+                        camera.position = Vector3.Lerp(camera.position, camera.position - camera.direction * 6 * 1f, .1f);
+                    }
+                    else if (mouse.Delta > 0)
+                    {
+                        camera.position = Vector3.Lerp(camera.position, camera.position + camera.direction * 6 * 1f, .1f);
+                    }
+                },
+                messagerecived = (e, message, widget, args) =>
+                {
+                    if (message == Message.WindowOpened && widget.ID == background.ID)
+                    {
+                        float mouseX = (float)Scale.hPosScale(input.mousex);
+                        float mouseY = (float)Scale.vPosScale(input.mousey);
+                        if (!isMouseWithin(mouseX, mouseY, e))
+                        {
+                            halfheight.Enable = false;
+                            halfwidth.Enable = false;
+                        }
+                    }
+                    else if (message == Message.TextboxTextCommited && (widget.ID == widthtextbox.ID || widget.ID == heighttextbox.ID))
+                    {
+                        // scalling issue of some sort...
+                        // display value needs to be doubled to match actual screen coords... ???? why
+                        float w = widthtextbox.Text.SafeToFloat() * 2f;
+                        float h = heighttextbox.Text.SafeToFloat() * 2f;
+
+                        if (w <= -1 || h <= -1) return;
+
+                        float xx = window.Width / 2 - w / 4f;
+                        float yy = window.Height / 2 - h / 4f;
+
+                        full.SetBounds(xx, yy, w, h);
+
+                        halfwidth.SetBounds(null, null, w / 2f, h);
+                        halfheight.SetBounds(null, null, w, h / 2f);
+                    }
+                }
+            };
+
+            Button save = new Button("./data/images/screenshot_save.png",
+                                     "./data/images/screenshot_save_highlight.png");
+            save.Parent = background;
+            save.SetBoundsNoScaling(background.Absolute_X + background.size.X - save.size.X * 1.1f, background.Absolute_Y + save.size.Y * .4f);
+            save.StatusText = StatusText.button_save_screenshot;
+
+            save.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (Client.window.model == null) return;
+                    if (mouse.Button == MouseButton.Left && mouse.IsPressed)
+                    {
+                        int w = widthtextbox.Text.SafeToInt32();
+                        int h = heighttextbox.Text.SafeToInt32();
+
+                        if (w == -1 || h == -1) return;
+
+                        int xx = (int)full.Absolute_X.UnScaleHorizontal();
+                        int yy = (int)full.Absolute_Y.UnScaleVertical();
+
+                        Client.OpenGLContextThread.Add(() =>
+                        {
+                            int width = Client.window.Width;
+                            int height = Client.window.Height;
+
+                            int framebuffer = GL.GenBuffer();
+                            GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
+
+                            int color = GL.GenTexture();
+                            GL.BindTexture(TextureTarget.Texture2D, color);
+                            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, width, height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+                            GL.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, color, 0);
+
+                            int depth = GL.GenTexture();
+                            GL.BindTexture(TextureTarget.Texture2D, depth);
+                            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent24, width, height, 0, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.UnsignedByte, IntPtr.Zero);
+                            GL.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, TextureTarget.Texture2D, depth, 0);
+
+                            GL.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+
+                            GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
+                            GL.DrawBuffers(1, new DrawBuffersEnum[] { DrawBuffersEnum.ColorAttachment0 });
+
+                            GL.ClearColor(0, 0, 0, 0);
+                            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+                            Shader voxelShader = ShaderUtil.GetShader("qb");
+
+                            voxelShader.UseShader();
+                            voxelShader.WriteUniform("modelview", Singleton<Camera>.INSTANCE.modelviewprojection);
+
+                            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                            Client.window.model.RenderAll(voxelShader);
+
+                            var bit = Screenshot.ScreenShot(xx, yy, w, h, OpenTK.Graphics.OpenGL4.ReadBufferMode.ColorAttachment0);
+
+                            var saveDialog = new SaveFileDialog();
+                            saveDialog.Title = "Save Screen Capture";
+                            saveDialog.Filter = "PNG (.png)|*.png|JPEG (.jpg)|*.jpg|BMP (.bmp)|*.bmp|All files (*.*)|*.*";
+                            saveDialog.DefaultExt = ".png";
+
+                            var result = saveDialog.ShowDialog();
+
+                            if (result == DialogResult.OK)
+                            {
+                                bit.Save(saveDialog.FileName);
+                            }
+
+                            GL.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+                            GL.DeleteTexture(color);
+                            GL.DeleteTexture(depth);
+                            GL.DeleteFramebuffer(framebuffer);
+                        });
+                    }
+                }
+            };
+
+            widgets.Add(save);
+
+            Button resetview = new Button("./data/images/view_reset.png",
+                                   "./data/images/view_reset_highlight.png");
+            resetview.Parent = background;
+            resetview.SetBoundsNoScaling(save.Absolute_X - resetview.size.X * 1.2f, save.Absolute_Y);
+            resetview.size.X *= .75f;
+            resetview.size.Y *= .75f;
+            resetview.StatusText = StatusText.button_reset_screeshot_view;
+
+            resetview.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    float w = widthtextbox.Text.SafeToFloat() * 2f;
+                    float h = heighttextbox.Text.SafeToFloat() * 2f;
+
+                    if (w == -1 || h == -1) return;
+
+                    float xx = window.Width / 2 - w / 4f;
+                    float yy = window.Height / 2 - h / 4f;
+
+                    full.SetBounds(xx, yy, w, h);
+
+                    halfwidth.SetBounds(null, null, w / 2f, h);
+                    halfheight.SetBounds(null, null, w, h / 2f);
+
+                    Singleton<Camera>.INSTANCE.LookAtModel();
+                }
+            };
+
+            widgets.Add(resetview);
+
+            background.Enable = false;
+        }
+
+        private static Bitmap cropImage(Bitmap img, Rectangle cropArea)
+        {
+            Bitmap bmpImage = new Bitmap(img);
+            return bmpImage.Clone(cropArea, bmpImage.PixelFormat);
         }
     }
 }

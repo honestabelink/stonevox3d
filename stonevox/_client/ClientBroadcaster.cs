@@ -27,6 +27,8 @@ namespace stonevox
         ColorSelectionUpdate,
         ColorSelectionCommit,
 
+        TextboxTextCommited,
+
         WindowOpened,
         WindowClosed,
 
