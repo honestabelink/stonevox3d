@@ -112,8 +112,8 @@ namespace stonevox
                 return new Texture2D();
             }
         }
-
     }
+
     // this is dumb, but it's whatever i don't need something amazing or clean
     public class Texture2D
     {
