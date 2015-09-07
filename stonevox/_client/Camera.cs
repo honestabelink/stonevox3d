@@ -28,8 +28,6 @@ namespace stonevox
         float nearPlane = 1f;
         float farPlane = 300;
 
-        Task lookatMatrixTask;
-
         bool dotransition;
         Vector3 startpos;
         Vector3 startdir;
@@ -317,20 +315,18 @@ namespace stonevox
             }
 
             Vector3 offset = direction;
-            bool x = false;
-
-            if (Math.Abs(direction.X) > Math.Abs(direction.Z))
-            {
-                offset = new Vector3(1, 0, 0);
-                x = true;
-            }
+            if (Math.Abs(offset.X) > .5f)
+                offset.X = 1f * -Math.Sign(direction.X);
             else
-                offset = new Vector3(0, 0, 1);
-
-            if (x)
-                offset *= -Math.Sign(direction.X);
+                offset.X = 0;
+            if (Math.Abs(offset.Z) > .5f)
+                offset.Z = 1f * -Math.Sign(direction.Z);
             else
-                offset *= -Math.Sign(direction.Z);
+                offset.Z = 0;
+            if (Math.Abs(offset.Y) > .5f)
+                offset.Y = 1f * -Math.Sign(direction.Y);
+            else
+                offset.Y = 0;
 
             _goto += offset * distance;
             dotransition = true;
