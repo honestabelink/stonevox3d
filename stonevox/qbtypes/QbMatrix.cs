@@ -8,17 +8,21 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace stonevox
 {
     public class QbMatrix : IDisposable
     {
+        public bool Visible = true;
+
         public string name;
         public Vector3 position;
         public Vector3 centerposition;
         public Vector3 size;
         public Colort highlight;
 
+        private Stack<int> colorindexholes;
         public Colort[] colors;
         public Colort[] matrixcolors;
         //public Colort[] wireframecolors;
@@ -51,8 +55,9 @@ namespace stonevox
         public QbMatrix()
         {
             highlight = new Colort(1f, 1f, 1f);
-            matrixcolors = new Colort[64];
+            matrixcolors = new Colort[128];
             colors = matrixcolors;
+            colorindexholes = new Stack<int>();
             //wireframecolors = new Colort[64];
             //outlinecolors = new Colort[64];
             voxels = new ConcurrentDictionary<double, Voxel>();
@@ -66,9 +71,26 @@ namespace stonevox
             back = new QbMatrixSide(Side.Back);
         }
 
-        public void setsize(int x, int y, int z)
+        public void setsize(int x, int y, int z, bool updateCenterPosition = false)
         {
             size = new Vector3(x, y, z);
+
+            if (updateCenterPosition)
+            {
+                minx = 0;
+                miny = 0;
+                minz = 0;
+
+                maxx = x;
+                maxy = y;
+                maxz = z;
+
+                sizex = x;
+                sizey = y;
+                sizez = z;
+
+                centerposition = new Vector3((minx + ((maxx - minx) / 2)), (miny + ((maxy - miny) / 2)), (minz + ((maxz - minz) / 2)));
+            }
         }
 
         public int GetColorIndex(float r, float g, float b)
@@ -80,7 +102,13 @@ namespace stonevox
                 if (c.R == r && c.G == g && c.B == b)
                     return (int)i;
             }
-            matrixcolors[colorIndex] = new Colort(r, g, b);
+
+            if (colorindexholes.Count > 0)
+            {
+                matrixcolors[colorindexholes.Pop()] = new Colort(r, g, b);
+            }
+            else
+                matrixcolors[colorIndex] = new Colort(r, g, b);
 
             // wireframes and outline....
             // right now my hsv to rbg is not working correctly and fails generating a few colors
@@ -96,6 +124,24 @@ namespace stonevox
 
             //var wireframe = ColorConversion.ColorFromHSV(hue, (sat + .1d).Clamp(0,1), (vi+.1d).Clamp(0,1));
             //wireframecolors[colorIndex] = wireframe.ToColor4();
+
+            if (colorIndex + 1 >= colors.Length)
+            {
+                CleanUnsuedColorIndexs();
+
+                if (colorindexholes.Count > 0)
+                {
+                    int newindex = colorindexholes.Pop();
+                    matrixcolors[newindex] = new Colort(r, g, b);
+                    return newindex;
+                }
+                else
+                {
+                    MessageBox.Show("StoneVox only supports 128 active colors at once. This is quite the issue, try reducing the amount of colors you are using. Since there is no room the last color will now be overwritten with this new color.", "Out of Colors");
+                    matrixcolors[matrixcolors.Length - 1] = new Colort(r, g, b);
+                    return matrixcolors.Length - 1;
+                }
+            }
 
             colorIndex++;
 
@@ -118,7 +164,13 @@ namespace stonevox
                 if (c.R == r && c.G == g && c.B == b)
                     return (int)i;
             }
-            matrixcolors[colorIndex] = new Colort(r, g, b);
+
+            if (colorindexholes.Count > 0)
+            {
+                matrixcolors[colorindexholes.Pop()] = new Colort(r, g, b);
+            }           
+            else
+                matrixcolors[colorIndex] = new Colort(r, g, b);
 
             // wireframes and outline....
             // right now my hsv to rbg is not working correctly and fails generating a few colors
@@ -134,6 +186,24 @@ namespace stonevox
 
             //var wireframe = ColorConversion.ColorFromHSV(hue, (sat + .1d).Clamp(0,1), (vi+.1d).Clamp(0,1));
             //wireframecolors[colorIndex] = wireframe.ToColor4();
+
+            if (colorIndex + 1 >= colors.Length)
+            {
+                CleanUnsuedColorIndexs();
+
+                if (colorindexholes.Count > 0)
+                {
+                    int newindex = colorindexholes.Pop();
+                    matrixcolors[newindex] = new Colort(r, g, b);
+                    return newindex;
+                }
+                else
+                {
+                    MessageBox.Show("StoneVox only supports 128 active colors at once. This is quite the issue, try reducing the amount of colors you are using. Since there is no room the last color will now be overwritten with this new color.", "Out of Colors");
+                    matrixcolors[matrixcolors.Length - 1] = new Colort(r, g, b);
+                    return matrixcolors.Length - 1;
+                }
+            }
 
             colorIndex++;
 
@@ -241,6 +311,7 @@ namespace stonevox
 
         public void Render(Shader shader)
         {
+            if (!Visible) return;
             //foreach(var c in voxels.Values)
             //{
             ////    Debug.Print(c.front.ToString());
@@ -271,14 +342,11 @@ namespace stonevox
 
             shader.WriteUniform("highlight", new Vector3(highlight.R, highlight.G, highlight.B));
 
-            if (colors.Length > 0)
+            unsafe
             {
-                unsafe
+                fixed (float* pointer = &colors[0].R)
                 {
-                    fixed (float* pointer = &colors[0].R)
-                    {
-                        ShaderUtil.GetShader("qb").WriteUniformArray("colors", colors.Length, pointer);
-                    }
+                    ShaderUtil.GetShader("qb").WriteUniformArray("colors", colorIndex, pointer);
                 }
             }
 
@@ -310,6 +378,8 @@ namespace stonevox
 
         public void Render()
         {
+            if (!Visible) return;
+
             if (RayIntersectsPlane(ref front.normal, ref Singleton<Camera>.INSTANCE.direction))
             {
                 front.Render();
@@ -338,15 +408,15 @@ namespace stonevox
 
         public void RenderAll(Shader shader)
         {
+            if (!Visible) return;
+
             shader.WriteUniform("highlight", new Vector3(highlight.R, highlight.G, highlight.B));
 
+            unsafe
             {
-                unsafe
+                fixed (float* pointer = &colors[0].R)
                 {
-                    fixed (float* pointer = &colors[0].R)
-                    {
-                        ShaderUtil.GetShader("qb").WriteUniformArray("colors", colors.Length, pointer);
-                    }
+                    ShaderUtil.GetShader("qb").WriteUniformArray("colors", colorIndex, pointer);
                 }
             }
 
@@ -360,6 +430,8 @@ namespace stonevox
 
         public void RenderAll()
         {
+            if (!Visible) return;
+
             front.Render();
             back.Render();
             top.Render();
@@ -397,16 +469,43 @@ namespace stonevox
 
         public void Dispose()
         {
+            left.Dispose();
+            right.Dispose();
+            top.Dispose();
+            bottom.Dispose();
+            front.Dispose();
+            back.Dispose();
         }
 
         // VOXEL MODIFIING
         //
         #region
 
+
         public void Clean()
         {
+            List<double> toremove = new List<double>();
+            minx = 10000;
+            miny = 10000;
+            minz = 10000;
+            maxx = 0;
+            maxy = 0;
+            maxz = 0;
+            sizex = 0;
+            sizey = 0;
+            sizez = 0;
+
             foreach (var v in voxels.Values)
             {
+                if (v.dirty)
+                    v.dirty = false;
+
+                if (v.alphamask == 0)
+                {
+                    toremove.Add(GetHash(v.x, v.y, v.z));
+                    continue;
+                }
+
                 if (v.x < minx)
                     minx = v.x;
                 if (v.x > maxx)
@@ -421,16 +520,43 @@ namespace stonevox
                     minz = v.z;
                 if (v.z > maxz)
                     maxz = v.z;
-
-                if (v.dirty)
-                    v.dirty = false;
             }
+
+            for (int i = 0; i < toremove.Count; i++)
+                voxels.TryRemove(toremove[i], out voxel);
 
             sizex = maxx - minx;
             sizey = maxy - miny;
             sizez = maxz - minz;
-                
+
+            if (sizex == -10000 && sizey == -10000 && sizez == -10000)
+            {
+                minx = 0;
+                miny = 0;
+                minz = 0;
+
+                maxx = (int)size.X;
+                maxy = (int)size.Y;
+                maxz = (int)size.Z;
+                sizex =(int)size.X;
+                sizey =(int)size.Y;
+                sizez =(int)size.Z;
+            }
+
             centerposition = new Vector3((minx + ((maxx- minx) /2)), (miny + ((maxy- miny) / 2)) , (minz + ((maxz - minz) / 2)));
+
+            MatchFloorToSize();
+        }
+
+        public void MatchFloorToSize()
+        {
+            float x      = Math.Min(0 -1, minx-1);
+            float y      = Math.Min(0, miny);
+            float z      = Math.Min(0- 1, minz-1);
+            float width  = Math.Abs(Math.Min(0-1, minx-1))+ Math.Max(size.X +1, maxx +1);
+            float length =Math.Abs(Math.Min(0-1, minz-1))+  Math.Max(size.Z+1, maxz+1);
+
+            Singleton<Floor>.INSTANCE.SetFloorSize(x,y,z, width, length);
         }
 
         public double GetHash(int x, int y, int z)
@@ -837,6 +963,50 @@ namespace stonevox
             {
                 right.updatevoxel(voxel);
             }
+        }
+
+        void CleanUnsuedColorIndexs()
+        {
+            //Colort[] ncolors = new Colort[64];
+            //Dictionary<int, int> activecolors = new Dictionary<int, int>();
+
+            //int newindex = 0; 
+
+            //foreach (var voxel in voxels.Values)
+            //{
+            //    if (!activecolors.ContainsKey(voxel.colorindex))
+            //    {
+            //        activecolors.Add(voxel.colorindex, newindex);
+            //        newindex++;
+            //    }
+            //}
+
+            //var keys = activecolors.Keys;
+
+            //for (int i = 0; i < keys.Count; i++)
+            //{
+            //    ncolors[i] = colors[keys.ElementAt(i)];
+            //}
+
+            List<int> usedindexs = new List<int>();
+
+            foreach (var voxel in voxels.Values)
+            {
+                if (!usedindexs.Contains(voxel.colorindex))
+                {
+                    usedindexs.Add(voxel.colorindex);
+                }
+            }
+
+            Stack<int> unused = new Stack<int>();
+
+            for (int i = 0; i < colors.Length; i++)
+            {
+                if (!usedindexs.Contains(i))
+                    unused.Push(i);
+            }
+
+            colorindexholes = unused;
         }
 
         #endregion
