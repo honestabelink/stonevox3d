@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace stonevox
 {
-    public class QbMatrixSide
+    public class QbMatrixSide : IDisposable
     {
         public QbMatrix owner;
         private float[] buffer;
@@ -28,11 +28,11 @@ namespace stonevox
             switch (side)
             {
                 case Side.Left:
-                    lightscale = .85f;
+                    lightscale = .9f;
                     normal = new Vector3(1, 0, 0);
                     break;
                 case Side.Right:
-                    lightscale = .85f;
+                    lightscale = .9f;
                     normal = new Vector3(-1, 0, 0);
                     break;
                 case Side.Top:
@@ -44,11 +44,11 @@ namespace stonevox
                     normal = new Vector3(0, -1, 0);
                     break;
                 case Side.Front:
-                    lightscale = .7f;
+                    lightscale = .8f;
                     normal = new Vector3(0, 0, 1);
                     break;
                 case Side.Back:
-                    lightscale = .7f;
+                    lightscale = .8f;
                     normal = new Vector3(0, 0, -1);
                     break;
             }
@@ -271,6 +271,11 @@ namespace stonevox
         public void Render()
         {
             vBuffer.Render();
+        }
+
+        public void Dispose()
+        {
+            vBuffer.Dispose();
         }
     }
 }

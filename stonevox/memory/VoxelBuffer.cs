@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace stonevox
 {
-    public class VoxelBuffer
+    public class VoxelBuffer : IDisposable
     {
         public List<VoxelSideBuffer> buffers;
 
@@ -66,6 +66,12 @@ namespace stonevox
         {
             foreach (var buffer in buffers)
                 buffer.Render();
+        }
+
+        public void Dispose()
+        {
+            foreach (var buffer in buffers)
+                buffer.Dispose();
         }
     }
 }
