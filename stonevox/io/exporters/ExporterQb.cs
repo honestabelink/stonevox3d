@@ -32,6 +32,7 @@ namespace stonevox
                     for (int i = 0; i < model.numMatrices; i++)
                     {
                         QbMatrix m = model.matrices[i];
+                        if (!m.Visible) continue;
 
                         w.Write(m.name);
                         w.Write((uint)m.size.X);
