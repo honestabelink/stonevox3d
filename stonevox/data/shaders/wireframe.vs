@@ -15,7 +15,7 @@ uniform vec3 highclamp = vec3(1,1,1);
 
 uniform float alpha = 1.0;
 
-uniform vec3 colors[64];
+uniform vec3 colors[128];
 
 uniform vec3 vHSV = vec3(0,0,0);
 

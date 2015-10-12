@@ -12,7 +12,8 @@ namespace stonevox
     {
         ActiveMatrix,
         FullModel,
-        MatrixSelection // super hacks
+        MatrixSelection, // super hacks
+        MatrixColorSelection
     }
 
     public class Raycaster : Singleton<Raycaster>
@@ -34,6 +35,9 @@ namespace stonevox
         ClientInput input;
         GLWindow window;
         Selection selection;
+        Floor floor;
+        QbManager manager;
+        ClientGUI gui;
 
         public Vector3 rayOrigin;
         public Vector3 rayDirection;
@@ -82,12 +86,15 @@ namespace stonevox
 
         Thread thread;
 
-        public Raycaster(GLWindow window, Camera camera, Selection selection, ClientInput input)
+        public Raycaster(GLWindow window, Camera camera, Selection selection, Floor floor, ClientInput input, QbManager manager, ClientGUI gui)
         {
             this.window = window;
             this.camera = camera;
             this.input = input;
+            this.floor = floor;
             this.selection = selection;
+            this.manager = manager;
+            this.gui = gui;
 
             clientwidth = window.Width;
             clientheight = window.Height;
@@ -105,8 +112,10 @@ namespace stonevox
         {
             while (true)
             {
-                if (Client.window.model == null || !enabled)
+                if (!enabled || gui.OverWidget)
                 {
+                    HasHit = false;
+                    lastHit.distance = 10000;
                     Thread.Sleep(200);
                     continue;
                 }
@@ -117,16 +126,33 @@ namespace stonevox
                 switch (Mode)
                 {
                     case RaycastMode.ActiveMatrix:
-                        hit = RaycastTest(camera.position, Client.window.model.getactivematrix);
+                        if (!manager.ActiveMatrix.Visible) break;
+                        hit = RaycastTest(camera.position, manager.ActiveMatrix);
 
                         if (hit.distance != 10000)
                         {
                             HasHit = true;
+                            hit.matrixIndex = manager.ActiveMatrixIndex;
                             if (!hit.matches(lastHit))
+                            {
+                                lastHit = hit;
                                 selection.dirty = true;
+                            }
                         }
                         else if (hit.distance == 10000)
                         {
+                            if (floor.RayTest(this, ref hit))
+                            {
+                                HasHit = true;
+                                hit.matrixIndex = manager.ActiveMatrixIndex;
+                                if (!hit.matches(lastHit))
+                                {
+                                    lastHit = hit;
+                                    selection.dirty = true;
+                                }
+                                Thread.Sleep(15);
+                                continue;
+                            }
                             selection.handledselectionchange = true;
                             HasHit = false;
                         }
@@ -134,13 +160,15 @@ namespace stonevox
                         break;
                     case RaycastMode.FullModel:
 
-                        for (int i = 0; i < Client.window.model.numMatrices; i++)
+                        for (int i = 0; i < manager.ActiveModel.numMatrices; i++)
                         {
-                            RaycastHit tempHit = RaycastTest(camera.position, Client.window.model.matrices[i]);
+                            if (!manager.ActiveModel.matrices[i].Visible) continue;
+                            RaycastHit tempHit = RaycastTest(camera.position, manager.ActiveModel.matrices[i]);
 
                             if (tempHit.distance < hit.distance && !tempHit.matches(hit))
                             {
-                                Client.window.model.activematrix = i;
+                                manager.ActiveModel.activematrix = i;
+                                tempHit.matrixIndex = i;
                                 hit = tempHit;
                             }
                         }
@@ -149,7 +177,10 @@ namespace stonevox
                         {
                             HasHit = true;
                             if (!hit.matches(lastHit))
+                            {
+                                lastHit = hit;
                                 selection.dirty = true;
+                            }
                         }
                         else if (hit.distance == 10000)
                         {
@@ -162,13 +193,15 @@ namespace stonevox
                     case RaycastMode.MatrixSelection: // super hacks
 
                         int index = 0;
-                        for (int i = 0; i < Client.window.model.numMatrices; i++)
+                        for (int i = 0; i < manager.ActiveModel.numMatrices; i++)
                         {
-                            RaycastHit tempHit = RaycastTest(camera.position, Client.window.model.matrices[i]);
+                            if (!manager.ActiveModel.matrices[i].Visible) continue;
+                            RaycastHit tempHit = RaycastTest(camera.position, manager.ActiveModel.matrices[i]);
 
                             if (tempHit.distance != 10000 && tempHit.distance < hit.distance && !tempHit.matches(hit))
                             {
                                 index = i;
+                                tempHit.matrixIndex = i;
                                 hit = tempHit;
                             }
                         }
@@ -186,7 +219,46 @@ namespace stonevox
                             // ohhh my...
                             // super super hacks
                             if (HasHit)
-                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, Client.window.model.matrices[index], hit);
+                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, manager.ActiveModel.matrices[index], hit);
+                            else
+                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, null, hit);
+
+                        }
+                        lastHit = hit;
+
+                        break;
+
+                    case RaycastMode.MatrixColorSelection: // super hacks
+
+                        int indexx = 0;
+                        for (int i = 0; i < manager.ActiveModel.numMatrices; i++)
+                        {
+                            if (!manager.ActiveModel.matrices[i].Visible) continue;
+                            RaycastHit tempHit = RaycastTest(camera.position, manager.ActiveModel.matrices[i]);
+
+                            if (tempHit.distance != 10000 && tempHit.distance < hit.distance && !tempHit.matches(hit))
+                            {
+                                indexx = i;
+                                tempHit.matrixIndex = i;
+                                hit = tempHit;
+                            }
+                        }
+
+                        if (hit.distance != 10000)
+                        {
+                            HasHit = true;
+                        }
+                        else if (hit.distance == 10000)
+                        {
+                            HasHit = false;
+                        }
+                        if (!hit.matches(lastHit))
+                        {
+                            Client.OpenGLContextThread.Add(() => Singleton<Selection>.INSTANCE.UpdateVisibleSelection());
+                            // ohhh my...
+                            // super super hacks
+                            if (HasHit)
+                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, manager.ActiveModel.matrices[indexx], hit);
                             else
                                 Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, null, hit);
 
@@ -311,7 +383,7 @@ namespace stonevox
             return false;
         }
 
-        float distance(float x, float y, float z)
+        public float distance(float x, float y, float z)
         {
             float num = rayOrigin.X - x;
             float num2 = rayOrigin.Y - y;
@@ -751,6 +823,7 @@ namespace stonevox
         public int y;
         public int z;
         public Side side;
+        public int matrixIndex;
 
         public RaycastHit()
         {

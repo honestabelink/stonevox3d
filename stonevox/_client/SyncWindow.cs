@@ -42,31 +42,8 @@ namespace stonevox
                 FrameEventArgs updateArgs = new FrameEventArgs();
                 FrameEventArgs renderArgs = new FrameEventArgs();
 
-                try
-                {
-                    OnLoad(EventArgs.Empty);
-                    OnResize(EventArgs.Empty);
-                }
-                catch (Exception e)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("");
-                    Console.WriteLine("Exception Caught - exiting main loop.");
-                    Console.WriteLine(e.ToString());
-                    Console.WriteLine("");
-                    var result = MessageBox.Show("Would you like to copy crash info to the clipboard?", "StoneVox Encountered An Error", MessageBoxButtons.YesNo);
-
-                    if (result == DialogResult.Yes)
-                    {
-                        Clipboard.SetText(e.ToString());
-                    }
-
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine("");
-                    Console.WriteLine("Crash info copied to clipboard.");
-                    Console.WriteLine("");
-                    return;
-                }
+                OnLoad(EventArgs.Empty);
+                OnResize(EventArgs.Empty);
 
                 Stopwatch stopWatch = Stopwatch.StartNew();
 
@@ -130,20 +107,25 @@ namespace stonevox
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("");
                 Console.WriteLine("Exception Caught - exiting main loop.");
-                Console.WriteLine(ex.ToString());
+
+                string stacktrace = ex.ToString().ToLower();
+                stacktrace = stacktrace.Replace("c:\\users\\daniel\\documents\\github\\stonevox3d\\", "");
+
+                Console.WriteLine(stacktrace);
                 Console.WriteLine("");
                 SetForegroundWindow(GetConsoleWindow());
                 var result = MessageBox.Show("Would you like to copy crash info to the clipboard?", "StoneVox Encountered An Error", MessageBoxButtons.YesNo);
 
                 if (result == DialogResult.Yes)
                 {
-                    Clipboard.SetText(ex.ToString());
+                    Clipboard.SetText(stacktrace);
                 }
 
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine("");
                 Console.WriteLine("Crash info copied to clipboard.");
                 Console.WriteLine("");
+                Console.ForegroundColor = ConsoleColor.White;
             }
             finally
             {

@@ -21,6 +21,9 @@ namespace stonevox
             }
         }
 
+        const int version = 1;
+        int colorpalletflag = 0;
+
         public void write(string path, string name, QbModel model)
         {
             Client.OpenGLContextThread.Add(() =>
@@ -59,8 +62,9 @@ namespace stonevox
                 int sizey = 0;
                 int sizez = 0;
 
-                foreach (var matrix in Client.window.model.matrices)
+                foreach (var matrix in model.matrices)
                 {
+                    if (!matrix.Visible) continue;
                     if (matrix.minx < minx)
                         minx = matrix.minx;
                     if (matrix.maxx > maxx)
@@ -125,10 +129,13 @@ namespace stonevox
 
                     using (BinaryWriter w = new BinaryWriter(f))
                     {
-
+                        w.Write(version);
                         w.Write((int)buffer.Length);
                         w.Write(buffer);
 
+                        // note - just in case i allow extending the color pattet
+                        // which i probably will 
+                        w.Write(colorpalletflag);
                         for (int i = 0; i < 10; i++)
                         {
                             var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS+ i).appearence.Get<PlainBackground>("background").color;
@@ -148,6 +155,7 @@ namespace stonevox
                         for (int i = 0; i < model.numMatrices; i++)
                         {
                             QbMatrix m = model.matrices[i];
+                            if (!m.Visible) continue;
 
                             w.Write(m.name);
                             w.Write((uint)m.size.X);

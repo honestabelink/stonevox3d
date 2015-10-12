@@ -36,6 +36,10 @@ namespace stonevox
         public const int MATRIX_LISTBOX_WINDOW = 700;
 
         public const int STATUS_TEXT = 750;
+
+        public const int GRIDOPTIONS = 800;
+
+        public const int ACTIVE_MATRIX_NAME = 850;
     }
 
     public class ClientGUI : Singleton<ClientGUI>
@@ -45,6 +49,7 @@ namespace stonevox
         public List<Widget> widgets;
         private ClientInput input;
         private GLWindow window;
+        private QbManager manager;
 
         private int widgetIDs = 100000;
         public int NextAvailableWidgeID { get { widgetIDs++; return widgetIDs; } }
@@ -53,9 +58,10 @@ namespace stonevox
         public Widget lastWidgetOver { get { return widgets[lastWidgetOverIndex]; } }
 
         private int lastWidgetFocusedID = -1;
-        private Widget lastWidgetFocused { get { return widgets[lastWidgetFocusedID]; } }
+        public Widget lastWidgetFocused { get { return widgets[lastWidgetFocusedID]; } }
 
         public bool OverWidget { get { return lastWidgetOverIndex != -1; } }
+        public bool FocusingWidget { get { return lastWidgetFocusedID != -1; } }
 
         public bool Visible = true;
 
@@ -66,10 +72,11 @@ namespace stonevox
         int framebuffer;
         int color;
 
-        public ClientGUI(GLWindow window, ClientInput input)
+        public ClientGUI(GLWindow window, QbManager manager, ClientInput input)
              : base()
         {
             this.window = window;
+            this.manager = manager;
             Singleton<ClientBroadcaster>.INSTANCE.SetGUI(this);
 
             framebuffer = GL.GenFramebuffer();
@@ -89,9 +96,6 @@ namespace stonevox
                 UISaveState();
                 ConfigureUI(window.Width);
                 UILoadState();
-
-                int width = Client.window.Width;
-                int height = Client.window.Height;
 
                 GL.BindTexture(TextureTarget.Texture2D, color);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
@@ -334,6 +338,20 @@ namespace stonevox
             if (Dirty)
             {
                 Dirty = false;
+
+                //if (lastWidgetOverIndex >-1)
+                //{
+                //    Label status = Get<Label>(GUIID.STATUS_TEXT);
+                //    string current = status.text;
+                //    string previous = lastWidgetOver.StatusText;
+
+                //    if (!string.IsNullOrEmpty(previous) && current != previous)
+                //        status.text = previous;
+                //    else
+                //        status.text = "";
+                //    Console.WriteLine("changed text");
+                //}
+
                 GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
                 GL.DrawBuffers(1, new DrawBuffersEnum[] { DrawBuffersEnum.ColorAttachment0 });
 
@@ -376,7 +394,7 @@ namespace stonevox
 
         void Setup2D()
         {
-            ShaderUtil.resetshader();
+            ShaderUtil.ResetShader();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.Ortho(-1f, 1f, -1f, 1f, -1, 1);
@@ -482,6 +500,7 @@ namespace stonevox
 
         void BuildUI()
         {
+            Build_ModelTabs();
             Build_BrushToolbar();
             Build_ColorToolbar();
             Build_MatrixList();
@@ -489,12 +508,18 @@ namespace stonevox
             Build_ColorPicker();
         }
 
+        void Build_ModelTabs()
+        {
+            QbModelTabs tabs = new QbModelTabs();
+            tabs.AddWidgets(this);
+        }
+
         void Build_BrushToolbar()
         {
             // background
             EmptyWidget background = new EmptyWidget();
             background.appearence.AddAppearence("background", new Picture("./data/images/toolmenu_background.png"));
-            background.SetBoundsNoScaling(0 - background.size.X / 2f, -1, null, null);
+            background.SetBoundsNoScaling(0 - background.size.X / 2f, -1);
             widgets.Add(background);
 
             background.handler = new WidgetEventHandler()
@@ -507,12 +532,12 @@ namespace stonevox
 
             // tools
 
-            Button selection = new Button(NextAvailableWidgeID, "./data/images/selection.png",
+            Button selection = new Button("./data/images/selection.png",
                                                                 "./data/images/selection_highlight.png");
             selection.SetBoundsNoScaling(background.location.X + selection.size.X / 2.6f, -1);
             widgets.Add(selection);
 
-            Button recolor = new Button(NextAvailableWidgeID, "./data/images/brush.png",
+            Button recolor = new Button("./data/images/brush.png",
                                                                "./data/images/brush_highlight.png");
             PlainBorder recolorb = new PlainBorder(2, Color.FromArgb(59, 56, 56));
             recolor.handler = new WidgetEventHandler()
@@ -536,7 +561,7 @@ namespace stonevox
             recolor.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 2f) + selection.size.X, -1);
             widgets.Add(recolor);
 
-            Button add = new Button(NextAvailableWidgeID, "./data/images/add.png",
+            Button add = new Button("./data/images/add.png",
                                                          "./data/images/add_highlight.png");
             add.StatusText = StatusText.button_add;
             add.handler = new WidgetEventHandler()
@@ -559,7 +584,7 @@ namespace stonevox
             add.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 3f) + selection.size.X * 2f, -1);
             widgets.Add(add);
 
-            Button remove = new Button(NextAvailableWidgeID, "./data/images/remove.png",
+            Button remove = new Button("./data/images/remove.png",
                                                          "./data/images/remove_highlight.png");
             remove.StatusText = StatusText.button_remove;
             remove.handler = new WidgetEventHandler()
@@ -582,7 +607,7 @@ namespace stonevox
             remove.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 4f) + selection.size.X * 3f, -1);
             widgets.Add(remove);
 
-            Button save = new Button(NextAvailableWidgeID, "./data/images/save.png",
+            Button save = new Button("./data/images/save.png",
                                                          "./data/images/save_highlight.png");
             save.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 5f) + selection.size.X * 4f, -1);
             widgets.Add(save);
@@ -610,7 +635,44 @@ namespace stonevox
             };
             widgets.Add(status);
 
-            Button target = new Button(NextAvailableWidgeID, "./data/images/target.png",
+            Button undo = new Button("./data/images/undo.png",
+                                                       "./data/images/undo_highlight.png");
+            undo.StatusText = StatusText.button_undo;
+            undo.size.X *= .75f;
+            undo.size.Y *= .75f;
+            undo.SetBoundsNoScaling(background.location.X  + background.size.X, background.Absolute_Y);
+            undo.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        Singleton<UndoRedo>.INSTANCE.Undo();
+                    }
+                }
+            };
+            widgets.Add(undo);
+
+            Button redo = new Button("./data/images/redo.png",
+                                                      "./data/images/redo_highlight.png");
+            redo.StatusText = StatusText.button_redo;
+            redo.size.X *= .75f;
+            redo.size.Y *= .75f;
+            redo.SetBoundsNoScaling(undo.Absolute_X+ undo.size.X * 1.1f, background.Absolute_Y);
+            redo.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        Singleton<UndoRedo>.INSTANCE.Redo();
+                    }
+                }
+            };
+            widgets.Add(undo);
+            widgets.Add(redo);
+
+            Button target = new Button("./data/images/target.png",
                                                    "./data/images/target_highlight.png");
             target.SetBoundsNoScaling(background.location.X - target.size.X * .76f, -1, target.size.X * .75f, target.size.Y * .75f);
             target.StatusText = StatusText.button_target;
@@ -633,6 +695,8 @@ namespace stonevox
             target.customData.Add("cursor", new OpenTK.MouseCursor(
                 data.Width / 2, data.Height / 2, data.Width, data.Height, data.Scan0));
 
+            bitmap.Dispose();
+
             var c = new Action(() =>
            {
                while (true)
@@ -645,10 +709,10 @@ namespace stonevox
                        distance = 10000
                    };
 
-                   for (int i = 0; i < Client.window.model?.numMatrices; i++)
+                   for (int i = 0; i < manager.ActiveModel.numMatrices; i++)
                    {
                        Singleton<Raycaster>.INSTANCE.ScreenToMouseRay(input.mousex, input.mousey);
-                       RaycastHit tempHit = Singleton<Raycaster>.INSTANCE.RaycastTest(Singleton<Camera>.INSTANCE.position, Client.window.model.matrices[i]);
+                       RaycastHit tempHit = Singleton<Raycaster>.INSTANCE.RaycastTest(Singleton<Camera>.INSTANCE.position, manager.ActiveModel.matrices[i]);
 
                        if (tempHit.distance < hit.distance)
                        {
@@ -659,18 +723,20 @@ namespace stonevox
 
                    if (id > -1 && lastid != id)
                    {
-                       Client.window.model.getactivematrix.highlight = Color4.White;
+                       if (lastid != -1)
+                           manager.ActiveModel.matrices[lastid].highlight = Color4.White;
+
+                       manager.ActiveMatrix.highlight = Color4.White;
                        target.customData["activematrix"] = id;
-                       Client.window.model.activematrix = id;
-                       Client.window.model.getactivematrix.highlight = new Colort(1.5f, 1.5f, 1.5f);
-                       string name = Client.window.model.getactivematrix.name;
+                       manager.ActiveModel.matrices[id].highlight = new Colort(1.5f, 1.5f, 1.5f);
+                       string name = manager.ActiveMatrix.name;
                        status.text = string.Format("Over Matrix : {0}", name);
                    }
                    else if (id == -1)
                    {
                        if (lastid != -1)
                        {
-                           Client.window.model.matrices[lastid].highlight = Color4.White;
+                           manager.ActiveModel.matrices[lastid].highlight = Color4.White;
                            target.customData["activematrix"] = -1;
                            status.text = "";
                        }
@@ -718,11 +784,13 @@ namespace stonevox
 
                         if (lastid > -1)
                         {
-                            Client.window.model.matrices[lastid].highlight = Color4.White;
-                            Singleton<Camera>.INSTANCE.LookAtMatrix();
+                            manager.ActiveMatrixIndex = lastid;
+
+                            manager.ActiveModel.matrices[lastid].highlight = Color4.White;
+                            Singleton<Camera>.INSTANCE.TransitionToMatrix();
                         }
                         target.customData["activematrix"] = -1;
-                        status.text = "";
+                        //status.text = "";
 
                         target.cursor = null;
 
@@ -861,6 +929,13 @@ namespace stonevox
             hue.SetBoundsNoScaling(background.location.X + background.size.X * .06f + colorQuad.size.X * 1.03f,
                                          background.location.Y + background.size.Y * .3f, hue.size.X, colorQuad.size.Y);
             widgets.Add(hue);
+
+            EmptyWidget huearrow = new EmptyWidget();
+            huearrow.appearence.AddAppearence("background", new Picture("./data/images/hue_arrow.png"));
+            huearrow.Parent = background;
+            huearrow.size.X *= .75f;
+            huearrow.SetBoundsNoScaling(hue.Absolute_X- huearrow.size.X, hue.Absolute_Y- huearrow.size.Y *.5f);
+            widgets.Add(huearrow);
 
             Label hsv = new Label("H" + '\n' + '\n' + "S" + '\n' + '\n' + "V", Color.White);
             hsv.Parent = background;
@@ -1167,6 +1242,9 @@ namespace stonevox
                         colorQuadSelection.SetBoundsNoScaling(colorQuad.Absolute_X + colorQuad.size.X * sat - colorQuadSelection.size.X * .5f,
                                                               colorQuad.Absolute_Y + colorQuad.size.Y * vi - colorQuadSelection.size.Y * .5f);
 
+                        float huearrowlocation = Scale.scale(hu, 0, 360, hue.Absolute_Y+Scale.vSizeScale(2), hue.Absolute_Y + hue.size.Y);
+                        huearrow.SetBoundsNoScaling(null, huearrowlocation-huearrow.size.Y*.5f);
+
                         if (vi < .35f)
                             colorQuadImage.color = Color.White;
                         else
@@ -1237,21 +1315,265 @@ namespace stonevox
 
             widgets.Add(cancel);
 
+            Button backgroundcolor = new Button("./data/images/backgroundcolor.png",
+                                                     "./data/images/backgroundcolor_highlight.png");
+            backgroundcolor.StatusText = StatusText.button_backgroundcolor;
+            backgroundcolor.size.X *= .75f;
+            backgroundcolor.size.Y *= .75f;
+            backgroundcolor.Parent = background;
+            backgroundcolor.SetBoundsNoScaling(hue.Absolute_X + hue.size.X * .5f - backgroundcolor.size.X * .5f,
+                                                cancel.Absolute_Y +cancel.size.Y - backgroundcolor.size.Y);
+
+            backgroundcolor.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.Button == MouseButton.Left)
+                    {
+                        Client.window.backcolor = cur_bg.color;
+                    }
+                }
+            };
+
+            widgets.Add(backgroundcolor);
+
+            Button floorcolor = new Button("./data/images/floorcolor.png",
+                                                   "./data/images/floorcolor_highlight.png");
+            floorcolor.StatusText = StatusText.button_floorcolor;
+            floorcolor.size.X *= .75f;
+            floorcolor.size.Y *= .75f;
+            floorcolor.Parent = background;
+            floorcolor.SetBoundsNoScaling(hue.Absolute_X + hue.size.X * .5f - backgroundcolor.size.X * .5f,
+                                            backgroundcolor.Absolute_Y - backgroundcolor.size.Y * 1.2f);
+
+            floorcolor.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.Button == MouseButton.Left)
+                    {
+                        Singleton<Floor>.INSTANCE.color = cur_bg.color;
+                    }
+                }
+            };
+
+            widgets.Add(floorcolor);
+
             Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, 0f, 1f, 1f);
         }
 
         void Build_ColorToolbar()
         {
             EmptyWidget background = new EmptyWidget();
+
+            background.handler = new WidgetEventHandler()
+            {
+                mouseleave = (e) =>
+                {
+                    Get<Label>(GUIID.STATUS_TEXT).text = "";
+                }
+            };
+
+            background.StatusText = StatusText.button_colorpallete;
             background.appearence.AddAppearence("background", new Picture("./data/images/colorselector_background.png"));
             background.SetBoundsNoScaling(-1, 0 - background.size.Y / 2f, null, null);
             widgets.Add(background);
+
+            Button gridoptions = new Button(GUIID.GRIDOPTIONS,"./data/images/gridoptions.png",
+                                                "./data/images/gridoptions_highlight.png");
+            gridoptions.size.X *= .75f;
+            gridoptions.size.Y *= .75f;
+            gridoptions.StatusText = StatusText.button_gridoptions.Replace("$(type)", "SmartOutline");
+            gridoptions.SetBoundsNoScaling(background.Absolute_X + background.size.X - gridoptions.size.X*2.1f * 1.1f, 
+                background.Absolute_Y - gridoptions.size.Y * 1.2f);
+
+            gridoptions.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        Singleton<Wireframe>.INSTANCE.MoveNext();
+                        gridoptions.StatusText = StatusText.button_gridoptions.Replace("$(type)", Singleton<Wireframe>.INSTANCE.wireFrameType.ToString());
+                    }
+                }
+            };
+
+            widgets.Add(gridoptions);
+
+            Button eyedropper = new Button("./data/images/eyedropper.png",
+                                                   "./data/images/eyedropper_highlight.png");
+            eyedropper.size.X *= .75f;
+            eyedropper.size.Y *= .75f;
+            eyedropper.SetBoundsNoScaling(background.location.X+ background.size.X - eyedropper.size.X *1.1f,
+                                          background.Absolute_Y - eyedropper.size.Y * 1.2f);
+            eyedropper.StatusText = StatusText.button_eyedrop;
+
+
+            eyedropper.customData.Add("activematrix", -1);
+            eyedropper.customData.Add("lasthit", new RaycastHit());
+
+            Bitmap bitmap = new Bitmap("./data/images/cursor_eyedrop.png");
+
+            if (window.Width <= 1280)
+                bitmap = bitmap.ResizeImage(new Size((int)(bitmap.Width * .75f), (int)(bitmap.Height * .75f)));
+            else if (window.Width <= 1400)
+                bitmap = bitmap.ResizeImage(new Size((int)(bitmap.Width * .8f), (int)(bitmap.Height * .8f)));
+
+            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            var data = bitmap.LockBits(
+                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+
+            eyedropper.customData.Add("cursor", new OpenTK.MouseCursor(
+               0,0, data.Width, data.Height, data.Scan0));
+
+            var c = new Action(() =>
+            {
+                while (true)
+                {
+                    int lastid = (int)eyedropper.customData["activematrix"];
+                    RaycastHit lasthit = (RaycastHit)eyedropper.customData["lasthit"];
+                    int id = -1;
+
+                    RaycastHit hit = new RaycastHit()
+                    {
+                        distance = 10000
+                    };
+
+                    for (int i = 0; i < manager.ActiveModel?.numMatrices; i++)
+                    {
+                        Singleton<Raycaster>.INSTANCE.ScreenToMouseRay(input.mousex, input.mousey);
+                        RaycastHit tempHit = Singleton<Raycaster>.INSTANCE.RaycastTest(Singleton<Camera>.INSTANCE.position, manager.ActiveModel.matrices[i]);
+
+                        if (tempHit.distance < hit.distance)
+                        {
+                            id = i;
+                            hit = tempHit;
+                            hit.matrixIndex = i;
+                        }
+                    }
+
+                    if (!hit.matches(lasthit))
+                    {
+                        Client.OpenGLContextThread.Add(() =>
+                        {
+                            Colort t = new Colort();
+                            Singleton<Raycaster>.INSTANCE.lastHit = hit;
+                            Singleton<Selection>.INSTANCE.UpdateVisibleSelection();
+                            Singleton<ClientBrush>.INSTANCE.brushes[VoxelBrushType.ColorSelect].OnRaycastHitchanged(input, null, hit, ref t, null);
+                        });
+                    }
+
+                    if (id > -1 && lastid != id)
+                    {
+                        eyedropper.customData["activematrix"] = id;
+                    }
+                    else if (id == -1)
+                    {
+                        if (lastid != -1)
+                        {
+                            eyedropper.customData["activematrix"] = -1;
+                        }
+                    }
+
+                    eyedropper.customData["lasthit"] = hit;
+
+                    Thread.Sleep(25);
+                }
+            });
+
+            eyedropper.customData.Add("thread", new Thread(() => c()));
+
+            eyedropper.handler = new WidgetEventHandler()
+            {
+                mouseleave = (e) =>
+                {
+                    Get<Label>(GUIID.STATUS_TEXT).text = "";
+                },
+                mousedownhandler = (e, mouse) =>
+                {
+                    float mouseX = (float)Scale.hPosScale(input.mousex);
+                    float mouseY = (float)Scale.vPosScale(input.mousey);
+
+                    if (mouse.Button != MouseButton.Left || !isMouseWithin(mouseX, mouseY, e)) return;
+
+                    Thread thread = new Thread(() => c());
+
+                    eyedropper.customData["activematrix"] = -1;
+                    eyedropper.customData["thread"] = thread;
+
+                    window.Cursor = (MouseCursor)eyedropper.customData["cursor"];
+                    eyedropper.cursor = (MouseCursor)eyedropper.customData["cursor"];
+
+                    thread.Start();
+                },
+                mouseuphandler = (e, mouse) =>
+                {
+                    if (mouse.Button == MouseButton.Right)
+                        e.Drag = true;
+                    else if (mouse.Button == MouseButton.Left)
+                    {
+                        int lastid = (int)eyedropper.customData["activematrix"];
+
+                        var thread = (Thread)eyedropper.customData["thread"];
+                        thread.Abort();
+
+                        if (lastid > -1)
+                        {
+                        }
+                        else
+                        {
+                            byte[] bytes = new byte[4];
+                            GL.ReadPixels(mouse.X, Client.window.Height - mouse.Y, 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, bytes);
+
+                            for (int i = 0; i < 10; i++)
+                            {
+                                var colorpal = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+
+                                if ((bool)colorpal.customData["active"])
+                                {
+                                    Color4 color = new Color4(bytes[0], bytes[1], bytes[2], bytes[3]);
+                                    colorpal.appearence.Get<PlainBackground>("background").color = color;
+                                    Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                                    Singleton<ClientBrush>.INSTANCE.brushColor = color;
+                                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, colorpal, color);
+                                    break;
+                                }
+                            }
+                        }
+                        eyedropper.customData["activematrix"] = -1;
+                        eyedropper.customData["lasthit"] = new RaycastHit();
+
+                        eyedropper.cursor = null;
+
+                        if (lastWidgetOverIndex == -1)
+                            Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        else
+                        {
+                            if (lastWidgetOver != eyedropper)
+                            {
+                                MouseCursor cursor = lastWidgetOver.cursor != null ? lastWidgetOver.cursor : MouseCursor.Default;
+                                Client.window.Cursor = cursor;
+                            }
+                            else
+                                Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        }
+                    }
+                }
+            };
+
+            widgets.Add(eyedropper);
+
+            // end
 
             float startY = 0 - background.size.Y / 2f + (54f).ScaleVerticlSize();
 
             for (int i = 0; i < 10; i++)
             {
                 EmptyWidget colorselector = new EmptyWidget(GUIID.START_COLOR_SELECTORS + i);
+                colorselector.StatusText = StatusText.button_colorpallete;
 
                 PlainBackground bg = new PlainBackground(new Color4(1f - (10 - i) * .1f, 1f - ((10 - i) * .06f),
                             1f - ((10 - i) * .03f), 1f));
@@ -1336,16 +1658,16 @@ namespace stonevox
         {
             EmptyWidget background = new EmptyWidget(GUIID.MATRIX_LISTBOX_WINDOW);
             background.appearence.AddAppearence("background", new Picture("./data/images/project_settings.png"));
-            background.SetBoundsNoScaling(1 - background.size.X * .145f, -background.size.Y / 2f);
+            background.SetBoundsNoScaling(1 - background.size.X * .132f, -background.size.Y / 2f);
             background.translations.Add("transistion_on", new WidgetTranslation()
             {
                 Destination = new Vector2(background.Absolute_X - background.size.X * .85f, background.Absolute_Y),
-                translationTime = 2f
+                translationTime = 2000f
             });
             background.translations.Add("transistion_off", new WidgetTranslation()
             {
-                Destination = new Vector2(1f - background.size.X * .145f, background.Absolute_Y),
-                translationTime = 2f
+                Destination = new Vector2(1f - background.size.X * .132f, background.Absolute_Y),
+                translationTime = 2000f
             });
             widgets.Add(background);
 
@@ -1403,20 +1725,353 @@ namespace stonevox
             Label martixListLabel = new Label("Matrix List", Color.White);
             martixListLabel.Parent = background;
             martixListLabel.SetBoundsNoScaling(background.Absolute_X + background.size.X * .2f, background.Absolute_Y + background.size.Y * .92f);
+            widgets.Add(martixListLabel);
 
-            martixListLabel.handler = new WidgetEventHandler()
+            QbModelMatrixListbox listbox = new QbModelMatrixListbox(background.size.X *.75f, background.size.Y*.6f);
+            listbox.Parent = background;
+            listbox.SetBoundsNoScaling(background.Absolute_X+background.size.X * .2f, background.Absolute_Y+ background.size.Y *.3f);
+            listbox.AddWidgets(this);
+
+            Button addmatrix = new Button("./data/images/addmatrix.png",
+                                                       "./data/images/addmatrix_highlight.png");
+            addmatrix.Parent = background;
+            addmatrix.size.X *= .75f;
+            addmatrix.size.Y *= .75f;
+            addmatrix.SetBoundsNoScaling(listbox.Absolute_X + listbox.size.X - addmatrix.size.X *2.1f, background.Absolute_Y + addmatrix.size.Y * .4f);
+            addmatrix.StatusText = StatusText.button_addmatrix;
+            widgets.Add(addmatrix);
+
+            addmatrix.handler = new WidgetEventHandler()
             {
-                mouseenter = (e) =>
+                mousedownhandler = (e, mouse) =>
                {
-                   martixListLabel.color = Color.Blue;
-               },
-                mouseleave = (e) =>
-                 {
-                     martixListLabel.color = Color.White;
-                 }
+                   if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                   {
+                       QbModel model = manager.ActiveModel;
+                       model.AddMatrix(model.activematrix+1);
+
+                       manager.ActiveMatrixIndex = model.activematrix + 1;
+
+                       listbox.Refresh();
+                       listbox.Select(model.activematrix);
+                   }
+               }
             };
 
-            widgets.Add(martixListLabel);
+            Button removematrix = new Button("./data/images/removematrix.png",
+                                                   "./data/images/removematrix_highlight.png");
+            removematrix.Parent = background;
+            removematrix.size.X *= .75f;
+            removematrix.size.Y *= .75f;
+            removematrix.SetBoundsNoScaling(listbox.Absolute_X + listbox.size.X - addmatrix.size.X, background.Absolute_Y + addmatrix.size.Y * .4f);
+            removematrix.StatusText = StatusText.button_removematrix;
+
+            removematrix.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (manager.ActiveModel.matrices.Count == 1)
+                    {
+                        MessageBox.Show("Stonevox must maintain at least one matrix, you can't remove the one and only matrix.", "Matrix Can't Be Remove");
+                        return;
+                    }
+
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        QbModel model = manager.ActiveModel;
+
+                        model.Remove(model.activematrix);
+
+                        int newindex = model.activematrix - 1 >= 0 ? model.activematrix - 1 : model.activematrix;
+
+                        manager.ActiveMatrixIndex = newindex;
+
+                        listbox.Refresh();
+                        listbox.Select(model.activematrix);
+                    }
+                }
+            };
+
+            widgets.Add(removematrix);
+
+            ToggleButton nonActiveMatrixVisibilityToggle = new ToggleButton("./data/images/toggelmatrixvisiblity_on.png",
+                                                       "./data/images/toggelmatrixvisiblity_off.png");
+            nonActiveMatrixVisibilityToggle.size.X *= .75f;
+            nonActiveMatrixVisibilityToggle.size.Y *= .75f;
+            nonActiveMatrixVisibilityToggle.Parent = background;
+            nonActiveMatrixVisibilityToggle.SetBoundsNoScaling(listbox.Absolute_X + listbox.size.X - addmatrix.size.X * 3.2f, removematrix.Absolute_Y);
+
+            nonActiveMatrixVisibilityToggle.StatusText = StatusText.button_nonactivematrixvisibilitytoggle;
+            System.Boolean show = true;
+            nonActiveMatrixVisibilityToggle.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        show = !show;
+
+                        QbModel m = manager.ActiveModel;
+
+                        for (int i = 0; i < m.matrices.Count; i++)
+                        {
+                            if (i != manager.ActiveMatrixIndex)
+                                m.matrices[i].Visible = show;
+                        }
+
+                        listbox.UpdateWidgets();
+                    }
+                },
+                messagerecived = (e, message, widget, args) =>
+                {
+                    if (message == Message.ModelImported)
+                    {
+                        show = true;
+                        nonActiveMatrixVisibilityToggle.Toggle(0);
+                    }
+                }
+            };
+
+            input.AddHandler(new InputHandler()
+            {
+                Keydownhandler = (k) =>
+                {
+                    if (FocusingWidget)
+                    {
+                        // OMG FIX THIS... NEED TO CENTERALIZE THIS TYPE OF CHECKING
+                        var possibletextbox = lastWidgetFocused as TextBox;
+                        if (possibletextbox != null) return;
+                        
+                        Label possiblelabe = lastWidgetFocused as Label;
+                        if (possiblelabe != null) return;
+                    }
+
+                    if (k.Key == Key.H)
+                    {
+                        show = !show;
+
+                        QbModel m = manager.ActiveModel;
+
+                        for (int i = 0; i < m.matrices.Count; i++)
+                        {
+                            if (i != manager.ActiveMatrixIndex)
+                                m.matrices[i].Visible = show;
+                        }
+
+                        listbox.UpdateWidgets();
+
+                        nonActiveMatrixVisibilityToggle.Toggle(show == true ? 0 : 1);
+                    }
+                }
+            });
+
+            widgets.Add(nonActiveMatrixVisibilityToggle);
+
+            Label label_setMatrixName = new Label("Name   ", Color.White);
+            label_setMatrixName.Parent = background;
+            label_setMatrixName.SetBoundsNoScaling(listbox.Absolute_X, listbox.Absolute_Y - label_setMatrixName.size.Y *1.4f);
+            widgets.Add(label_setMatrixName);
+
+            TextBox textbox_setMatrixName = new TextBox(GUIID.ACTIVE_MATRIX_NAME,"default", Color.White, 15);
+            textbox_setMatrixName.Parent = background;
+            textbox_setMatrixName.SetBoundsNoScaling(listbox.Absolute_X + label_setMatrixName.size.X, label_setMatrixName.Absolute_Y);
+            textbox_setMatrixName.size.X = listbox.size.X - label_setMatrixName.size.X;
+
+            String currentSize = "";
+
+            textbox_setMatrixName.handler = new WidgetEventHandler()
+            {
+                messagerecived = (e, message, widget, args) =>
+                {
+                    if (message == Message.ActiveMatrixChanged || message == Message.ModelImported)
+                    {
+                        QbMatrix m = manager.ActiveMatrix;
+                        textbox_setMatrixName.Text = m.name;
+                    }
+                },
+                focusgained = (e) =>
+                {
+                    currentSize = textbox_setMatrixName.Text;
+                },
+                textboxtextcommit = (e) =>
+                {
+                    (e as TextBox).HandleFocusedLost();
+                },
+                focuslost = (e) =>
+                {
+                    QbMatrix m = manager.ActiveMatrix;
+
+                    string text = textbox_setMatrixName.Text;
+
+                    if (string.IsNullOrEmpty(text))
+                    {
+                        MessageBox.Show("Matrix names MUST contain at least one character", "Matrix Name Limits");
+                        return;
+                    }
+                    m.name = text;
+                    listbox.UpdateWidgets();
+
+                    lastWidgetFocusedID = -1;
+                }
+            };
+
+            widgets.Add(textbox_setMatrixName);
+
+
+            Label label_setMatrixPosition = new Label("Position   ", Color.White);
+            label_setMatrixPosition.Parent = background;
+            label_setMatrixPosition.SetBoundsNoScaling(listbox.Absolute_X, listbox.Absolute_Y - label_setMatrixPosition.size.Y * 2.6f);
+            widgets.Add(label_setMatrixPosition);
+
+            TextBox textbox_setMatrixPosition = new TextBox("0,0,0", Color.White, 15);
+            textbox_setMatrixPosition.Parent = background;
+            textbox_setMatrixPosition.SetBoundsNoScaling(listbox.Absolute_X + label_setMatrixName.size.X, label_setMatrixPosition.Absolute_Y);
+            textbox_setMatrixPosition.size.X = textbox_setMatrixName.size.X;
+
+            currentSize = "0,0,0";
+
+            textbox_setMatrixPosition.handler = new WidgetEventHandler()
+            {
+                messagerecived = (e, message, widget, args) =>
+                {
+                    if (message == Message.ActiveMatrixChanged || message == Message.ModelImported)
+                    {
+                        QbMatrix m = manager.ActiveMatrix;
+                        int x = (int)m.position.X;
+                        int y = (int)m.position.Y;
+                        int z = (int)m.position.Z;
+
+                        textbox_setMatrixPosition.Text = $"{x},{y},{z}";
+                    }
+                },
+                focusgained = (e) =>
+                {
+                    currentSize = textbox_setMatrixPosition.Text;
+                },
+                textboxtextcommit = (e) =>
+                {
+                    QbMatrix m = manager.ActiveMatrix;
+
+                    string text = textbox_setMatrixPosition.Text;
+
+                    string content = "Matrix position format is as follows : x,y,z";
+                    string caption = "Invalid Format";
+
+                    if (!text.Contains(','))
+                    {
+                        MessageBox.Show(content, caption);
+                        text = currentSize;
+                        return;
+                    }
+
+                    string[] sizes = text.Split(',');
+
+                    if (sizes.Count() != 3)
+                    {
+                        MessageBox.Show(content, caption);
+                        text = currentSize;
+                        return;
+                    }
+
+                    int x = sizes[0].SafeToInt32();
+                    int y = sizes[1].SafeToInt32();
+                    int z = sizes[2].SafeToInt32();
+
+                    if (x == -1 || y == -1 || z == -1)
+                    {
+                        MessageBox.Show(content, caption);
+                        text = currentSize;
+                        return;
+                    }
+
+                    m.position = new Vector3(x, y, z);
+                },
+                focuslost = (e) =>
+                {
+                    (e as TextBox).HandleTextCommit();
+                }
+            };
+
+            widgets.Add(textbox_setMatrixPosition);
+
+            Label label_setMatrixSize = new Label("Size", Color.White);
+            label_setMatrixSize.Parent = background;
+            label_setMatrixSize.SetBoundsNoScaling(listbox.Absolute_X, listbox.Absolute_Y - label_setMatrixSize.size.Y * 3.8f);
+            widgets.Add(label_setMatrixSize);
+
+            TextBox textbox_setMatrixSize = new TextBox("15,15,15", Color.White, 15);
+            textbox_setMatrixSize.Parent = background;
+            textbox_setMatrixSize.SetBoundsNoScaling(textbox_setMatrixName.Absolute_X, label_setMatrixSize.Absolute_Y);
+            textbox_setMatrixSize.size.X = textbox_setMatrixName.size.X;
+
+            currentSize = "15,15,15";
+
+            textbox_setMatrixSize.handler = new WidgetEventHandler()
+            {
+                messagerecived = (e, message, widget, args) =>
+                {
+                    if (message == Message.ActiveMatrixChanged || message == Message.ModelImported)
+                    {
+                        QbMatrix m = manager.ActiveMatrix;
+                        int x = (int)m.size.X;
+                        int y = (int)m.size.Y;
+                        int z = (int)m.size.Z;
+
+                        textbox_setMatrixSize.Text = $"{x},{y},{z}";
+                    }
+                },
+                focusgained = (e) =>
+                {
+                    currentSize = textbox_setMatrixSize.Text;
+                },
+                textboxtextcommit = (e) =>
+                {
+                    QbMatrix m = manager.ActiveMatrix;
+
+                    string text = textbox_setMatrixSize.Text;
+
+                    string content = "Matrix size format is as follows : width,height,length";
+                    string caption = "Invalid Format";
+
+                    if (!text.Contains(','))
+                    {
+                        MessageBox.Show(content, caption);
+                        text = currentSize;
+                        return;
+                    }
+
+                    string[] sizes = text.Split(',');
+
+                    if (sizes.Count() != 3)
+                    {
+                        MessageBox.Show(content, caption);
+                        text = currentSize;
+                        return;
+                    }
+
+                    int x = sizes[0].SafeToInt32();
+                    int y = sizes[1].SafeToInt32();
+                    int z = sizes[2].SafeToInt32();
+
+                    if (x == -1 || y == -1 || z == -1)
+                    {
+                        MessageBox.Show(content, caption);
+                        text = currentSize;
+                        return;
+                    }
+
+                    m.size.X = x;
+                    m.size.Y = y;
+                    m.size.Z = z;
+                    m.MatchFloorToSize();
+                },
+                focuslost = (e) =>
+                {
+                    (e as TextBox).HandleTextCommit();
+                }
+            };
+
+            widgets.Add(textbox_setMatrixSize);
         }
 
         void Build_Screenshot()
@@ -1526,11 +2181,6 @@ namespace stonevox
                         float mouseY = (float)Scale.vSizeScale(Mouse.YDelta) * -2f + full.Absolute_Y;
 
                         full.SetBoundsNoScaling(mouseX, mouseY);
-
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine($"{mouseX.UnScaleHorizontal()},  {mouseY.UnScaleVertical()}");
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.WriteLine($"{ full.Absolute_X.UnScaleHorizontal()},  { full.Absolute_Y.UnScaleVertical()}");
                     }
                 },
                 mousewheelhandler = (e, mouse) =>
@@ -1588,7 +2238,6 @@ namespace stonevox
             {
                 mousedownhandler = (e, mouse) =>
                 {
-                    if (Client.window.model == null) return;
                     if (mouse.Button == MouseButton.Left && mouse.IsPressed)
                     {
                         int w = widthtextbox.Text.SafeToInt32();
@@ -1631,7 +2280,7 @@ namespace stonevox
                             voxelShader.WriteUniform("modelview", Singleton<Camera>.INSTANCE.modelviewprojection);
 
                             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                            Client.window.model.RenderAll(voxelShader);
+                            manager.ActiveModel.RenderAll(voxelShader);
 
                             var bit = Screenshot.ScreenShot(xx, yy, w, h, OpenTK.Graphics.OpenGL4.ReadBufferMode.ColorAttachment0);
 

@@ -39,19 +39,29 @@ namespace stonevox
         }
 
         public bool AutoSize;
+        public string AppendText = "";
 
         private string text = "";
         private Color color = Color.White;
+        public QFontAlignment Alignment;
         public Color Color { get { return color; } set { color = value; } }
         public string Text { get { return text; } set { text = value; ResizeWidget(); } }
 
-        public PlainText() { }
+        public PlainText()
+        {
+        }
         
         public PlainText(bool autoSize, string text, Color color)
+            :this(autoSize, text, color, QFontAlignment.Left)
+        {
+        }
+
+        public PlainText(bool autoSize, string text, Color color, QFontAlignment alignment)
         {
             this.AutoSize = autoSize;
             this.text = text;
-            Color = color;
+            this.Color = color;
+            this.Alignment = alignment;
         }
 
         public override void Initialize()
@@ -65,7 +75,7 @@ namespace stonevox
 
             QFont.Begin();
             Client.window.Qfont.Options.Colour = color;
-            Client.window.Qfont.Print(text, new Vector2(xx, yy));
+            Client.window.Qfont.Print(text + AppendText, Alignment, new Vector2(xx, yy));
             QFont.End();
         }
 
@@ -80,6 +90,19 @@ namespace stonevox
             var size = Client.window.Qfont.Measure(text);
 
             widget.SetBounds(null, null, size.Width*2f , size.Height*2f);
+        }
+
+        public SizeF MesaureString()
+        {
+            return MeasureString(this.text);
+        }
+
+        public SizeF MesaureString(string text)
+        {
+            var size = Client.window.Qfont.Measure(text);
+            size.Width *= 2f;
+            size.Height *= 2f;
+            return size;
         }
 
         public override Appearence FromData(AppearenceData data)

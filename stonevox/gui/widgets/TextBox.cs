@@ -15,7 +15,9 @@ namespace stonevox
     public class TextBox : Widget
     {
         string text = "";
+        public bool showCursor = true;
         public string Text { get { return text; } set { text = value; SetText(value); } }
+        public string AppendedText { get { return textAppearence.AppendText;  }set { textAppearence.AppendText = value; } }
 
         private string renderText;
         private string lastText = "";
@@ -23,6 +25,9 @@ namespace stonevox
         private PlainText textAppearence;
 
         private int charDisplaySize = 20;
+
+        private double time;
+        private double toggleCursorTime = .65f;
 
         private Color Color { get { return textAppearence.Color; } set { textAppearence.Color = value; } }
 
@@ -85,6 +90,23 @@ namespace stonevox
             textAppearence.Text = renderText;
         }
 
+        public override void Update(FrameEventArgs e)
+        {
+            base.Update(e);
+            if (!focused) return;
+            time += e.Time;
+            if (time > toggleCursorTime)
+            {
+                time = 0;
+                if (textAppearence.AppendText == "|")
+                    textAppearence.AppendText = "";
+                else
+                    textAppearence.AppendText = "|";
+
+                Singleton<ClientGUI>.INSTANCE.Dirty = true;
+            }
+        }
+
         public override void HandleKeyPress(KeyPressEventArgs e)
         {
             if (handler.textboxfilter != null)
@@ -92,6 +114,8 @@ namespace stonevox
             else
                 Text += e.KeyChar.ToString();
             HandleTextChanged();
+            time = 0;
+            textAppearence.AppendText = "|";
             base.HandleKeyPress(e);
         }
 
@@ -102,7 +126,7 @@ namespace stonevox
             {
                 if (Text.Length > 0)
                 {
-                    Text = Text.Remove(text.Length -1, 1);
+                    Text = Text.Remove(text.Length - 1, 1);
                     HandleTextChanged();
                 }
             }
@@ -114,21 +138,28 @@ namespace stonevox
                     lastText = Text;
                 }
             }
+            else
+            {
+                time = 0;
+                textAppearence.AppendText = "|";
+            }
             base.HandleKeyDown(e);
         }
 
         public override void HandleFocusedGained()
         {
+            time = 0;
+            textAppearence.AppendText = "|";
             appearence.Get<PlainBorder>("border").color = new Color4(164f / 256f, 146f / 256f, 110f / 256f, 1f);
-
             base.HandleFocusedGained();
         }
 
         public override void HandleFocusedLost()
         {
+            time = 0;
+            textAppearence.AppendText = "";
             appearence.Get<PlainBorder>("border").color = new Color4(122f / 256f, 106f / 256f, 70f / 256f, 1f);
 
-            HandleTextCommit();
             base.HandleFocusedLost();
         }
 

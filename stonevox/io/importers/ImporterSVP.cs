@@ -30,13 +30,16 @@ namespace stonevox
 
         public QbModel _read(string path)
         {
-            QbModel model = new QbModel();
+            QbModel model = new QbModel(path.Split('\\').Last().Split('.').First());
 
             using (FileStream f = new FileStream(path, FileMode.Open))
             using (BinaryReader reader = new BinaryReader(f))
             {
+                int version = reader.ReadInt32();
                 int len = reader.ReadInt32();
                 reader.ReadBytes(len);
+
+                int colorpalleteflag = reader.ReadInt32();
 
                 for (int i = 0; i < 10; i++)
                 {

@@ -47,13 +47,15 @@ namespace stonevox
         ClientBroadcaster broadcaster;
         UndoRedo undoredo;
         Raycaster raycaster;
+        Floor floor;
+        QbManager manager;
         IRenderer renderer;
 
         // not sure about these yet, need another place
         // ... also the whole QbManager/Importer/Exporter thing i don't like
         // thinking some sort of qb manager class should be put in the _client space
         // following Singleton<?? "qb manager">
-        public QbModel model;
+        //public QbModel model;
         public Shader voxelShader;
 
         public Color4 backcolor;
@@ -78,8 +80,6 @@ namespace stonevox
 
         protected override void OnLoad(EventArgs e)
         {
-            SetForegroundWindow(this.WindowInfo.Handle);
-
             string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             Title = String.Format("StoneVox 3D - version {0}", version);
 
@@ -108,18 +108,21 @@ namespace stonevox
 
             ShaderUtil.CreateShader("quad_interpolation", "./data/shaders/QuadInterpolation.vs", "./data/shaders/QuadInterpolation.fs");
 
-            input = new ClientInput(this);
-            camera = new Camera(this, input);
-            brushes = new ClientBrush(this, input);
-            selection = new Selection(brushes, input);
-            renderer = new Wireframe(camera, selection, input);
             broadcaster = new ClientBroadcaster();
-            gui = new ClientGUI(this, input);
+            manager = new QbManager(broadcaster);
+            input = new ClientInput(this);
+            camera = new Camera(this, input, manager);
+            brushes = new ClientBrush(this, input);
+            floor = new Floor(camera, broadcaster);
+            gui = new ClientGUI(this, manager, input);
+            selection = new Selection(this,brushes, input, manager, floor, gui);
+            renderer = new Wireframe(camera, selection, floor, input);
             undoredo = new UndoRedo(input);
 
             selection.GenerateVertexArray();
 
-            //ImportExportUtil.import(@"C:\Users\daniel\Desktop\dining_table.qb", out model);
+            manager.AddEmpty();
+            camera.LookAtModel(true);
 
             backcolor = new Color4(0, 0, 0, 0);
 
@@ -135,7 +138,8 @@ namespace stonevox
             dnd = new DragDropTarget();
             int dnd_hresult = RegisterDragDrop(handle, dnd);
 
-            raycaster = new Raycaster(this, camera, selection, input);
+            raycaster = new Raycaster(this, camera, selection, floor, input, manager, gui);
+            selection.raycaster = raycaster;
 
             Client.Initialized = true;
             base.OnLoad(e);
@@ -150,6 +154,7 @@ namespace stonevox
             Qfont_1280.Dispose();
             Qfont_1400.Dispose();
             Qfont_1920.Dispose();
+            manager.Dispose();
             base.Dispose();
         }
 
@@ -158,15 +163,26 @@ namespace stonevox
             if (!Focused)
             {
                 isfocused = false;
+                raycaster.Enabled = false;
             }
             else
             {
                 isfocused = true;
+                raycaster.Enabled = true;
             }
             base.OnFocusedChanged(e);
         }
         protected override void OnWindowStateChanged(EventArgs e)
         {
+            if (WindowState == WindowState.Minimized)
+            {
+                raycaster.Enabled = false;
+
+            }
+            else if (WindowState == WindowState.Normal || WindowState == WindowState.Maximized)
+            {
+                raycaster.Enabled = true;
+            }
             base.OnWindowStateChanged(e);
         }
 
@@ -215,13 +231,16 @@ namespace stonevox
 
                 if (result == DialogResult.OK)
                 {
-                    Client.OpenGLContextThread.Add(() => { ImportExportUtil.import(open.FileName, out model); });
+                    Client.OpenGLContextThread.Add(() => 
+                    {
+                        ImportExportUtil.Import(open.FileName);
+                    });
                 }
             }
             if (e.Modifiers == KeyModifiers.Control && e.Key == Key.S)
             {
                 var save = new SaveFileDialog();
-                save.Title = "Save .obj File";
+                save.Title = "Save File";
                 save.Filter = "StoneVox Project (.svp)|*.svp|Qubicle Binary (.qb)|*.qb|Wavefront OBJ (.obj)|*.obj|All files (*.*)|*.*";
                 save.DefaultExt = ".svp";
 
@@ -229,10 +248,11 @@ namespace stonevox
 
                 if (result == DialogResult.OK)
                 {
+                    QbModel model = manager.ActiveModel;
                     model.name = save.FileName.Split('\\').Last();
                     if (model.name.Contains('.'))
                         model.name = model.name.Split('.').First();
-                    ImportExportUtil.export(save.FileName.Split('\\').Last().Replace(model.name, ""), model.name, Path.GetDirectoryName(save.FileName), model);
+                    ImportExportUtil.Export(save.FileName.Split('\\').Last().Replace(model.name, ""), model.name, Path.GetDirectoryName(save.FileName), model);
                 }
             }
             else if (e.Modifiers == KeyModifiers.Control && e.Key == Key.F12)
@@ -242,7 +262,33 @@ namespace stonevox
             }
             else if (e.Key == Key.T)
             {
-                ImportExportUtil.export(".svp", "shouldwork", Environment.GetFolderPath(Environment.SpecialFolder.Desktop), model);
+                Stopwatch w = Stopwatch.StartNew();
+                var model = Singleton<QbManager>.INSTANCE.ActiveMatrix;
+
+                Colort color = new Colort(1f, 0f, 0f);
+                for (int x = 0; x < 100; x++)
+                    for (int z = 0; z < 100; z++)
+                    for (int y = 0; y< 100; y++)
+                            model.Add(x, y, z, color);
+
+                w.Stop();
+                Console.WriteLine("add " +w.ElapsedMilliseconds.ToString());
+            }
+
+            else if (e.Key == Key.Y)
+            {
+                Stopwatch w = Stopwatch.StartNew();
+                var model = Singleton<QbManager>.INSTANCE.ActiveMatrix;
+
+                Colort color = new Colort(1f, 0f, 0f);
+                for (int x = 0; x < 100; x++)
+                    for (int z = 0; z < 100; z++)
+                        for (int y = 0; y < 100; y++)
+
+                            model.Remove(x, y, z);
+
+                w.Stop();
+                Console.WriteLine("earse " + w.ElapsedMilliseconds.ToString());
             }
 
             base.OnKeyDown(e);
@@ -296,10 +342,15 @@ namespace stonevox
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            if (!isfocused)
+            {
+                input.update();
+                base.OnUpdateFrame(e);
+                return;
+            }
+
             input.update();
             gui.Update(e);
-
-            if (model == null) return;
 
             camera.update((float)e.Time);
             selection.update();
@@ -312,6 +363,13 @@ namespace stonevox
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            if (!isfocused)
+            {
+                Client.update();
+                base.OnRenderFrame(e);
+                return;
+            }
+              //  Console.WriteLine(raycaster.Enabled.ToString());
             GL.ClearColor(backcolor.R, backcolor.G, backcolor.B, backcolor.A);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -325,12 +383,11 @@ namespace stonevox
                 fps = 0;
             }
 
-            if (model != null)
-            {
-                renderer.Render(model);
-            }
+            renderer.Render(manager.ActiveModel);
 
-            ShaderUtil.resetshader();
+            ShaderUtil.ResetShader();
+
+            floor.Render();
 
             gui.Render();
 

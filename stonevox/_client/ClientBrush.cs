@@ -28,6 +28,7 @@ namespace stonevox
             brushes.Add(VoxelBrushType.Remove, new BrushRemove());
             brushes.Add(VoxelBrushType.Recolor, new BrushRecolor());
             brushes.Add(VoxelBrushType.MatrixSelect, new BrushMatrixSelection());
+            brushes.Add(VoxelBrushType.ColorSelect, new BrushColorSelection());
 
             input.AddHandler(new InputHandler()
             {
@@ -68,6 +69,8 @@ namespace stonevox
                     else
                         brushes[(VoxelBrushType)enumer.Current].Cursor = new OpenTK.MouseCursor(
                             0, 0, data.Width, data.Height, data.Scan0);
+
+                    bitmap.Dispose();
                 }
             };
 
@@ -81,12 +84,12 @@ namespace stonevox
                 currentBrush.Disable();
 
                 //super super hacks
-                if (currentBrush.BrushType != VoxelBrushType.MatrixSelect)
+                if (currentBrush.BrushType != VoxelBrushType.MatrixSelect || currentBrush.BrushType != VoxelBrushType.ColorSelect)
                     previousBrush = currentBrush;
             }
             else
             {
-                if (currentBrush?.BrushType != VoxelBrushType.MatrixSelect)
+                if (currentBrush?.BrushType != VoxelBrushType.MatrixSelect || currentBrush.BrushType != VoxelBrushType.MatrixSelect)
                     previousBrush = currentBrush;
             }
             currentBrush = brushes[type];
@@ -117,7 +120,7 @@ namespace stonevox
                         if (enumer.MoveNext())
                         {
                             // kinda hacky but so is the matrix selection tool...
-                            if ((VoxelBrushType)enumer.Current == VoxelBrushType.MatrixSelect)
+                            if ((VoxelBrushType)enumer.Current == VoxelBrushType.MatrixSelect || currentBrush.BrushType == VoxelBrushType.MatrixSelect)
                                 continue;
                             SetCurrentBrush((VoxelBrushType)enumer.Current);
                             return;
@@ -131,6 +134,7 @@ namespace stonevox
 
         public bool onselectionchanged(ClientInput input, QbMatrix matrix, RaycastHit hit, MouseButtonEventArgs e = null)
         {
+            if (matrix != null && !matrix.Visible) return true;
             return currentBrush.OnRaycastHitchanged(input, matrix, hit, ref brushColor, e);
         }
     }

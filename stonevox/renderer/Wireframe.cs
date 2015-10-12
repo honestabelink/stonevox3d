@@ -18,11 +18,12 @@ namespace stonevox
 
         Camera camera;
         Selection selection;
+        Floor floor;
 
         public bool drawWireframe = true;
-        public WireframeType wireFrameType = WireframeType.Outline;
+        public WireframeType wireFrameType = WireframeType.SmartOutline;
 
-        public Wireframe(Camera camera, Selection selection, ClientInput input)
+        public Wireframe(Camera camera, Selection selection, Floor floor, ClientInput input)
             : base()
         {
             voxelShader = ShaderUtil.CreateShader("qb", "./data/shaders/voxel.vs", "./data/shaders/voxel.fs");
@@ -30,6 +31,7 @@ namespace stonevox
 
             this.camera = camera;
             this.selection = selection;
+            this.floor = floor;
 
             // bug mouse leaving matrix while dragging tools
 
@@ -45,33 +47,54 @@ namespace stonevox
                     }
                     else if (e.Key == Key.G && e.Shift)
                     {
-                        drawWireframe = true;
-                        var values =Enum.GetValues(typeof(WireframeType));
-
-                        var enumer = values.GetEnumerator();
-                        while(enumer.MoveNext())
-                        {
-                            if ((WireframeType)enumer.Current == wireFrameType)
-                            {
-                                if (enumer.MoveNext())
-                                {
-                                    wireFrameType = (WireframeType)enumer.Current;
-                                    return;
-                                }
-                            }
-                        }
-
-                        wireFrameType = WireframeType.Black;
+                        MoveNext();
                     }
                 }
             });
+        }
+
+        public void MoveNext()
+        {
+            drawWireframe = true;
+            var values = Enum.GetValues(typeof(WireframeType));
+
+            var enumer = values.GetEnumerator();
+            while (enumer.MoveNext())
+            {
+                if ((WireframeType)enumer.Current == wireFrameType)
+                {
+                    if (enumer.MoveNext())
+                    {
+                        wireFrameType = (WireframeType)enumer.Current;
+
+                        Singleton<ClientGUI>.INSTANCE.Get<Button>(GUIID.GRIDOPTIONS).StatusText =
+                                StatusText.button_gridoptions.Replace("$(type)", wireFrameType.ToString());
+
+                        Singleton<ClientGUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = 
+                                StatusText.button_gridoptions.Replace("$(type)", wireFrameType.ToString());
+
+                        Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                        return;
+                    }
+                }
+            }
+
+            wireFrameType = WireframeType.WireframeBlack;
+
+            Singleton<ClientGUI>.INSTANCE.Get<Button>(GUIID.GRIDOPTIONS).StatusText =
+                            StatusText.button_gridoptions.Replace("$(type)", wireFrameType.ToString());
+
+            Singleton<ClientGUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text =
+                            StatusText.button_gridoptions.Replace("$(type)", wireFrameType.ToString());
+
+            Singleton<ClientGUI>.INSTANCE.Dirty = true;
         }
 
         public void Render(QbModel model)
         {
             switch (wireFrameType)
             {
-                case WireframeType.Black:
+                case WireframeType.WireframeBlack:
 
                     if (drawWireframe)
                     {
@@ -80,7 +103,7 @@ namespace stonevox
                         wireframeShader.UseShader();
                         wireframeShader.WriteUniform("vHSV", new Vector3(1, 0f, 0));
                         wireframeShader.WriteUniform("modelview", camera.modelviewprojection);
-                        model.RenderAll(wireframeShader);
+                        model.getactivematrix.RenderAll(wireframeShader);
                     }
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                     GL.LineWidth(2);
@@ -91,7 +114,7 @@ namespace stonevox
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                     model.RenderAll(voxelShader);
                     break;
-                case WireframeType.ColorMatch:
+                case WireframeType.WireframeColorMatch:
                     if (drawWireframe)
                     {
                         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
@@ -99,7 +122,7 @@ namespace stonevox
                         wireframeShader.UseShader();
                         wireframeShader.WriteUniform("vHSV", new Vector3(1, 1.1f, 1.1f));
                         wireframeShader.WriteUniform("modelview", camera.modelviewprojection);
-                        model.RenderAll(wireframeShader);
+                        model.getactivematrix.RenderAll(wireframeShader);
                     }
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                     GL.LineWidth(2);
@@ -110,7 +133,7 @@ namespace stonevox
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                     model.RenderAll(voxelShader);
                     break;
-                case WireframeType.Outline:
+                case WireframeType.SmartOutline:
                     if (drawWireframe)
                     {
                         GL.CullFace(CullFaceMode.Front);
@@ -119,7 +142,7 @@ namespace stonevox
                         wireframeShader.UseShader();
                         wireframeShader.WriteUniform("vHSV", new Vector3(1, 1.5f, 1.0f));
                         wireframeShader.WriteUniform("modelview", camera.modelviewprojection);
-                        model.RenderAll(wireframeShader);
+                        model.getactivematrix.RenderAll(wireframeShader);
                     }
                     GL.CullFace(CullFaceMode.Back);
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
@@ -137,8 +160,8 @@ namespace stonevox
 
     public enum WireframeType
     {
-        Black,
-        ColorMatch,
-        Outline
+        WireframeBlack,
+        WireframeColorMatch,
+        SmartOutline
     }
 }

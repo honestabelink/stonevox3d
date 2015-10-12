@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -17,13 +18,12 @@ namespace stonevox
 {
     class Program
     {
-        //[DllImport("userid.dll", CallingConvention = CallingConvention.Cdecl)]
-        //[return: MarshalAs(UnmanagedType.BStr)]
-        //static extern string encrzpt(string ip);
+        [DllImport("kernel32.dll", ExactSpelling = true)]
+        public static extern IntPtr GetConsoleWindow();
 
-        //[DllImport("userid.dll", CallingConvention = CallingConvention.Cdecl)]
-        //[return: MarshalAs(UnmanagedType  .BStr)]
-        //static extern string decrzpt(string ip);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
 
         static string lol = "i_made_onion_games_in_the_past";
 
@@ -69,6 +69,14 @@ namespace stonevox
         static void Main(string[] args)
         {
             Console.Title = "StoneVox 3D";
+
+            string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string Title = String.Format("StoneVox 3D Voxel Modeler for StoneHearth : build {0}", version.Split('.').Last());
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(Title);
+            Console.WriteLine("");
+            Console.ForegroundColor = ConsoleColor.White;
 
             if (args.Length == 0)
             {

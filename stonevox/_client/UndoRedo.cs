@@ -21,9 +21,26 @@ namespace stonevox
             {
                 Keydownhandler = (e) =>
                 {
-                    if (e.Modifiers == OpenTK.Input.KeyModifiers.Control && e.Key == OpenTK.Input.Key.Z)
+                    var gui =Singleton<ClientGUI>.INSTANCE;
+
+                    if (gui.OverWidget)
+                    {
+                        var possibletextbox = gui.lastWidgetOver as TextBox;
+                        if (possibletextbox != null) return;
+                    }
+                    else if (gui.FocusingWidget)
+                    {
+                        // OMG FIX THIS... NEED TO CENTERALIZE THIS TYPE OF CHECKING
+                        var possibletextbox = gui.lastWidgetFocused as TextBox;
+                        if (possibletextbox != null) return;
+
+                        Label possiblelabe = gui.lastWidgetFocused as Label;
+                        if (possiblelabe != null) return;
+                    }
+
+                    if (e.Key ==OpenTK.Input.Key.Z)
                         Undo();
-                    if (e.Modifiers == OpenTK.Input.KeyModifiers.Control && e.Key == OpenTK.Input.Key.Y)
+                    if (e.Key == OpenTK.Input.Key.Y)
                         Redo();
                 }
             });
@@ -57,6 +74,7 @@ namespace stonevox
 
         public void AddUndo(VoxelBrushType type, QbMatrix matrix, VoxelVolume volume, Colort color, Dictionary<double, VoxelUndoData> data)
         {
+            redos.Clear();
             undos.Push(new UndoData(type, matrix, volume, color, data));
         }
     }

@@ -18,6 +18,10 @@ namespace stonevox
         private float startValue;
         private float maxTextShow;
         private float value;
+        private float lastvalue;
+        public float fontHeight;
+
+        private ClientGUI gui;
 
         public VerticalScrollbar() : base()
         {
@@ -34,8 +38,11 @@ namespace stonevox
         public VerticalScrollbar(int id, float width, float height, float maxvalue) : base(id)
         {
             maxValue = maxvalue;
+            fontHeight = (float)Scale.vSizeScale(Client.window.Qfont.fontData.maxGlyphHeight);
             SetBounds(null, null, width, height);
             AddAppearence();
+
+            gui = Singleton<ClientGUI>.INSTANCE;
         }
 
         void AddAppearence()
@@ -59,9 +66,20 @@ namespace stonevox
                         widget.location.Y = 0;
                     }
 
-                    value =
+                    float newvalue =
                             Math.Abs((float)Scale.scale(widget.location.Y, 0, widget.Parent.size.Y - widget.size.Y, startValue,
                                     maxValue) - (startValue + (maxValue - maxTextShow)));
+
+                    gui.Dirty = true;
+
+                    if ((int)value != (int)newvalue  && (int)newvalue != -2147483648)
+                    {
+                        lastvalue = value;
+                        value = newvalue;
+                        // todo broadcast messgae... maybe a handler
+
+                        HandleScrollbarChanged();
+                    }
                 }
             };
 
@@ -81,7 +99,7 @@ namespace stonevox
             }
         }
 
-        public override void SetBoundsNoScaling(float? x, float? z, float? width, float? height)
+        public override void SetBoundsNoScaling(float? x, float? z, float? width = null, float? height = null)
         {
             base.SetBoundsNoScaling(x, z, width, height);
 
@@ -91,10 +109,24 @@ namespace stonevox
             }
         }
 
-        void UpdateScrollbar(float maxvalue)
+        public void SetValue(float value)
+        {
+            this.value = value;
+
+            float percent = value / (maxValue - maxTextShow);
+            float total = button.Parent.size.Y - button.size.Y;
+
+            button.location.Y = (button.Parent.size.Y - button.size.Y) - total * percent;
+        }
+
+        public void UpdateScrollbar()
+        {
+            UpdateScrollbar(maxValue);
+        }
+
+        public void UpdateScrollbar(float maxvalue)
         {
             this.maxValue = maxvalue;
-            float fontHeight = (float)Scale.vSizeScale(Client.window.Qfont.fontData.maxGlyphHeight);
             maxTextShow =  size.Y / fontHeight;
 
             this.barStep = size.Y / 100f;
@@ -113,6 +145,11 @@ namespace stonevox
             startValue = (float)Scale.scale(button.size.Y, 0, size.Y, 0f, maxValue);
 
             button.SetBounds(Scale.hUnPosScale(Absolute_X) - Scale.hUnSizeScale(button.size.X) / 16f, Scale.vUnPosScale(Absolute_Y) + ((Scale.vUnSizeScale(this.size.Y) - Scale.vUnSizeScale(button.size.Y)) /2f), null, null);
+        }
+
+        public void HandleScrollbarChanged()
+        {
+            handler.scrollbarchanged?.Invoke(this, value, (int)value - (int)lastvalue);
         }
     }
 }

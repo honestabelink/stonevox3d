@@ -67,7 +67,7 @@ namespace stonevox
             return shader;
         }
 
-        public static void resetshader()
+        public static void ResetShader()
         {
             GL.UseProgram(0);
         }

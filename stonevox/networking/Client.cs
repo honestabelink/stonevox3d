@@ -84,12 +84,8 @@ namespace stonevox
             {
                 window = new GLWindow(1280, 720, new GraphicsMode(new ColorFormat(32), 8, 0, 4));
             }
-            catch (Exception ex)
+            catch
             {
-                print("error", "Error ininializing OpenGl context");
-                print("error", ex.Message);
-                if (!string.IsNullOrEmpty(ex.InnerException.ToString()))
-                    print("error", ex.InnerException.ToString());
                 window = new GLWindow(1280, 720, new GraphicsMode(new ColorFormat(32), 8, 0, 0));
             }
             window.Context.SwapInterval = 0;
@@ -99,6 +95,7 @@ namespace stonevox
 #else
             window.Run_WithErrorCatching(120);
 #endif
+
         }
 
         public static void update()

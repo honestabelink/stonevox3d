@@ -26,7 +26,7 @@
     <SupportUrl>http://discourse.stonehearth.net/t/stonevox-3d-community-voxel-modeler-for-stonehearth-v-0-0-6/8664/</SupportUrl>
     <ProductName>StoneVox 3D</ProductName>
     <PublisherName>StoneVox 3D</PublisherName>
-    <ApplicationRevision>1619</ApplicationRevision>
+    <ApplicationRevision>2474</ApplicationRevision>
     <ApplicationVersion>0.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -47,9 +47,9 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -121,8 +121,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="Polenter.SharpSerializer, Version=2.20.0.0, Culture=neutral, PublicKeyToken=8f4f20011571ee5f, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpSerializer.2.20\lib\net20\Polenter.SharpSerializer.dll</HintPath>
@@ -140,12 +140,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="brush\BrushColorSelection.cs" />
     <Compile Include="brush\BrushMatrixSelection.cs" />
     <Compile Include="brush\VoxelBrushType.cs" />
+    <Compile Include="gui\widgets\QbModelTab.cs" />
+    <Compile Include="gui\widgets\QbModelTabs.cs" />
+    <Compile Include="gui\widgets\ToggleButton.cs" />
     <Compile Include="io\exporters\ExporterSVP.cs" />
     <Compile Include="io\importers\ImporterSVP.cs" />
     <Compile Include="utils\Screenshot.cs" />
+    <Compile Include="_client\Floor.cs" />
     <Compile Include="_client\UndoRedo.cs" />
+    <Content Include="data\images\addmatrix.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\addmatrix_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\backgroundcolor.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\backgroundcolor_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\images\center_aligned.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -170,10 +187,46 @@
     <Content Include="data\images\colorpicker_selectionlocation.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="data\images\eyedropper.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\eyedropper_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\floorcolor.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\floorcolor_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\images\FontInfo.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="data\images\gridoptions.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\gridoptions_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\hue_arrow.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\model_tab.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\images\objsave_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\redo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\redo_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\removematrix.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\removematrix_highlight.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="data\images\save_window_background.png">
@@ -194,12 +247,25 @@
     <Content Include="data\images\target_highlight.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="data\images\toggelmatrixvisiblity_off.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\toggelmatrixvisiblity_on.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\undo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\undo_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\shaders\QuadInterpolation.fs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Compile Include="gui\appearences\SmoothBackground.cs" />
     <Compile Include="gui\widgets\QbModelMatrixListbox.cs" />
     <Compile Include="memory\VoxelSideBuffer.cs" />
+    <Content Include="OpenTK.dll" />
     <Content Include="Properties\AssemblyInfo.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AssemblyInfo1.cs</LastGenOutput>
@@ -283,7 +349,6 @@
     <Compile Include="utils\SideUtil.cs" />
     <Compile Include="utils\StatusText.cs" />
     <Compile Include="utils\StopwatchUtil.cs" />
-    <Compile Include="utils\ToolUtil.cs" />
     <Compile Include="_client\Camera.cs" />
     <Compile Include="_client\ClientBroadcaster.cs" />
     <Compile Include="_client\ClientBrush.cs" />
@@ -310,7 +375,6 @@
     <Compile Include="qbtypes\VoxelSide.cs" />
     <Compile Include="utils\ConsoleUtil.cs" />
     <Compile Include="utils\ImportExportUtil.cs" />
-    <Compile Include="utils\MatrixUtils.cs" />
     <Compile Include="networking\Client.cs" />
     <Compile Include="networking\NetConfig.cs" />
     <Compile Include="utils\NetworkUtil.cs" />
@@ -321,7 +385,7 @@
     <Compile Include="qbtypes\QbMatrix.cs" />
     <Compile Include="utils\GLUtils.cs" />
     <Compile Include="qbtypes\Voxel.cs" />
-    <Compile Include="utils\QbManger.cs" />
+    <Compile Include="_client\QbManger.cs" />
     <Compile Include="utils\ShaderUtil.cs" />
     <Compile Include="utils\VectorUtils.cs" />
     <Compile Include="_client\Raycaster2.cs" />
@@ -338,122 +402,8 @@
     <Content Include="data\fonts\Bigfish.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\images\add.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\button.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\camera.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\colorpicker_swatches.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\colorselector.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\colorselector_background.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\cursor_add.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\cursor_eyedrop.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\cursor_paint.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\cursor_remove.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\hue.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\matrix_add.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\project_settings.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\project_settings_buttons.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\qb_matrix_visibility.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\remove.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\save.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\screenshot_save.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\selection.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\settings.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\sub_toolmenu_manyoptions.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\sub_toolmenu_oneoption.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\sub_toolmenu_someoptions.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\tab_main.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\tab_matrix.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\toolmenu_background.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\view_reset.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\voxel_add.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\voxel_brush.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\voxel_bucket.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\voxel_button.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\voxel_remove.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\voxel_volume.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Compile Include="gui\editor\Data\Widget\TextBoxData.cs" />
     <Content Include="data\shaders\QuadInterpolation.vs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\colorpicker_selectionlocation.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\colorpicker_ok.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\target.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\target_cursor.psd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\images\colorpicker_header.psd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="data\shaders\SSAO_geometry.vs">
@@ -466,6 +416,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="data\shaders\wireframe.vs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenTK.dll.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
@@ -706,6 +659,18 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <PublishFile Include="stonevox.pdb">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>File</FileType>
+    </PublishFile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

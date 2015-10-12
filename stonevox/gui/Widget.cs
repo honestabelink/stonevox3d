@@ -22,12 +22,15 @@ namespace stonevox
 
     public delegate string TextFilterAction(TextBox widget, string inputValue);
 
+    public delegate void ScrollbarChangedHandler(VerticalScrollbar scrollbar, float value, float delta);
+
     public class WidgetEventHandler
     {
         public WidgetKeyHandler Keydownhandler;
         public WidgetKeyHandler Keyuphandler;
         public WidgetKeyPressHandler Keypresshandler;
         public WidgetMouseHandler mousedownhandler;
+        public WidgetMouseHandler mousedoubleclick;
         public WidgetMouseHandler mouseuphandler;
         public WidgetMouseMoveHandler mousemovehandler;
         public WidgetMouseWheelHandler mousewheelhandler;
@@ -41,6 +44,8 @@ namespace stonevox
         public WidgetAction textboxtextcommit;
         public WidgetAction textboxtextchange;
         public TextFilterAction textboxfilter;
+
+        public ScrollbarChangedHandler scrollbarchanged;
     }
 
     public class WidgetTranslation
@@ -82,7 +87,7 @@ namespace stonevox
         public float Height { get { return size.Y; } set { size.Y = value; } }
 
         public bool Drag;
-        public bool Enable {  get { return enabled; } set { enabled = value; UpdateEnable(value); } }
+        public virtual bool Enable {  get { return enabled; } set { enabled = value; UpdateEnable(value); } }
 
         public WidgetTranslation translation;
 
@@ -97,6 +102,10 @@ namespace stonevox
         public MouseCursor cursor;
 
         public string StatusText;
+
+        private DateTime lastClickTime;
+
+        public bool focused;
 
         void UpdateEnable(bool value)
         {
@@ -189,11 +198,25 @@ namespace stonevox
 
         public virtual void HandleMouseDown(MouseButtonEventArgs e)
         {
+            if (lastClickTime != new DateTime() && DateTime.Now - lastClickTime <= TimeSpan.FromSeconds(.5f))
+            {
+                HandleMouseDoubleClick(e);
+            }
+
             Drag = true;
 
             handler.mousedownhandler?.Invoke(this, e);
 
             Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseDown, this, e);
+
+            lastClickTime = DateTime.Now;
+        }
+
+
+        public virtual void HandleMouseDoubleClick(MouseButtonEventArgs e)
+        {
+            handler.mousedoubleclick?.Invoke(this, e);
+            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseDoubleClick, this, e);
         }
 
         public virtual void HandleMouseUp(MouseButtonEventArgs e)
@@ -233,6 +256,7 @@ namespace stonevox
 
         public virtual void HandleFocusedGained()
         {
+            focused = true;
             handler.focusgained?.Invoke(this);
 
             Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetFocus, this);
@@ -240,6 +264,7 @@ namespace stonevox
 
         public virtual void HandleFocusedLost()
         {
+            focused = false;
             handler.focuslost?.Invoke(this);
 
             Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetFocusLost, this);
@@ -290,16 +315,16 @@ namespace stonevox
             Singleton<ClientGUI>.INSTANCE.Dirty = true;
         }
 
-        public void Update(FrameEventArgs e)
+        public virtual void Update(FrameEventArgs e)
         {
             if (translation != null)
             {
                 Vector2 newLocation;
-                translation.time += (float)e.Time;
-                Vector2.Lerp(ref location, ref translation.destination, (float)translation.time / translation.translationTime, out newLocation);
+                translation.time += 1000;
+                Vector2.Lerp(ref location, ref translation.destination, (float)translation.time / translation.translationTime*(float)e.Time, out newLocation);
                 SetBoundsNoScaling(newLocation.X, newLocation.Y, null, null);
 
-                if ((translation.Destination - location).Length < .00001f)
+                if ((newLocation - translation.destination).Length <= .001f)
                 {
                     translation.time = 0;
                     SetBoundsNoScaling(translation.Destination.X, translation.Destination.Y, null, null);
@@ -367,6 +392,7 @@ namespace stonevox
         public void DoTranslation(string name)
         {
             translations.TryGetValue(name, out translation);
+            translation.time = 0;
         }
     }
 }

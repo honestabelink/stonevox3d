@@ -7,6 +7,7 @@ using System.Drawing.Imaging;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Graphics;
+using stonevox;
 
 namespace QuickFont
 {
@@ -101,7 +102,26 @@ namespace QuickFont
                 config = new QFontBuilderConfiguration();
 
             TransformViewport? transToVp = null;
-            float fontScale = 1f;
+
+            float dpiX, dpiY;
+            float fontScale = 1.0f;
+            using (Graphics graphics = Graphics.FromHwnd(IntPtr.Zero))
+            {
+                dpiX = graphics.DpiX;
+                dpiY = graphics.DpiY;
+            }
+
+            float distancefrom120 = 120 - dpiX;
+            float percent = (120 - distancefrom120) / 120;
+
+            if (dpiX != 120f)
+                if (percent > 1)
+                    fontScale = 1 - Math.Abs(percent - 1);
+                else
+                    fontScale = 1f + (1 - percent);
+
+            fontScale = Math.Abs(fontScale);
+
             if (config.TransformToCurrentOrthogProjection)
                 transToVp = OrthogonalTransform(out fontScale);
 
@@ -119,8 +139,6 @@ namespace QuickFont
             fontData = BuildFont(font, config, null);
             fontData.scaleDueToTransformToViewport = fontScale;
             font.Dispose();
-
-
 
             if (config.ShadowConfig != null)
                 Options.DropShadowActive = true;
@@ -588,7 +606,7 @@ namespace QuickFont
 
                 if (Options.UseDefaultBlendFunction)
                 {
-                    GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                    GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
                 }
                 
             }
@@ -662,9 +680,9 @@ namespace QuickFont
                 GL.PopMatrix();
 
             GL.Disable(EnableCap.Texture2D);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
             return new SizeF(maxWidth, yOffset + LineSpacing);
-
-
         }
 
 

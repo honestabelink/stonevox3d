@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace stonevox
@@ -21,25 +22,31 @@ namespace stonevox
             exporters.Add(new ExporterObj());
         }
 
-        public static bool import(string path, out QbModel model)
+        public static bool Import(string path, bool setActive = true)
         {
             foreach (var importer in importers)
             {
                 if (path.EndsWith(importer.extension))
                 {
-                    model = importer.read(path);
+                    var model = importer.read(path);
+                    //model.Sort();
 
-                    // hack
-                    QbManager.models.Add(model);
-                    Singleton<Camera>.INSTANCE.LookAtModel();
+                    Singleton<QbManager>.INSTANCE.AddModel(model, setActive);
+                    if (setActive)
+                        Singleton<Camera>.INSTANCE.LookAtModel();
+
+                    // hacks
+                    if (!Client.window.isfocused)
+                    {
+                        Program.SetForegroundWindow(Client.window.WindowInfo.Handle);
+                    }
                     return true;
                 }
             }
-            model = null;
             return false;
         }
 
-        public static bool export(string extension, string name, string path, QbModel model)
+        public static bool Export(string extension, string name, string path, QbModel model)
         {
             foreach (var exporter in exporters)
             {

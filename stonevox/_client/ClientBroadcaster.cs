@@ -10,19 +10,13 @@ namespace stonevox
     public enum Message
     {
         WidgetEnable,
-        WidgetMouseDown,
-        WidgetMouseUp,
-        WidgetMouseScroll,
         WidgetMouseEnter,
         WidgetMouseLeave,
-        WidgetMouseOver,
-        WidgetMouseMove,
         WidgetKeyPress,
         WidgetFocus,
         WidgetFocusLost,
         WidgetStartTranslation,
         WidgetEndTranslation,
-
         ColorSelectionChanged,
         ColorSelectionUpdate,
         ColorSelectionCommit,
@@ -33,6 +27,17 @@ namespace stonevox
         WindowClosed,
 
         StatusStripUpdate,
+
+        ModelImported,
+        ActiveMatrixChanged,
+        ActiveModelChanged,
+
+        WidgetMouseDown = 100,
+        WidgetMouseDoubleClick = 101,
+        WidgetMouseUp = 102,
+        WidgetMouseScroll = 103,
+        WidgetMouseOver = 104,
+        WidgetMouseMove = 105
     }
 
     // allows widgets or others to handle the broadcast and stop it from carring further
@@ -82,7 +87,9 @@ namespace stonevox
 
         public void Broadcast(Message message, Widget widget, params object[] args)
         {
-            gui.Dirty = true;
+            if ((int)message < 100)
+                gui.Dirty = true;
+
             BroadcastMessage m = new BroadcastMessage()
             {
                 messgae = message,

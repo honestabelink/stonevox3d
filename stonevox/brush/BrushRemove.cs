@@ -91,7 +91,7 @@ namespace stonevox
 
                         return true;
                     }
-                    else if ((e != null && !e.IsPressed && e.Button == MouseButton.Left) || (e == null && input.mousedown(MouseButton.Left)))
+                    else if ((e != null && !e.IsPressed && e.Button == MouseButton.Left) || (e == null && input.mouseup(MouseButton.Left)))
 
                     {
                         state = ToolState.Start;

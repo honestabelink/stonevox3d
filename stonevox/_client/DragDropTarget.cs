@@ -77,7 +77,10 @@ namespace stonevox
 
             foreach (string file in files)
             {
-                Client.OpenGLContextThread.Add(() => { ImportExportUtil.import(file, out Client.window.model); });
+                Client.OpenGLContextThread.Add(() => 
+                {
+                    ImportExportUtil.Import(file);
+                });
             }
         }
     }

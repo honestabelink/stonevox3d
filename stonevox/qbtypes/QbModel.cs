@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace stonevox
 {
-    public class QbModel
+    public class QbModel : IDisposable
     {
         public string name;
         public List<QbMatrix> matrices;
@@ -22,8 +22,14 @@ namespace stonevox
 
         public QbMatrix getactivematrix { get { return matrices[activematrix]; } }
 
-        public QbModel()
+        QbModel()
         {
+
+        }
+
+        public QbModel(string name)
+        {
+            this.name = name;
         }
 
         public void setmatrixcount(uint number)
@@ -69,14 +75,63 @@ namespace stonevox
             matrices.ForEach(t => t.UseMatrixColors());
         }
 
-        //public void UseWireframeColors()
-        //{
-        //    matrices.ForEach(t => t.UseWireframeColors());
-        //}
+        public static QbModel EmptyModel()
+        {
+            QbModel model = new QbModel();
+            model.version = 257;
+            model.zAxisOrientation = 1;
+            model.visibilityMaskEncoded = 1;
 
-        //public void UseOutlineColors()
-        //{
-        //    matrices.ForEach(t => t.UseOutlineColors());
-        //}
+            model.setmatrixcount(1);
+
+            model.name = "default";
+            model.matrices[0].name = "default";
+            model.matrices[0].setsize(15, 15, 15, true);
+
+            model.GenerateVertexBuffers();
+
+            return model;
+        }
+
+        public void AddMatrix()
+        {
+            QbMatrix matrix = new QbMatrix();
+            matrix.name = "default";
+            matrix.setsize(15, 15, 15, true);
+            matrix.GenerateVertexBuffers();
+            matrices.Add(matrix);
+        }
+
+        public void AddMatrix(int index)
+        {
+            QbMatrix matrix = new QbMatrix();
+            matrix.name = "default";
+            matrix.setsize(15, 15, 15, true);
+            matrix.GenerateVertexBuffers();
+            matrices.Insert(index, matrix);
+        }
+
+        public void Remove(QbMatrix matrix)
+        {
+            Remove(matrices.IndexOf(matrix));
+        }
+
+        public void Remove(int index)
+        {
+            matrices.RemoveAt(index);
+        }
+
+        public void Sort()
+        {
+            matrices.Sort((e, x) => { return e.name.CompareTo(x.name); });
+        }
+
+        public void Dispose()
+        {
+            foreach(var m in matrices)
+            {
+                m.Dispose();
+            }
+        }
     }
 }

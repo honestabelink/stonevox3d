@@ -15,6 +15,7 @@ namespace stonevox
     {
         public string text { get { return textAppearence.Text; } set { textAppearence.Text = value; } }
         public Color color { get { return textAppearence.Color; } set { textAppearence.Color = value; } }
+        public QFontAlignment TextAlignment { get { return textAppearence.Alignment; } set { textAppearence.Alignment = value; } }
 
         private PlainText textAppearence;
 
@@ -44,6 +45,16 @@ namespace stonevox
             this.text = text;
             this.color = color;
 
+        }
+
+        public SizeF MeasureText()
+        {
+            return textAppearence.MesaureString();
+        }
+
+        public SizeF MeasureText(string text)
+        {
+            return textAppearence.MesaureString(text);
         }
     }
 }

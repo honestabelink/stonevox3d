@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace stonevox
 {
@@ -20,6 +21,7 @@ namespace stonevox
         public Matrix4 modelviewprojection;
 
         private ClientInput input;
+        private QbManager manager;
 
         public Vector3 cameraright { get { return Vector3.Cross(direction, VectorUtils.UP); } }
         public Vector3 cameraup { get { return Vector3.Cross(cameraright, direction); } }
@@ -35,11 +37,14 @@ namespace stonevox
         Vector3 centerposition;
         float time = 0;
 
+        public bool freecam;
 
-        public Camera(GLWindow window, ClientInput input)
+
+        public Camera(GLWindow window, ClientInput input, QbManager manager)
             : base()
         {
             this.input = input;
+            this.manager = manager;
 
             window.Resize += (e, s) =>
                 {
@@ -89,6 +94,11 @@ namespace stonevox
         {
             if (!Singleton<ClientGUI>.INSTANCE.OverWidget)
             {
+                if (input.Keydown(Key.Q))
+                    position += Vector3.UnitY * -15f * delta;
+                if (input.Keydown(Key.E))
+                    position -= Vector3.UnitY * -15f * delta;
+
                 if (input.Keydown(Key.W) || input.Keydown(Key.Up))
                 {
                     position += direction * 25f * delta;
@@ -114,104 +124,82 @@ namespace stonevox
                     position.X += camerar.X * 25f * delta;
                     position.Z += camerar.Z * 25f * delta;
                 }
+            }
 
-                if (input.mousedown(MouseButton.Right))
+            if (input.mousedown(MouseButton.Right))
+            {
+                Vector3 camright = cameraright;
+                Vector3 camup = cameraup;
+
+                float roty = (float)MathHelper.DegreesToRadians(-input.mousedx * .15f);
+                float rotx = (float)MathHelper.DegreesToRadians(-input.mousedy * .15f);
+
+                if (Math.Abs(direction.Y) >= .95f && Math.Sign(rotx) == Math.Sign(direction.Y))
                 {
-                    Vector3 camright = cameraright;
-                    Vector3 camup = cameraup;
-
-                    float rotz2 = (float)MathHelper.DegreesToRadians(-input.mousedx * .15f);
-                    float rotX2 = (float)MathHelper.DegreesToRadians(-input.mousedy * .15f);
-
                     camright.Normalize();
                     camup.Normalize();
 
-                    Vector3 focus = position - QbManager.getactivematrix().centerposition;
+                    Vector3 focus = position - manager.ActiveMatrix.centerposition;
                     float length = focus.Length;
                     focus.Normalize();
 
-                    focus = Vector3.Transform(focus, Quaternion.FromAxisAngle(camup, rotz2));
-                    focus = Vector3.Transform(focus, Quaternion.FromAxisAngle(camright, rotX2));
+                    focus = Vector3.Transform(focus, Quaternion.FromAxisAngle(camup, roty));
 
-                    position = focus * length + QbManager.getactivematrix().centerposition;
+                    position = focus * length + manager.ActiveMatrix.centerposition;
 
-                    direction = Vector3.Transform(direction, Quaternion.FromAxisAngle(camup, rotz2));
-                    direction = Vector3.Transform(direction, Quaternion.FromAxisAngle(camright, rotX2));
+                    direction = Vector3.Transform(direction, Quaternion.FromAxisAngle(camup, roty));
                     direction.Normalize();
                 }
-
-                if (input.mousedown(MouseButton.Middle))
+                else
                 {
-                    Vector3 camright = Vector3.Cross(direction, Vector3.UnitY);
-
                     camright.Normalize();
-
-                    Vector3 camup = Vector3.Cross(camright, direction);
-
                     camup.Normalize();
 
-                    camright *= -input.mousedx;
-                    camup *= input.mousedy;
+                    Vector3 focus = position - manager.ActiveMatrix.centerposition;
+                    float length = focus.Length;
+                    focus.Normalize();
 
-                    camright += camup;
+                    if (!freecam)
+                    {
+                        focus = Vector3.Transform(focus, Quaternion.FromAxisAngle(camup, roty));
+                        focus = Vector3.Transform(focus, Quaternion.FromAxisAngle(camright, rotx));
+                    }
 
-                    position.X += camright.X * .06f;
-                    position.Y += camright.Y * .06f;
-                    position.Z += camright.Z * .06f;
+                    position = focus * length + manager.ActiveMatrix.centerposition;
+
+                    direction = Vector3.Transform(direction, Quaternion.FromAxisAngle(camup, roty));
+                    direction = Vector3.Transform(direction, Quaternion.FromAxisAngle(camright, rotx));
+                    direction.Normalize();
+
+                    direction.Y = direction.Y.Clamp(-.95f, .95f);
                 }
             }
-            else if (Singleton<ClientGUI>.INSTANCE.lastWidgetOver.Drag)
+
+            if (input.mousedown(MouseButton.Middle))
             {
-                if (input.mousedown(MouseButton.Right))
-                {
-                    Vector3 camright = cameraright;
-                    Vector3 camup = cameraup;
+                Vector3 camright = Vector3.Cross(direction, Vector3.UnitY);
 
-                    float rotz2 = (float)MathHelper.DegreesToRadians(-input.mousedx * .15f);
-                    float rotX2 = (float)MathHelper.DegreesToRadians(-input.mousedy * .15f);
+                camright.Normalize();
 
-                    camright.Normalize();
-                    camup.Normalize();
+                Vector3 camup = Vector3.Cross(camright, direction);
 
-                    Vector3 focus = position - QbManager.getactivematrix().centerposition;
-                    float length = focus.Length;
-                    focus.Normalize();
+                camup.Normalize();
 
-                    focus = Vector3.Transform(focus, Quaternion.FromAxisAngle(camup, rotz2));
-                    focus = Vector3.Transform(focus, Quaternion.FromAxisAngle(camright, rotX2));
+                camright *= -input.mousedx;
+                camup *= input.mousedy;
 
-                    position = focus * length + QbManager.getactivematrix().centerposition;
+                camright += camup;
 
-                    direction = Vector3.Transform(direction, Quaternion.FromAxisAngle(camup, rotz2));
-                    direction = Vector3.Transform(direction, Quaternion.FromAxisAngle(camright, rotX2));
-                    direction.Normalize();
-                }
-
-                if (input.mousedown(MouseButton.Middle))
-                {
-                    Vector3 camright = Vector3.Cross(direction, Vector3.UnitY);
-
-                    camright.Normalize();
-
-                    Vector3 camup = Vector3.Cross(camright, direction);
-
-                    camup.Normalize();
-
-                    camright *= -input.mousedx;
-                    camup *= input.mousedy;
-
-                    camright += camup;
-
-                    position.X += camright.X * .06f;
-                    position.Y += camright.Y * .06f;
-                    position.Z += camright.Z * .06f;
-                }
+                position.X += camright.X * .06f;
+                position.Y += camright.Y * .06f;
+                position.Z += camright.Z * .06f;
             }
 
             if (dotransition)
             {
                 time += delta;
-                if ((_goto - position).Length < 1f)
+
+                if (time >= .5f)
                 {
                     position = _goto;
                     direction = (centerposition - position).Normalized();
@@ -230,64 +218,89 @@ namespace stonevox
             modelviewprojection = view * projection;
         }
 
-        public void LookAtModel()
+        public void LookAtModel(bool skipVoxels = false)
         {
-            int minx = 10000;
-            int miny = 10000;
-            int minz = 10000;
-            int maxx = 0;
-            int maxy = 0;
-            int maxz = 0;
-            int sizex = 0;
-            int sizey = 0;
-            int sizez = 0;
-
-            foreach (var matrix in Client.window.model.matrices)
+            if (!skipVoxels)
             {
-                if (matrix.minx < minx)
-                    minx = matrix.minx;
-                if (matrix.maxx > maxx)
-                    maxx = matrix.maxx;
+                int minx = 10000;
+                int miny = 10000;
+                int minz = 10000;
+                int maxx = 0;
+                int maxy = 0;
+                int maxz = 0;
+                int sizex = 0;
+                int sizey = 0;
+                int sizez = 0;
 
-                if (matrix.miny < miny)
-                    miny = matrix.miny;
-                if (matrix.maxy > maxy)
-                    maxy = matrix.maxy;
+                foreach (var matrix in manager.ActiveModel.matrices)
+                {
+                    if (matrix.minx < minx)
+                        minx = matrix.minx;
+                    if (matrix.maxx > maxx)
+                        maxx = matrix.maxx;
 
-                if (matrix.minz < minz)
-                    minz = matrix.minz;
-                if (matrix.maxz > maxz)
-                    maxz = matrix.maxz;
+                    if (matrix.miny < miny)
+                        miny = matrix.miny;
+                    if (matrix.maxy > maxy)
+                        maxy = matrix.maxy;
+
+                    if (matrix.minz < minz)
+                        minz = matrix.minz;
+                    if (matrix.maxz > maxz)
+                        maxz = matrix.maxz;
+                }
+
+                sizex = maxx - minx;
+                sizey = maxy - miny;
+                sizez = maxz - minz;
+
+                float backup = 0;
+
+                if (sizey * 1.5f > 20)
+                    backup = sizey * 1.5f;
+                else if (sizex * 1.5f > 20)
+                    backup = sizex * 1.5f;
+                else backup = 20;
+
+                var centerpos = new Vector3((minx + ((maxx - minx) / 2)), (miny + ((maxy - miny) / 2)), (minz + ((maxz - minz) / 2)));
+                position = centerpos + new Vector3(.5f, sizey * .65f, backup);
+
+                Vector3.Subtract(ref centerpos, ref position, out direction);
+                direction.Normalize();
+
+                view = Matrix4.LookAt(position, position + direction, cameraup);
+                modelviewprojection = Matrix4.CreateScale(.1f) * projection * view;
             }
+            else
+            {
+                float sizey = manager.ActiveMatrix.sizey;
+                float sizex = manager.ActiveMatrix.sizex;
 
-            sizex = maxx - minx;
-            sizey = maxy - miny;
-            sizez = maxz - minz;
+                float backup = 0;
 
-            float backup = 0;
+                if (sizey * 1.5f > 20)
+                    backup = sizey * 1.5f;
+                else if (sizex * 1.5f > 20)
+                    backup = sizex * 1.5f;
+                else backup = 20;
 
-            if (sizey * 1.5f > 20)
-                backup = sizey * 1.5f;
-            else if (sizex * 1.5f > 20)
-                backup = sizex * 1.5f;
-            else backup = 20;
+                var centerpos = manager.ActiveMatrix.centerposition;
+                position = centerpos + new Vector3(0, sizey * .65f, backup*.7f);
 
-            var centerpos = new Vector3((minx + ((maxx - minx) / 2)), (miny + ((maxy - miny) / 2)), (minz + ((maxz - minz) / 2)));
-            position = centerpos + new Vector3(.5f, sizey * .65f, backup);
+                Vector3.Subtract(ref centerpos, ref position, out direction);
+                direction.Normalize();
 
-            Vector3.Subtract(ref centerpos, ref position, out direction);
-            direction.Normalize();
-
-            view = Matrix4.LookAt(position, position + direction, cameraup);
-            modelviewprojection = Matrix4.CreateScale(.1f) * projection * view;
+                view = Matrix4.LookAt(position, position + direction, cameraup);
+                modelviewprojection = Matrix4.CreateScale(.1f) * projection * view;
+            }
         }
 
-        public void LookAtMatrix()
+        public void TransitionToMatrix()
         {
             startpos = position;
             startdir = direction;
 
-            var mat = QbManager.getactivematrix();
+            var mat = manager.ActiveMatrix;
             _goto = mat.centerposition;
             centerposition = mat.centerposition;
 
@@ -297,7 +310,15 @@ namespace stonevox
 
             float distance;
 
-            if (height < 18 && width < 18 && length < 18)
+            if (height < 10 && width < 10 && length < 10)
+            {
+                height = (mat.maxy - mat.miny) * 2.5f;
+                width = (mat.maxx - mat.minx) * 2.5f;
+                length = (mat.maxz - mat.minz) * 2.5f;
+
+                distance = Math.Max(Math.Max(height, width), length);
+            }
+            else if (height < 18 && width < 18 && length < 18)
             {
                 height = (mat.maxy - mat.miny) * 3.5f;
                 width = (mat.maxx - mat.minx) * 3.5f;
@@ -327,6 +348,32 @@ namespace stonevox
                 offset.Y = 1f * -Math.Sign(direction.Y);
             else
                 offset.Y = 0;
+
+            if (offset.Y == 1 && offset.X == 0 && offset.Z == 0)
+            {
+                offset = direction;
+
+                float starting = .5f;
+                bool b = true;
+                while (b)
+                {
+                    if (Math.Abs(offset.X) > starting)
+                    {
+                        offset.X = 1f * -Math.Sign(direction.X);
+                        b = false;
+                    }
+                    if (Math.Abs(offset.Z) > starting)
+                    {
+                        offset.Z = 1f * -Math.Sign(direction.Z);
+                        b = false;
+                    }
+                    starting -= .07f;
+                }
+
+                offset.Y = 0;
+            }
+
+            offset.Normalize();
 
             _goto += offset * distance;
             dotransition = true;

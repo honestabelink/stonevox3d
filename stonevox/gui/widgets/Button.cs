@@ -20,6 +20,25 @@ namespace stonevox
 
         ButtonType Type;
 
+        //super hacks
+        // issue with the matirx list box forcing things to become visible
+        public bool MaintainEnabled;
+        public override bool Enable
+        {
+            get
+            {
+                return base.Enable;
+            }
+
+            set
+            {
+                if (MaintainEnabled)
+                    base.Enable = base.Enable;
+                else
+                    base.Enable = value;
+            }
+        }
+
         public Button() : base()
         {
             this.ID = GetNextAvailableID();
@@ -130,11 +149,6 @@ namespace stonevox
             }
 
             base.HandleMouseLeave();
-        }
-
-        public override void Render()
-        {
-            base.Render();
         }
 
         public override Widget FromWidgetData(WidgetData data)

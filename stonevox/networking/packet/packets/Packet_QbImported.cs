@@ -21,8 +21,8 @@ namespace stonevox
             Client.print("info", "Recieve qb packet");
             StopwatchUtil.startclient("qbpacket", "Building qb model");
 
-            QbModel model = new QbModel();
             int junk = message.ReadInt32();
+            QbModel model = new QbModel(message.ReadString());
             int matrixcount = message.ReadInt32();
             model.setmatrixcount((uint)matrixcount);
 
@@ -56,11 +56,10 @@ namespace stonevox
 
             Client.OpenGLContextThread.Add(() =>
             {
-                Client.window.model = model;
                 model.GenerateVertexBuffers();
                 model.FillVertexBuffers();
 
-                QbManager.models.Add(model);
+                Singleton<QbManager>.INSTANCE.AddModel(model);
                 StopwatchUtil.stopclient("qbpacket", "End building qb model");
             });
 
@@ -81,6 +80,7 @@ namespace stonevox
 
         public void write(QbModel model)
         {
+            outgoingmessage.Write(model.name);
             outgoingmessage.Write(model.numMatrices);
             foreach (var m in model.matrices)
             {

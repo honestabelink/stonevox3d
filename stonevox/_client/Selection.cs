@@ -15,25 +15,43 @@ namespace stonevox
         int vertexArray;
 
         public bool dirty;
+        public bool Visible = true;
 
         float cubesize = .5f;
         float[] buffer;
 
         private ClientBrush brushes;
         private ClientInput input;
+        private QbManager manager;
+        private Floor floor;
+        private ClientGUI gui;
+        public Raycaster raycaster;
 
         public bool handledselectionchange = true;
         private bool needscleaning;
 
-        private RaycastHit lasthit;
+        private RaycastHit lasthit = new RaycastHit()
+        {
+            distance = 10000
+        };
 
         private Colort color;
 
-        public Selection(ClientBrush tools, ClientInput input)
+        private Label statusStrip;
+
+        public Selection(GLWindow window, ClientBrush tools, ClientInput input, QbManager manager, Floor floor, ClientGUI gui)
              : base()
         {
             this.brushes = tools;
             this.input = input;
+            this.manager = manager;
+            this.floor = floor;
+            this.gui = gui;
+
+            window.Resize += (e, a) =>
+             {
+                 statusStrip = null;
+             };
 
             color = new Colort(1, 0, 0);
 
@@ -44,11 +62,11 @@ namespace stonevox
             {
                 mousedownhandler = (e) =>
                 {
-                    if (Singleton<ClientGUI>.INSTANCE.OverWidget || Client.window.model == null) return;
+                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
 
                     if (e.Button == MouseButton.Left && !dirty && handledselectionchange && Singleton<Raycaster>.INSTANCE.HasHit)
                     {
-                        handledselectionchange = brushes.onselectionchanged(input, QbManager.getactivematrix(), lasthit, e);
+                        handledselectionchange = brushes.onselectionchanged(input, manager.ActiveMatrix, lasthit, e);
 
                         if (handledselectionchange)
                             needscleaning = true;
@@ -56,11 +74,9 @@ namespace stonevox
                 },
                 mouseuphandler = (e) =>
                 {
-                    if (Singleton<ClientGUI>.INSTANCE.OverWidget || Client.window.model == null) return;
-
                     if (e.Button == MouseButton.Left && !dirty && handledselectionchange)
                     {
-                        handledselectionchange = brushes.onselectionchanged(input, QbManager.getactivematrix(), lasthit, e);
+                        handledselectionchange = brushes.onselectionchanged(input, manager.ActiveMatrix, lasthit, e);
 
                         if (handledselectionchange)
                             needscleaning = true;
@@ -79,161 +95,171 @@ namespace stonevox
             if (dirty)
             {
                 dirty = false;
-                lasthit = Singleton<Raycaster>.INSTANCE.lastHit;
-                switch (lasthit.side)
-                {
-                    case Side.Front:
+                UpdateVisibleSelection();
 
-                        buffer[0] = -cubesize + lasthit.x;
-                        buffer[1] = -cubesize + lasthit.y;
-                        buffer[2] = cubesize + lasthit.z;
-
-                        buffer[4] = cubesize + lasthit.x;
-                        buffer[5] = -cubesize + lasthit.y;
-                        buffer[6] = cubesize + lasthit.z;
-
-                        buffer[8] = cubesize + lasthit.x;
-                        buffer[9] = cubesize + lasthit.y;
-                        buffer[10] = cubesize + lasthit.z;
-
-                        buffer[12] = -cubesize + lasthit.x;
-                        buffer[13] = cubesize + lasthit.y;
-                        buffer[14] = cubesize + lasthit.z;
-
-                        break;
-                    case Side.Back:
-
-                        buffer[12] = -cubesize + lasthit.x;
-                        buffer[13] = -cubesize + lasthit.y;
-                        buffer[14] = -cubesize + lasthit.z;
-
-                        buffer[8] = cubesize + lasthit.x;
-                        buffer[9] = -cubesize + lasthit.y;
-                        buffer[10]= -cubesize + lasthit.z;
-
-                        buffer[4] = cubesize + lasthit.x;
-                        buffer[5] = cubesize + lasthit.y;
-                        buffer[6] = -cubesize + lasthit.z;
-
-                        buffer[0] = -cubesize + lasthit.x;
-                        buffer[1] = cubesize + lasthit.y;
-                        buffer[2] = -cubesize + lasthit.z;
-
-                        break;
-                    case Side.Top:
-
-                        buffer[0] = -cubesize + lasthit.x;
-                        buffer[1] = cubesize + lasthit.y;
-                        buffer[2] = cubesize + lasthit.z;
-
-                        buffer[4] = cubesize + lasthit.x;
-                        buffer[5] = cubesize + lasthit.y;
-                        buffer[6] = cubesize + lasthit.z;
-
-                        buffer[8] = cubesize + lasthit.x;
-                        buffer[9] = cubesize + lasthit.y;
-                        buffer[10] = -cubesize + lasthit.z;
-
-                        buffer[12] = -cubesize + lasthit.x;
-                        buffer[13] = cubesize + lasthit.y;
-                        buffer[14] = -cubesize + lasthit.z;
-
-                        break;
-                    case Side.Bottom:
-
-                        buffer[12] =-cubesize + lasthit.x;
-                        buffer[13] =-cubesize + lasthit.y;
-                        buffer[14] =cubesize + lasthit.z;
-
-                        buffer[8] = cubesize + lasthit.x;
-                        buffer[9] = -cubesize + lasthit.y;
-                        buffer[10]= cubesize + lasthit.z;
-
-                        buffer[4] = cubesize + lasthit.x;
-                        buffer[5] = -cubesize + lasthit.y;
-                        buffer[6] =  -cubesize + lasthit.z;
-
-                        buffer[0] =  -cubesize + lasthit.x;
-                        buffer[1] =  -cubesize + lasthit.y;
-                        buffer[2] = -cubesize + lasthit.z;
-
-                        break;
-                    case Side.Right:
-
-                        buffer[0] = -cubesize + lasthit.x;
-                        buffer[1] = -cubesize + lasthit.y;
-                        buffer[2] = -cubesize + lasthit.z;
-
-                        buffer[4] = -cubesize + lasthit.x;
-                        buffer[5] = -cubesize + lasthit.y;
-                        buffer[6] = cubesize + lasthit.z;
-
-                        buffer[8] = -cubesize + lasthit.x;
-                        buffer[9] = cubesize + lasthit.y;
-                        buffer[10] = cubesize + lasthit.z;
-
-                        buffer[12] = -cubesize + lasthit.x;
-                        buffer[13] = cubesize + lasthit.y;
-                        buffer[14] = -cubesize + lasthit.z;
-
-                        break;
-                    case Side.Left:
-
-                        buffer[12] =cubesize + lasthit.x;
-                        buffer[13] =-cubesize + lasthit.y;
-                        buffer[14] =-cubesize + lasthit.z;
-
-                        buffer[8] = cubesize + lasthit.x;
-                        buffer[9] = -cubesize + lasthit.y;
-                        buffer[10]= cubesize + lasthit.z;
-
-                        buffer[4] = cubesize + lasthit.x;
-                        buffer[5] = cubesize + lasthit.y;
-                        buffer[6] =  cubesize + lasthit.z;
-
-                        buffer[0] =  cubesize + lasthit.x;
-                        buffer[1] =  cubesize + lasthit.y;
-                        buffer[2] = -cubesize + lasthit.z;
-                        break;
-                }
-
-                buffer[3] = 0;
-                buffer[7] = 0;
-                buffer[11] = 0;
-                buffer[15] = 0;
-
-                GL.BindBuffer(BufferTarget.ArrayBuffer, vertexbuffer);
-                GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, (IntPtr)(sizeof(float) * 16), buffer);
-                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-                Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.StatusStripUpdate, lasthit.ToString());
-
-                handledselectionchange = brushes.onselectionchanged(input, QbManager.getactivematrix(), lasthit);
+                handledselectionchange = brushes.onselectionchanged(input, manager.ActiveMatrix, lasthit);
 
                 if (handledselectionchange)
                     needscleaning = true;
             }
 
-            if (!handledselectionchange)
+            if (!handledselectionchange && raycaster.HasHit)
             {
-                handledselectionchange = brushes.onselectionchanged(input, QbManager.getactivematrix(), lasthit);
+                handledselectionchange = brushes.onselectionchanged(input, manager.ActiveMatrix, lasthit);
                 if (handledselectionchange)
                     needscleaning = true;
             }
-            else if (needscleaning)
+
+            if (needscleaning)
             {
                 if (input.mouseup(MouseButton.Left))
                 {
                     // change this...  have the tool decide to clean or not
                     needscleaning = false;
-                    QbManager.getactivematrix().Clean();
+                    manager.ActiveMatrix.Clean();
                 }
             }
         }
 
+        public void UpdateVisibleSelection()
+        {
+            if (statusStrip == null || statusStrip.ID != GUIID.STATUS_TEXT)
+                statusStrip = gui.Get<Label>(GUIID.STATUS_TEXT);
+
+            lasthit = Singleton<Raycaster>.INSTANCE.lastHit;
+            switch (lasthit.side)
+            {
+                case Side.Front:
+
+                    buffer[0] = -cubesize + lasthit.x;
+                    buffer[1] = -cubesize + lasthit.y;
+                    buffer[2] = cubesize + lasthit.z;
+
+                    buffer[4] = cubesize + lasthit.x;
+                    buffer[5] = -cubesize + lasthit.y;
+                    buffer[6] = cubesize + lasthit.z;
+
+                    buffer[8] = cubesize + lasthit.x;
+                    buffer[9] = cubesize + lasthit.y;
+                    buffer[10] = cubesize + lasthit.z;
+
+                    buffer[12] = -cubesize + lasthit.x;
+                    buffer[13] = cubesize + lasthit.y;
+                    buffer[14] = cubesize + lasthit.z;
+
+                    break;
+                case Side.Back:
+
+                    buffer[12] = -cubesize + lasthit.x;
+                    buffer[13] = -cubesize + lasthit.y;
+                    buffer[14] = -cubesize + lasthit.z;
+
+                    buffer[8] = cubesize + lasthit.x;
+                    buffer[9] = -cubesize + lasthit.y;
+                    buffer[10] = -cubesize + lasthit.z;
+
+                    buffer[4] = cubesize + lasthit.x;
+                    buffer[5] = cubesize + lasthit.y;
+                    buffer[6] = -cubesize + lasthit.z;
+
+                    buffer[0] = -cubesize + lasthit.x;
+                    buffer[1] = cubesize + lasthit.y;
+                    buffer[2] = -cubesize + lasthit.z;
+
+                    break;
+                case Side.Top:
+
+                    buffer[0] = -cubesize + lasthit.x;
+                    buffer[1] = cubesize + lasthit.y;
+                    buffer[2] = cubesize + lasthit.z;
+
+                    buffer[4] = cubesize + lasthit.x;
+                    buffer[5] = cubesize + lasthit.y;
+                    buffer[6] = cubesize + lasthit.z;
+
+                    buffer[8] = cubesize + lasthit.x;
+                    buffer[9] = cubesize + lasthit.y;
+                    buffer[10] = -cubesize + lasthit.z;
+
+                    buffer[12] = -cubesize + lasthit.x;
+                    buffer[13] = cubesize + lasthit.y;
+                    buffer[14] = -cubesize + lasthit.z;
+
+                    break;
+                case Side.Bottom:
+
+                    buffer[12] = -cubesize + lasthit.x;
+                    buffer[13] = -cubesize + lasthit.y;
+                    buffer[14] = cubesize + lasthit.z;
+
+                    buffer[8] = cubesize + lasthit.x;
+                    buffer[9] = -cubesize + lasthit.y;
+                    buffer[10] = cubesize + lasthit.z;
+
+                    buffer[4] = cubesize + lasthit.x;
+                    buffer[5] = -cubesize + lasthit.y;
+                    buffer[6] = -cubesize + lasthit.z;
+
+                    buffer[0] = -cubesize + lasthit.x;
+                    buffer[1] = -cubesize + lasthit.y;
+                    buffer[2] = -cubesize + lasthit.z;
+
+                    break;
+                case Side.Right:
+
+                    buffer[0] = -cubesize + lasthit.x;
+                    buffer[1] = -cubesize + lasthit.y;
+                    buffer[2] = -cubesize + lasthit.z;
+
+                    buffer[4] = -cubesize + lasthit.x;
+                    buffer[5] = -cubesize + lasthit.y;
+                    buffer[6] = cubesize + lasthit.z;
+
+                    buffer[8] = -cubesize + lasthit.x;
+                    buffer[9] = cubesize + lasthit.y;
+                    buffer[10] = cubesize + lasthit.z;
+
+                    buffer[12] = -cubesize + lasthit.x;
+                    buffer[13] = cubesize + lasthit.y;
+                    buffer[14] = -cubesize + lasthit.z;
+
+                    break;
+                case Side.Left:
+
+                    buffer[12] = cubesize + lasthit.x;
+                    buffer[13] = -cubesize + lasthit.y;
+                    buffer[14] = -cubesize + lasthit.z;
+
+                    buffer[8] = cubesize + lasthit.x;
+                    buffer[9] = -cubesize + lasthit.y;
+                    buffer[10] = cubesize + lasthit.z;
+
+                    buffer[4] = cubesize + lasthit.x;
+                    buffer[5] = cubesize + lasthit.y;
+                    buffer[6] = cubesize + lasthit.z;
+
+                    buffer[0] = cubesize + lasthit.x;
+                    buffer[1] = cubesize + lasthit.y;
+                    buffer[2] = -cubesize + lasthit.z;
+                    break;
+            }
+
+            buffer[3] = 0;
+            buffer[7] = 0;
+            buffer[11] = 0;
+            buffer[15] = 0;
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexbuffer);
+            GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, (IntPtr)(sizeof(float) * 16), buffer);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+            statusStrip.text =
+                $"Side : {lasthit.side}\nLocation : {lasthit.x -floor.x},{Math.Max(0,lasthit.y -floor.y)},{lasthit.z -floor.z}";
+        }
+
         public void render(Shader shader)
         {
-            if (Singleton<Raycaster>.INSTANCE.lastHit.distance != 10000)
+            if (Visible && Singleton<Raycaster>.INSTANCE.lastHit.distance != 10000)
             {
                 shader.WriteUniform("highlight", new Vector3(1, 1, 1));
 

@@ -110,7 +110,7 @@ namespace stonevox
             GL.BindVertexArray(0);
 
 
-            ShaderUtil.resetshader();
+            ShaderUtil.ResetShader();
         }
 
         public void SetColor(Color4 color)
@@ -120,7 +120,7 @@ namespace stonevox
             double h, s, v;
             ColorConversion.ColorToHSV(color.ToSystemDrawingColor(), out h, out s, out v);
 
-            colors[1] = ColorConversion.ColorFromHSV(h, s, v / 2f);
+            colors[1] = color;
         }
 
         public override Appearence FromData(AppearenceData data)

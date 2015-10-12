@@ -43,7 +43,7 @@ namespace stonevox
                 Keydownhandler = (e) =>
                 {
                     if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
-                    if (!Active && e.Alt)
+                    if (!Active && e.Key == Key.Space)
                     {
                         Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(BrushType);
                     }
@@ -52,15 +52,15 @@ namespace stonevox
                 {
                     if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
 
-                    if (Active && (e.Key == Key.AltLeft || e.Key == Key.AltRight))
+                    if (Active && (e.Key == Key.Space || e.Key == Key.Space))
                     {
                         var clientbrush = Singleton<ClientBrush>.INSTANCE;
                         clientbrush.SetCurrentBrush(clientbrush.previousBrush.BrushType);
                         Singleton<ClientGUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = "";
                         if (lastmatrix != null)
                         {
-                            Client.window.model.activematrix = Client.window.model.matrices.IndexOf(lastmatrix);
-                            Singleton<Camera>.INSTANCE.LookAtMatrix();
+                            Singleton<QbManager>.INSTANCE.ActiveMatrix = lastmatrix;
+                            Singleton<Camera>.INSTANCE.TransitionToMatrix();
                             lastmatrix.highlight = Color4.White;
                             lastmatrix = null;
                         }
@@ -99,12 +99,14 @@ namespace stonevox
         {
             Active = false;
             Singleton<Raycaster>.INSTANCE.Mode = RaycastMode.ActiveMatrix;
+            Singleton<Selection>.INSTANCE.Visible = true;
         }
 
         public void Enable()
         {
             Active = true;
             Singleton<Raycaster>.INSTANCE.Mode = RaycastMode.MatrixSelection;
+            Singleton<Selection>.INSTANCE.Visible = false;
         }
 
         public void AddVolume(VoxelVolume volume, QbMatrix matrix, ref Colort color, Dictionary<double, VoxelUndoData> modifiedVoxels)

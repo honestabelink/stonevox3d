@@ -31,7 +31,7 @@ namespace stonevox
 
         public QbModel _read(string path)
         {
-            QbModel model = new QbModel();
+            QbModel model = new QbModel(path.Split('\\').Last().Split('.').First());
 
             using (FileStream f = new FileStream(path, FileMode.Open))
             using (BinaryReader reader = new BinaryReader(f))
@@ -50,7 +50,7 @@ namespace stonevox
                     byte l = reader.ReadByte();
                     m.name = System.Text.Encoding.Default.GetString(reader.ReadBytes(l));
                     m.setsize((int)reader.ReadUInt32(), (int)reader.ReadUInt32(), (int)reader.ReadUInt32());
-                    m.position = new OpenTK.Vector3(reader.ReadUInt32(), reader.ReadUInt32(), reader.ReadUInt32());
+                    m.position = new OpenTK.Vector3(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
 
                     byte r;
                     byte g;

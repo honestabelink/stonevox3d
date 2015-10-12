@@ -108,7 +108,7 @@ namespace stonevox
             random = new Random();
 
             geometryBuffer = new IOBuffer(width, height, true, PixelInternalFormat.Rgb32f);
-            SSAOBuffer = new IOBuffer(width, height, true, PixelInternalFormat.R32f);
+            SSAOBuffer = new IOBuffer(width, height, false, PixelInternalFormat.R32f);
 
             ssao_geometryDepth = ShaderUtil.CreateShader("ssao_geometryDepth", "./data/shaders/SSAO_geometry.vs", "./data/shaders/SSAO_geometry.fs");
             ssao= ShaderUtil.CreateShader("ssao", "./data/shaders/SSAO_pass.vs", "./data/shaders/SSAO_pass.fs");
@@ -155,7 +155,7 @@ namespace stonevox
         {
             ssao_geometryDepth.UseShader();
             geometryBuffer.BindFBOWritting();
-            ssao_geometryDepth.WriteUniform("gWVP", camera.projection * camera.view);
+            ssao_geometryDepth.WriteUniform("gWVP", camera.modelviewprojection);
             ssao_geometryDepth.WriteUniform("gWV", camera.view);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             model.Render();
