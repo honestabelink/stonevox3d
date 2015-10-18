@@ -17,7 +17,6 @@ http://discourse.stonehearth.net/t/stonevox-3d-community-voxel-modeler-for-stone
 
 Dependencies
 ==========
- - OpenTK : NuGet Install-Package OpenTK
  - Lidgren.Network : NuGet Install-Package Lidgren.Network -Pre
 
 Questions
