@@ -1872,7 +1872,9 @@ namespace stonevox
             label_setMatrixName.SetBoundsNoScaling(listbox.Absolute_X, listbox.Absolute_Y - label_setMatrixName.size.Y *1.4f);
             widgets.Add(label_setMatrixName);
 
-            TextBox textbox_setMatrixName = new TextBox(GUIID.ACTIVE_MATRIX_NAME,"default", Color.White, 15);
+            string activeMatrixName = manager.HasModel ? manager.ActiveMatrix.name : "default";
+
+            TextBox textbox_setMatrixName = new TextBox(GUIID.ACTIVE_MATRIX_NAME,activeMatrixName, Color.White, 15);
             textbox_setMatrixName.Parent = background;
             textbox_setMatrixName.SetBoundsNoScaling(listbox.Absolute_X + label_setMatrixName.size.X, label_setMatrixName.Absolute_Y);
             textbox_setMatrixName.size.X = listbox.size.X - label_setMatrixName.size.X;
@@ -1923,7 +1925,9 @@ namespace stonevox
             label_setMatrixPosition.SetBoundsNoScaling(listbox.Absolute_X, listbox.Absolute_Y - label_setMatrixPosition.size.Y * 2.6f);
             widgets.Add(label_setMatrixPosition);
 
-            TextBox textbox_setMatrixPosition = new TextBox("0,0,0", Color.White, 15);
+            Vector3 activeMatrixPosition = manager.HasModel ? manager.ActiveMatrix.position : Vector3.Zero;
+
+            TextBox textbox_setMatrixPosition = new TextBox($"{activeMatrixPosition.X},{activeMatrixPosition.Y},{activeMatrixPosition.Z}", Color.White, 15);
             textbox_setMatrixPosition.Parent = background;
             textbox_setMatrixPosition.SetBoundsNoScaling(listbox.Absolute_X + label_setMatrixName.size.X, label_setMatrixPosition.Absolute_Y);
             textbox_setMatrixPosition.size.X = textbox_setMatrixName.size.X;
@@ -1999,7 +2003,9 @@ namespace stonevox
             label_setMatrixSize.SetBoundsNoScaling(listbox.Absolute_X, listbox.Absolute_Y - label_setMatrixSize.size.Y * 3.8f);
             widgets.Add(label_setMatrixSize);
 
-            TextBox textbox_setMatrixSize = new TextBox("15,15,15", Color.White, 15);
+            Vector3 activeMatrixSize = manager.HasModel ? manager.ActiveMatrix.size : Vector3.Zero;
+
+            TextBox textbox_setMatrixSize = new TextBox($"{activeMatrixSize.X},{activeMatrixSize.Y},{activeMatrixSize.Z}", Color.White, 15);
             textbox_setMatrixSize.Parent = background;
             textbox_setMatrixSize.SetBoundsNoScaling(textbox_setMatrixName.Absolute_X, label_setMatrixSize.Absolute_Y);
             textbox_setMatrixSize.size.X = textbox_setMatrixName.size.X;
