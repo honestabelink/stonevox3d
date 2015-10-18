@@ -123,6 +123,7 @@ namespace stonevox
                 ScreenToMouseRay(input.mousex, input.mousey);
                 RaycastHit hit = new RaycastHit();
                 hit.distance = 10000;
+
                 switch (Mode)
                 {
                     case RaycastMode.ActiveMatrix:
@@ -322,7 +323,7 @@ namespace stonevox
             intPoint.Y = rayOrigin.Y + t * rayDirection.Y;
             intPoint.Z = rayOrigin.Z + t * rayDirection.Z;
 
-            fullArea =     CalculateTriangleArea(p1x, p1y, p1z, p2x, p2y, p2z, p3x, p3y, p3z);
+            fullArea = CalculateTriangleArea(p1x, p1y, p1z, p2x, p2y, p2z, p3x, p3y, p3z);
             subTriangle1 = CalculateTriangleArea(p1x, p1y, p1z, p2x, p2y, p2z, intPoint.X, intPoint.Y, intPoint.Z);
             subTriangle2 = CalculateTriangleArea(p2x, p2y, p2z, p3x, p3y, p3z, intPoint.X, intPoint.Y, intPoint.Z);
             subTriangle3 = CalculateTriangleArea(p1x, p1y, p1z, p3x, p3y, p3z, intPoint.X, intPoint.Y, intPoint.Z);
@@ -564,9 +565,9 @@ namespace stonevox
                         }
 
                         //bavk
-                        if (((v.alphamask & 64) == 64))
+                        if (_back && ((v.alphamask & 64) == 64))
                         {
-                            if (_back && (RayTestTriangle(ref back, -cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
+                            if ((RayTestTriangle(ref back, -cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
                                         cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
                                         cubesize + v.x, cubesize + v.y, -cubesize + v.z,
                                         out testout) || RayTestTriangle(ref back, -cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
@@ -586,9 +587,9 @@ namespace stonevox
                         }
 
                         //top
-                        if (((v.alphamask & 8) == 8))
+                        if (_top && ((v.alphamask & 8) == 8))
                         {
-                            if (_top && (RayTestTriangle(ref top, -cubesize + v.x, cubesize + v.y, cubesize + v.z,
+                            if ((RayTestTriangle(ref top, -cubesize + v.x, cubesize + v.y, cubesize + v.z,
                                              cubesize + v.x, cubesize + v.y, cubesize + v.z,
                                              cubesize + v.x, cubesize + v.y, -cubesize + v.z,
                                              out testout) || RayTestTriangle(ref top, -cubesize + v.x, cubesize + v.y, cubesize + v.z,
@@ -608,9 +609,9 @@ namespace stonevox
                         }
 
                         //bottom
-                        if (((v.alphamask & 16) == 16))
+                        if (_bottom && ((v.alphamask & 16) == 16))
                         {
-                            if (_bottom && (RayTestTriangle(ref bottom, -cubesize + v.x, -cubesize + v.y, cubesize + v.z,
+                            if ((RayTestTriangle(ref bottom, -cubesize + v.x, -cubesize + v.y, cubesize + v.z,
                                             cubesize + v.x, -cubesize + v.y, cubesize + v.z,
                                             cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
                                             out testout) || RayTestTriangle(ref bottom, -cubesize + v.x, -cubesize + v.y, cubesize + v.z,
@@ -632,7 +633,7 @@ namespace stonevox
                         //left
                         if (_left && ((v.alphamask & 2) == 2))
                         {
-                            if (_left && (RayTestTriangle(ref left, cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
+                            if ((RayTestTriangle(ref left, cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
                                              cubesize + v.x, -cubesize + v.y, cubesize + v.z,
                                              cubesize + v.x, cubesize + v.y, cubesize + v.z,
                                              out testout) || RayTestTriangle(ref left, cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
@@ -703,7 +704,7 @@ namespace stonevox
                     //bavk
                     if (_back && ((v.alphamask & 64) == 64 || m.IsDirty(v.x, v.y, v.z - 1)))
                     {
-                        if (_back && (RayTestTriangle(ref back, -cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
+                        if ((RayTestTriangle(ref back, -cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
                                         cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
                                         cubesize + v.x, cubesize + v.y, -cubesize + v.z,
                                         out testout) || RayTestTriangle(ref back, -cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
@@ -726,7 +727,7 @@ namespace stonevox
                     //top
                     if (_top && ((v.alphamask & 8) == 8) || m.IsDirty(v.x, v.y + 1, v.z))
                     {
-                        if (_top && (RayTestTriangle(ref top, -cubesize + v.x, cubesize + v.y, cubesize + v.z,
+                        if ((RayTestTriangle(ref top, -cubesize + v.x, cubesize + v.y, cubesize + v.z,
                                             cubesize + v.x, cubesize + v.y, cubesize + v.z,
                                             cubesize + v.x, cubesize + v.y, -cubesize + v.z,
                                             out testout) || RayTestTriangle(ref top, -cubesize + v.x, cubesize + v.y, cubesize + v.z,
@@ -748,7 +749,7 @@ namespace stonevox
                     //bottom
                     if (_bottom && ((v.alphamask & 16) == 16) || m.IsDirty(v.x, v.y - 1, v.z))
                     {
-                        if (_bottom && (RayTestTriangle(ref bottom, -cubesize + v.x, -cubesize + v.y, cubesize + v.z,
+                        if ((RayTestTriangle(ref bottom, -cubesize + v.x, -cubesize + v.y, cubesize + v.z,
                                            cubesize + v.x, -cubesize + v.y, cubesize + v.z,
                                            cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
                                            out testout) || RayTestTriangle(ref bottom, -cubesize + v.x, -cubesize + v.y, cubesize + v.z,
@@ -770,7 +771,7 @@ namespace stonevox
                     //left
                     if (_left && ((v.alphamask & 2) == 2 || m.IsDirty(v.x + 1, v.y, v.z)))
                     {
-                        if (_left && (RayTestTriangle(ref left, cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
+                        if ((RayTestTriangle(ref left, cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
                       cubesize + v.x, -cubesize + v.y, cubesize + v.z,
                       cubesize + v.x, cubesize + v.y, cubesize + v.z,
                       out testout) || RayTestTriangle(ref left, cubesize + v.x, -cubesize + v.y, -cubesize + v.z,
