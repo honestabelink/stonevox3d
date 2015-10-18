@@ -15,6 +15,7 @@ namespace stonevox
         public string SizeText { get { return  label.text + "    "; } }
 
         Label label;
+        Label closeButton;
 
         float vBorderOffset;
         float hBorderOffset;
@@ -27,21 +28,6 @@ namespace stonevox
 
         public QbModel model;
 
-        public override bool Enable
-        {
-            get
-            {
-                return base.Enable;
-            }
-
-            set
-            {
-                if (label != null)
-                    label.Enable = value;
-                base.Enable = value;
-            }
-        }
-
         public QbModelTab(QbModel model)
             : base()
         {
@@ -53,9 +39,33 @@ namespace stonevox
             hBorderOffset = (3f).ScaleHorizontalSize();
 
             label = new Label(GetNextAvailableID(), model.name, System.Drawing.Color.White, true);
+            closeButton = new Label(GetNextAvailableID(), "x", System.Drawing.Color.DarkRed, true);
             var size = label.MeasureText(label.text + "    ");
 
+            closeButton.Parent = this;
+            label.Parent = this;
+
+            closeButton.handler = new WidgetEventHandler()
+            {
+                mouseenter = (e) =>
+                {
+                    closeButton.color = Color.Red;
+                },
+                mouseleave= (e) =>
+                {
+                    closeButton.color = Color.DarkRed;
+                },
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == OpenTK.Input.MouseButton.Left)
+                    {
+                        Singleton<QbManager>.INSTANCE.RemoveModel(this.model);
+                    }
+                }
+            };
+
             SetBounds(null, null, size.Width, height.UnScaleVerticlSize() * borderscale * 1.5f);
+            closeButton.SetBoundsNoScaling(Absolute_X + this.size.X - closeButton.size.X * 1.5f, Absolute_Y + closeButton.size.Y * 1.0f);
 
             background = appearence.AddAppearence("background", new PlainBackground(new Color4(100 - 10, 87 - 10, 61 - 10, 255)));
             border = appearence.AddAppearence("border", new PlainBorder(4, new Color4(122 - 10, 106 - 10, 70 - 10, 255)));
@@ -63,7 +73,10 @@ namespace stonevox
 
         public void SetSelected(bool sselected,ref  float startX)
         {
+            Enable = true;
+
             label.text = model.name;
+
             if (sselected)
             {
                 var size = label.MeasureText(SelectedSizeText);
@@ -76,8 +89,8 @@ namespace stonevox
 
                 background.Enabled = true;
                 border.Enabled = true;
-                Enable = true;
                 label.Enable = true;
+                closeButton.Enable = true;
             }
             else
             {
@@ -91,10 +104,11 @@ namespace stonevox
 
                 background.Enabled = false;
                 border.Enabled = false;
-
-                Enable = true;
                 label.Enable = true;
+                closeButton.Enable = true;
             }
+
+            closeButton.SetBoundsNoScaling(Absolute_X + size.X - closeButton.size.X * 1.5f, Absolute_Y + closeButton.size.Y *1.0f);
 
             startX += size.X;
             if (startX > 1)
@@ -110,6 +124,7 @@ namespace stonevox
         {
             gui.widgets.Add(this);
             gui.widgets.Add(label);
+            gui.widgets.Add(closeButton);
 
             // hacks
             label.customData.Add("qbmodeltab", this);

@@ -15,7 +15,7 @@ namespace stonevox
         // persistent cross UI changes
         static int selected;
 
-        int startindex;
+        int startindex = 0;
         int lowest;
         int highest;
 
@@ -76,40 +76,48 @@ namespace stonevox
             bool hasselected = false;
             bool firstrun = true;
 
+            var models = Singleton<QbManager>.INSTANCE.models;
+            int count = models.Count;
+
             while (!hasselected)
             {
-                for (int i = startindex; i < tabs.Count; i++)
+                for (int i = startindex; i < count; i++)
                 {
+                    tabs[i].model = models[i];
+                    tabs[i].Text = models[i].name;
                     if (i == selected)
                     {
                         hasselected = true;
-                        tabs[i].Enable = true;
                         tabs[i].SetSelected(true, ref startX);
                     }
                     else
                     {
                         tabs[i].SetSelected(false, ref startX);
-                        tabs[i].Enable = true;
                     }
 
-                    if (startX == -2 || startX >= .85f)
+                    if (startX == -2 || startX >= .90f)
                     {
                         if (i == selected)
                             hasselected = false;
-                        tabs[i].Enable = false;
                         startX = -1f;
                         endindex = i;
-                        highest = tabs.Count - 1;
+                        highest = count - 1;
                         break;
                     }
                     endindex = i;
                 }
 
-
                 if (hasselected)
                     break;
                 else
                     startindex++;
+
+                // run through our current visible tabs
+                // if the selected tab was not currently visible
+                // start searching for it from 0 up...
+
+                // this is so settting the selected will try to maintain the current
+                // visible tabs.... rather then changing the orders all the time
                 if (firstrun)
                 {
                     firstrun = false;
@@ -121,8 +129,13 @@ namespace stonevox
 
             for (int i = 0; i < startindex; i++)
                 tabs[i].Enable = false;
-            for (int i = endindex+1; i < tabs.Count; i++)
+            for (int i = endindex+1; i < count; i++)
                 tabs[i].Enable = false;
+
+            for (int i = count; i < tabs.Count; i++)
+            {
+                tabs[i].Enable = false;
+            }
         }
 
         public void AddWidgets(ClientGUI gui)
@@ -136,13 +149,22 @@ namespace stonevox
         {
             if (message.messgae == Message.ModelImported)
             {
+                selected = Singleton<QbManager>.INSTANCE.models.Count - 1;
+                // we have a disabled tab not in use... so use it instead 
+                // of creating new new tab from the imported model
+                // we still need to update though
+                if (selected < tabs.Count)
+                {
+                    UpdateTabs();
+                    return;
+                }
+
                 var tab = new QbModelTab(message.args[0] as QbModel);
                 tab.handler = tabHandler;
                 tabs.Add(tab);
 
-                selected = tabs.Count - 1;
                 // hacks
-                Client.OpenGLContextThread.Add(() => 
+                Client.OpenGLContextThread.Add(() =>
                 {
                     tab.AddWidgets(Singleton<ClientGUI>.INSTANCE);
                     UpdateTabs();
@@ -151,6 +173,11 @@ namespace stonevox
             else if (message.messgae == Message.ActiveModelChanged)
             {
                 Singleton<Camera>.INSTANCE.LookAtModel();
+            }
+            else if (message.messgae == Message.ModelRemoved)
+            {
+                selected = selected < Singleton<QbManager>.INSTANCE.models.Count ? selected : Singleton<QbManager>.INSTANCE.models.Count-1;
+                UpdateTabs();
             }
 
             base.HandleMessageRecieved(message);

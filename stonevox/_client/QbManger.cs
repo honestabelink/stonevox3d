@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace stonevox
 {
@@ -87,6 +88,40 @@ namespace stonevox
             }
 
             broadcaster.Broadcast(Message.ModelImported, model, model.name);
+        }
+
+        public void RemoveModel(QbModel model)
+        {
+            // stonevox as of now, must have a qbmodel reference...
+            // this will be cleanup sometime
+            // it's a dirty fix for now :(
+            if (ActiveModelIndex == 0)
+            {
+                if (models.Remove(model))
+                {
+                    AddEmpty();
+                    broadcaster.Broadcast(Message.ModelRemoved, model, model.name);
+                    model = null;
+                }
+
+                FixActiveMatrix();
+                return;
+            }
+            if (models.Remove(model))
+            {
+                FixActiveMatrix();
+                broadcaster.Broadcast(Message.ModelRemoved, model, model.name);
+                model = null;
+            }
+        }
+
+        void FixActiveMatrix()
+        {
+            while (activemodelindex >= models.Count)
+                activemodelindex--;
+
+            // eh :)
+            ActiveModelIndex = activemodelindex;
         }
     }
 }

@@ -29,6 +29,7 @@ namespace stonevox
         StatusStripUpdate,
 
         ModelImported,
+        ModelRemoved,
         ActiveMatrixChanged,
         ActiveModelChanged,
 
