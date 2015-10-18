@@ -121,7 +121,8 @@ namespace stonevox
 
             selection.GenerateVertexArray();
 
-            manager.AddEmpty();
+            if(!manager.HasModel)
+                manager.AddEmpty();
             camera.LookAtModel(true);
 
             backcolor = new Color4(0, 0, 0, 0);
@@ -260,36 +261,36 @@ namespace stonevox
                 GUIEditor editor = new GUIEditor();
                 editor.Show();
             }
-            else if (e.Key == Key.T)
-            {
-                Stopwatch w = Stopwatch.StartNew();
-                var model = Singleton<QbManager>.INSTANCE.ActiveMatrix;
+            //else if (e.Key == Key.T)
+            //{
+            //    Stopwatch w = Stopwatch.StartNew();
+            //    var model = Singleton<QbManager>.INSTANCE.ActiveMatrix;
 
-                Colort color = new Colort(1f, 0f, 0f);
-                for (int x = 0; x < 100; x++)
-                    for (int z = 0; z < 100; z++)
-                    for (int y = 0; y< 100; y++)
-                            model.Add(x, y, z, color);
+            //    Colort color = new Colort(1f, 0f, 0f);
+            //    for (int x = 0; x < 100; x++)
+            //        for (int z = 0; z < 100; z++)
+            //        for (int y = 0; y< 100; y++)
+            //                model.Add(x, y, z, color);
 
-                w.Stop();
-                Console.WriteLine("add " +w.ElapsedMilliseconds.ToString());
-            }
+            //    w.Stop();
+            //    Console.WriteLine("add " +w.ElapsedMilliseconds.ToString());
+            //}
 
-            else if (e.Key == Key.Y)
-            {
-                Stopwatch w = Stopwatch.StartNew();
-                var model = Singleton<QbManager>.INSTANCE.ActiveMatrix;
+            //else if (e.Key == Key.Y)
+            //{
+            //    Stopwatch w = Stopwatch.StartNew();
+            //    var model = Singleton<QbManager>.INSTANCE.ActiveMatrix;
 
-                Colort color = new Colort(1f, 0f, 0f);
-                for (int x = 0; x < 100; x++)
-                    for (int z = 0; z < 100; z++)
-                        for (int y = 0; y < 100; y++)
+            //    Colort color = new Colort(1f, 0f, 0f);
+            //    for (int x = 0; x < 100; x++)
+            //        for (int z = 0; z < 100; z++)
+            //            for (int y = 0; y < 100; y++)
 
-                            model.Remove(x, y, z);
+            //                model.Remove(x, y, z);
 
-                w.Stop();
-                Console.WriteLine("earse " + w.ElapsedMilliseconds.ToString());
-            }
+            //    w.Stop();
+            //    Console.WriteLine("earse " + w.ElapsedMilliseconds.ToString());
+            //}
 
             base.OnKeyDown(e);
         }
