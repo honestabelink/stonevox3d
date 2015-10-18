@@ -95,7 +95,7 @@ namespace stonevox
             // stonevox as of now, must have a qbmodel reference...
             // this will be cleanup sometime
             // it's a dirty fix for now :(
-            if (ActiveModelIndex == 0)
+            if (ActiveModelIndex == 0 && models.Count == 1)
             {
                 if (models.Remove(model))
                 {
