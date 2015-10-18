@@ -65,7 +65,7 @@ namespace stonevox
             };
 
             SetBounds(null, null, size.Width, height.UnScaleVerticlSize() * borderscale * 1.5f);
-            closeButton.SetBoundsNoScaling(Absolute_X + this.size.X - closeButton.size.X * 1.5f, Absolute_Y + closeButton.size.Y * 1.0f);
+            closeButton.SetBoundsNoScaling(Absolute_X + this.size.X - closeButton.size.X * 1.5f, Absolute_Y + closeButton.size.Y * .9f);
 
             background = appearence.AddAppearence("background", new PlainBackground(new Color4(100 - 10, 87 - 10, 61 - 10, 255)));
             border = appearence.AddAppearence("border", new PlainBorder(4, new Color4(122 - 10, 106 - 10, 70 - 10, 255)));
@@ -108,7 +108,7 @@ namespace stonevox
                 closeButton.Enable = true;
             }
 
-            closeButton.SetBoundsNoScaling(Absolute_X + size.X - closeButton.size.X * 1.5f, Absolute_Y + closeButton.size.Y *1.0f);
+            closeButton.SetBoundsNoScaling(Absolute_X + size.X - closeButton.size.X * 1.5f, Absolute_Y + closeButton.size.Y *.9f);
 
             startX += size.X;
             if (startX > 1)

@@ -84,7 +84,6 @@ namespace stonevox
                 for (int i = startindex; i < count; i++)
                 {
                     tabs[i].model = models[i];
-                    tabs[i].Text = models[i].name;
                     if (i == selected)
                     {
                         hasselected = true;
