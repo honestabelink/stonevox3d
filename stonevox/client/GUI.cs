@@ -1900,6 +1900,7 @@ namespace stonevox
                     if (string.IsNullOrEmpty(text))
                     {
                         MessageBox.Show("Matrix names MUST contain at least one character", "Matrix Name Limits");
+                        textbox_setMatrixName.Text = currentSize;
                         return;
                     }
                     m.name = text;
@@ -1928,6 +1929,17 @@ namespace stonevox
 
             textbox_setMatrixPosition.handler = new WidgetEventHandler()
             {
+                textboxfilter = (e, input_text) =>
+                {
+                    int value = input_text.SafeToInt32();
+
+                    if (value == -1)
+                        if (input_text == ",")
+                            return input_text;
+                        else return "";
+                    else
+                        return input_text;
+                },
                 messagerecived = (e, message, widget, args) =>
                 {
                     if (message == Message.ActiveMatrixChanged || message == Message.ModelImported)
@@ -1956,6 +1968,7 @@ namespace stonevox
                     if (!text.Contains(','))
                     {
                         MessageBox.Show(content, caption);
+                        textbox_setMatrixPosition.Text = currentSize;
                         text = currentSize;
                         return;
                     }
@@ -1965,6 +1978,7 @@ namespace stonevox
                     if (sizes.Count() != 3)
                     {
                         MessageBox.Show(content, caption);
+                        textbox_setMatrixPosition.Text = currentSize;
                         text = currentSize;
                         return;
                     }
@@ -1976,6 +1990,7 @@ namespace stonevox
                     if (x == -1 || y == -1 || z == -1)
                     {
                         MessageBox.Show(content, caption);
+                        textbox_setMatrixPosition.Text = currentSize;
                         text = currentSize;
                         return;
                     }
@@ -2006,7 +2021,18 @@ namespace stonevox
 
             textbox_setMatrixSize.handler = new WidgetEventHandler()
             {
-                messagerecived = (e, message, widget, args) =>
+                textboxfilter = (e, input_text) =>
+                {
+                    int value = input_text.SafeToInt32();
+
+                    if (value == -1)
+                        if (input_text == ",")
+                            return input_text;
+                        else return "";
+                    else
+                        return input_text;
+                },
+                    messagerecived = (e, message, widget, args) =>
                 {
                     if (message == Message.ActiveMatrixChanged || message == Message.ModelImported)
                     {
@@ -2034,6 +2060,7 @@ namespace stonevox
                     if (!text.Contains(','))
                     {
                         MessageBox.Show(content, caption);
+                        textbox_setMatrixSize.Text = currentSize;
                         text = currentSize;
                         return;
                     }
@@ -2043,6 +2070,7 @@ namespace stonevox
                     if (sizes.Count() != 3)
                     {
                         MessageBox.Show(content, caption);
+                        textbox_setMatrixSize.Text = currentSize;
                         text = currentSize;
                         return;
                     }
@@ -2054,6 +2082,7 @@ namespace stonevox
                     if (x == -1 || y == -1 || z == -1)
                     {
                         MessageBox.Show(content, caption);
+                        textbox_setMatrixSize.Text = currentSize;
                         text = currentSize;
                         return;
                     }
