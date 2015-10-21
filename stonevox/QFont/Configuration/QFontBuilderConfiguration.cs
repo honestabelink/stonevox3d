@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace QuickFont
+﻿namespace QuickFont
 {
-
-
     public enum TextGenerationRenderHint
     {
         /// <summary>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace QuickFont
+﻿namespace QuickFont
 {
     /// <summary>
     /// The configuraiton used when loading a font from a qfont file.

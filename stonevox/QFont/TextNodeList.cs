@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Collections;
-using System.Drawing;
+using System.Text;
 
 namespace QuickFont
 {
-
-
     enum TextNodeType { Word, LineBreak, Space }
 
     class TextNode

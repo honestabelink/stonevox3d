@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
-using System.Drawing.Text;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.IO;
 
 namespace QuickFont
@@ -28,8 +27,6 @@ namespace QuickFont
             
         }
 
-
-
         private static Dictionary<char, QFontGlyph> CreateCharGlyphMapping(QFontGlyph[] glyphs)
         {
             var dict = new Dictionary<char, QFontGlyph>();
@@ -38,7 +35,6 @@ namespace QuickFont
 
             return dict;
         }
-
 
         //these do not affect the actual width of glyphs (we measure widths pixel-perfectly ourselves), but is used to detect whether a font is monospaced
         private List<SizeF> GetGlyphSizes(Font font)
@@ -88,7 +84,6 @@ namespace QuickFont
 
             return minSize;
         }
-
 
         /// <summary>
         /// Returns true if all glyph widths are within 5% of each other
@@ -157,9 +152,6 @@ namespace QuickFont
                     break;
             }
 
-  
-                
-
             int xOffset = initialMargin;
             for (int i = 0; i < charSet.Length; i++)
             {
@@ -175,13 +167,7 @@ namespace QuickFont
             return bmp;
         }
 
-       
-
-
-
         private delegate bool EmptyDel(BitmapData data, int x, int y);
-
-
 
         private static void RetargetGlyphRectangleInwards(BitmapData bitmapData, QFontGlyph glyph, bool setYOffset, byte alphaTolerance)
         {
@@ -241,9 +227,6 @@ namespace QuickFont
                 glyph.yOffset = glyph.rect.Y;
 
         }
-
-
-
 
         private static void RetargetGlyphRectangleOutwards(BitmapData bitmapData, QFontGlyph glyph, bool setYOffset, byte alphaTolerance)
         {
@@ -343,12 +326,7 @@ namespace QuickFont
                         break;
                     }
                 }
-
-
-
             }
-
-
 
             glyph.rect = new Rectangle(startX, startY, endX - startX + 1, endY - startY + 1);
 
@@ -356,9 +334,6 @@ namespace QuickFont
                 glyph.yOffset = glyph.rect.Y;
 
         }
-
-
-
 
         private static List<QBitmap> GenerateBitmapSheetsAndRepack(QFontGlyph[] sourceGlyphs, BitmapData[] sourceBitmaps, int destSheetWidth, int destSheetHeight, out QFontGlyph[] destGlyphs, int destMargin, bool usePowerOfTwo)
         {

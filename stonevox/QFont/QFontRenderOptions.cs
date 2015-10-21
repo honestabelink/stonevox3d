@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using OpenTK;
-using System.Drawing;
+﻿using OpenTK;
 using OpenTK.Graphics;
+using System.Drawing;
 
 namespace QuickFont
 {
-
-
     public enum QFontAlignment { Left=0, Right, Centre, Justify }
     public enum QFontMonospacing { Natural = 0, Yes, No }
 

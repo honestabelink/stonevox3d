@@ -1,11 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Input;
-using stonevox;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace stonevox
 {

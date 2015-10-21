@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
-
 
 namespace QuickFont
 {
 
     enum FontLoadMethod { FontObject, FontFile, QFontFile };
-        
 
     /// <summary>
     /// Describes how a font was loaded so that it can be reloaded

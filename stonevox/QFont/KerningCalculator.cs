@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Drawing;
 
 namespace QuickFont
 {
@@ -14,9 +12,6 @@ namespace QuickFont
             public int Min;
             public int Max;
         }
-
-
-
 
         private static int Kerning(QFontGlyph g1, QFontGlyph g2, XLimits[] lim1, XLimits[] lim2, QFontKerningConfiguration config)
         {

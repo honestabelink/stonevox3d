@@ -1,23 +1,11 @@
-﻿using System;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Collections.Generic;
-
-using OpenTK.Graphics.OpenGL;
-using OpenTK;
-using OpenTK.Audio;
-using OpenTK.Input;
-using OpenTK.Platform;
-
-
-
 
 namespace QuickFont
 {
-
-
-
-
 
     public class JTexture
     {

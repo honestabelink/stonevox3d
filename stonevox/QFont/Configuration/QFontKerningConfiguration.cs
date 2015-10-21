@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace QuickFont
 {
@@ -22,7 +21,6 @@ namespace QuickFont
         /// </summary>
         NotMoreThanHalf
     }
-
 
     public class QFontKerningConfiguration
     {

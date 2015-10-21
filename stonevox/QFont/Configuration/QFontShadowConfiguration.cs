@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace QuickFont
+﻿namespace QuickFont
 {
-
-
-
-
     /// <summary>
     /// The configuration used when building a font drop shadow.
     /// </summary>

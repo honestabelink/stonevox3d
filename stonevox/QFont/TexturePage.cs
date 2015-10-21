@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Drawing;
-using System.Drawing.Text;
+﻿using OpenTK.Graphics.OpenGL;
+using System;
 using System.Drawing.Imaging;
-using OpenTK.Graphics.OpenGL;
-using OpenTK;
 
 
 namespace QuickFont
