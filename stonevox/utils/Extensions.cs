@@ -15,7 +15,7 @@ namespace stonevox
             }
             catch
             {
-                return 0;
+                return -1;
             }
         }
 
@@ -27,7 +27,7 @@ namespace stonevox
             }
             catch
             {
-                return 0;
+                return -1;
             }
         }
 
