@@ -178,6 +178,10 @@ namespace stonevox
                 selected = selected < Singleton<QbManager>.INSTANCE.models.Count ? selected : Singleton<QbManager>.INSTANCE.models.Count-1;
                 UpdateTabs();
             }
+            else if (message.messgae == Message.ModelRenamed)
+            {
+                UpdateTabs();
+            }
 
             base.HandleMessageRecieved(message);
         }

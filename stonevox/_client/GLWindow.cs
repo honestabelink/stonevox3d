@@ -253,6 +253,7 @@ namespace stonevox
                     model.name = save.FileName.Split('\\').Last();
                     if (model.name.Contains('.'))
                         model.name = model.name.Split('.').First();
+                    broadcaster.Broadcast(Message.ModelRenamed, model, model.name);
                     ImportExportUtil.Export(save.FileName.Split('\\').Last().Replace(model.name, ""), model.name, Path.GetDirectoryName(save.FileName), model);
                 }
             }

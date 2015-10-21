@@ -30,6 +30,7 @@ namespace stonevox
 
         ModelImported,
         ModelRemoved,
+        ModelRenamed,
         ActiveMatrixChanged,
         ActiveModelChanged,
 
