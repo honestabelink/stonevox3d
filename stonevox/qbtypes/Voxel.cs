@@ -27,8 +27,6 @@
         public int y;
         public int z;
 
-        public bool removed;
-
         public Voxel(int x, int y, int z, byte a, int colorindex)
         {
             this.x = x;
