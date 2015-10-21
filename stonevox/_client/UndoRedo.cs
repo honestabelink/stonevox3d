@@ -48,11 +48,24 @@ namespace stonevox
 
         public void Undo()
         {
-            if (undos.Count == 0) return;
+            UndoData undo;
+            var matrices = Singleton<QbManager>.INSTANCE.ActiveModel.matrices;
 
-            var undo = undos.Pop();
+            // skip all undodata that doesn't have a matrix
+            // (ie, matrix was removed or something)
+            while (true)
+            {
+                if (undos.Count == 0) return;
+                undo = undos.Pop();
 
-            if (undo.matrix == null) return;
+                if (!Singleton<QbManager>.INSTANCE.ActiveModel.matrices.Contains(undo.matrix))
+                    continue;
+
+                if (undo.matrix == null)
+                    continue;
+                else
+                    break;
+            }
 
             Singleton<ClientBrush>.INSTANCE.brushes[undo.brush].RemoveVolume(undo.volume, undo.matrix, undo.data);
             undo.matrix.Clean();
@@ -61,11 +74,24 @@ namespace stonevox
 
         public void Redo()
         {
-            if (redos.Count == 0) return;
+            UndoData redo;
+            var matrices = Singleton<QbManager>.INSTANCE.ActiveModel.matrices;
 
-            var redo = redos.Pop();
+            // skip all undodata that doesn't have a matrix
+            // (ie, matrix was removed or something)
+            while (true)
+            {
+                if (redos.Count == 0) return;
+                redo = redos.Pop();
 
-            if (redo.matrix == null) return;
+                if (!Singleton<QbManager>.INSTANCE.ActiveModel.matrices.Contains(redo.matrix))
+                    continue;
+
+                if (redo.matrix == null)
+                    continue;
+                else
+                    break;
+            }
 
             Singleton<ClientBrush>.INSTANCE.brushes[redo.brush].AddVolume(redo.volume, redo.matrix, ref redo.color, redo.data);
             redo.matrix.Clean();
