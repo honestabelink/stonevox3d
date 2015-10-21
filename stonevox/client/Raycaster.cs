@@ -28,12 +28,12 @@ namespace stonevox
         float clientheight;
 
         Camera camera;
-        ClientInput input;
+        Input input;
         GLWindow window;
         Selection selection;
         Floor floor;
         QbManager manager;
-        ClientGUI gui;
+        GUI gui;
 
         public Vector3 rayOrigin;
         public Vector3 rayDirection;
@@ -82,7 +82,7 @@ namespace stonevox
 
         Thread thread;
 
-        public Raycaster(GLWindow window, Camera camera, Selection selection, Floor floor, ClientInput input, QbManager manager, ClientGUI gui)
+        public Raycaster(GLWindow window, Camera camera, Selection selection, Floor floor, Input input, QbManager manager, GUI gui)
         {
             this.window = window;
             this.camera = camera;
@@ -216,9 +216,9 @@ namespace stonevox
                             // ohhh my...
                             // super super hacks
                             if (HasHit)
-                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, manager.ActiveModel.matrices[index], hit);
+                                Singleton<BrushManager>.INSTANCE.onselectionchanged(input, manager.ActiveModel.matrices[index], hit);
                             else
-                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, null, hit);
+                                Singleton<BrushManager>.INSTANCE.onselectionchanged(input, null, hit);
 
                         }
                         lastHit = hit;
@@ -255,9 +255,9 @@ namespace stonevox
                             // ohhh my...
                             // super super hacks
                             if (HasHit)
-                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, manager.ActiveModel.matrices[indexx], hit);
+                                Singleton<BrushManager>.INSTANCE.onselectionchanged(input, manager.ActiveModel.matrices[indexx], hit);
                             else
-                                Singleton<ClientBrush>.INSTANCE.onselectionchanged(input, null, hit);
+                                Singleton<BrushManager>.INSTANCE.onselectionchanged(input, null, hit);
 
                         }
                         lastHit = hit;

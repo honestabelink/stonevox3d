@@ -11,7 +11,7 @@ namespace stonevox
         public int ActiveModelIndex { get { return activemodelindex; } set { SetActiveModel(value); } }
         public List<QbModel> models = new List<QbModel>();
 
-        ClientBroadcaster broadcaster;
+        Broadcaster broadcaster;
 
         public QbModel ActiveModel
         {
@@ -25,7 +25,7 @@ namespace stonevox
             set { SetActiveMatrix(value); }
         }
 
-        public QbManager(ClientBroadcaster broadcaster)
+        public QbManager(Broadcaster broadcaster)
             : base()
         {
             this.broadcaster = broadcaster;

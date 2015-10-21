@@ -9,7 +9,7 @@ namespace stonevox
     {
         public static int MinSize = 15;
         Camera camera;
-        ClientBroadcaster broadcaster;
+        Broadcaster broadcaster;
 
         public Color4 color = Color4.Cyan;
 
@@ -23,7 +23,7 @@ namespace stonevox
         Vector3 up = new Vector3(0, 1, 0);
         Vector3 h = Vector3.Zero;
 
-        public Floor(Camera camera, ClientBroadcaster broadcaster)
+        public Floor(Camera camera, Broadcaster broadcaster)
             : base()
         {
             this.camera = camera;

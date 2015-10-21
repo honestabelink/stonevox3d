@@ -145,7 +145,7 @@ namespace stonevox
                             label.text += "|";
                             editing = true;
                             edit = true;
-                            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                            Singleton<GUI>.INSTANCE.Dirty = true;
                         }
                         else if (edit && k.Key == Key.Enter || k.Key == Key.KeypadEnter)
                         {
@@ -159,7 +159,7 @@ namespace stonevox
                                 MessageBox.Show("Matrix names MUST contain at least one character", "Matrix Name Limits");
                             }
 
-                            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                            Singleton<GUI>.INSTANCE.Dirty = true;
 
                             int index = labels.IndexOf(label);
                             int offset = index + offsetindex;
@@ -167,15 +167,15 @@ namespace stonevox
                             QbModel m = Singleton<QbManager>.INSTANCE.ActiveModel;
 
                             m.matrices[offset].name = label.text;
-                            Singleton<ClientGUI>.INSTANCE.Get<TextBox>(GUIID.ACTIVE_MATRIX_NAME).Text = label.text;
+                            Singleton<GUI>.INSTANCE.Get<TextBox>(GUIID.ACTIVE_MATRIX_NAME).Text = label.text;
                         }
                         else if (edit && k.Key == Key.Escape)
                         {
                             label.text = previousText.Replace("|", "");
                             edit = false;
                             editing = false;
-                            Singleton<ClientGUI>.INSTANCE.Get<TextBox>(GUIID.ACTIVE_MATRIX_NAME).Text = label.text;
-                            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                            Singleton<GUI>.INSTANCE.Get<TextBox>(GUIID.ACTIVE_MATRIX_NAME).Text = label.text;
+                            Singleton<GUI>.INSTANCE.Dirty = true;
                         }
                         else if (editing)
                         {
@@ -206,7 +206,7 @@ namespace stonevox
                             }
 
                             label.color = System.Drawing.Color.White;
-                            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                            Singleton<GUI>.INSTANCE.Dirty = true;
 
                             int index = labels.IndexOf(label);
                             int offset = index + offsetindex;
@@ -214,7 +214,7 @@ namespace stonevox
                             QbModel m = Singleton<QbManager>.INSTANCE.ActiveModel;
 
                             m.matrices[offset].name = label.text;
-                            Singleton<ClientGUI>.INSTANCE.Get<TextBox>(GUIID.ACTIVE_MATRIX_NAME).Text = label.text;
+                            Singleton<GUI>.INSTANCE.Get<TextBox>(GUIID.ACTIVE_MATRIX_NAME).Text = label.text;
                         }
 
                     }
@@ -394,7 +394,7 @@ namespace stonevox
             }
         }
 
-        public void AddWidgets(ClientGUI gui)
+        public void AddWidgets(GUI gui)
         {
             gui.widgets.Add(this);
             gui.widgets.Add(background);
@@ -449,7 +449,7 @@ namespace stonevox
             }
 
             scrollbar.SetValue(offsetindex);
-            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+            Singleton<GUI>.INSTANCE.Dirty = true;
         }
 
         public void Refresh()
@@ -461,7 +461,7 @@ namespace stonevox
             background.Enable = true;
             background.SetBoundsNoScaling(Absolute_X, labels[0].Absolute_Y, size.X, labels[0].size.Y - (4f).ScaleVerticlSize());
 
-            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+            Singleton<GUI>.INSTANCE.Dirty = true;
         }
     }
 }

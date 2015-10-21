@@ -33,30 +33,30 @@ namespace stonevox
 
         public BrushColorSelection()
         {
-            Singleton<ClientInput>.INSTANCE.AddHandler(new InputHandler()
+            Singleton<Input>.INSTANCE.AddHandler(new InputHandler()
             {
                 Keydownhandler = (e) =>
                 {
-                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
+                    if (Singleton<GUI>.INSTANCE.OverWidget) return;
                     if (!Active && e.Shift)
                     {
-                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(BrushType);
+                        Singleton<BrushManager>.INSTANCE.SetCurrentBrush(BrushType);
                     }
                 },
                 Keyuphandler = (e) =>
                 {
-                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
+                    if (Singleton<GUI>.INSTANCE.OverWidget) return;
 
                     if (Active && (e.Key == Key.ShiftLeft || e.Key == Key.ShiftRight))
                     {
-                        var clientbrush = Singleton<ClientBrush>.INSTANCE;
+                        var clientbrush = Singleton<BrushManager>.INSTANCE;
                         clientbrush.SetCurrentBrush(clientbrush.previousBrush.BrushType);
                     }
                 }
             });
         }
 
-        public bool OnRaycastHitchanged(ClientInput input, QbMatrix matrix, RaycastHit hit, ref Colort color, MouseButtonEventArgs e)
+        public bool OnRaycastHitchanged(Input input, QbMatrix matrix, RaycastHit hit, ref Colort color, MouseButtonEventArgs e)
         {
             if ((e != null && e.IsPressed && e.Button == MouseButton.Left) || (e == null && input.mousedown(MouseButton.Left)))
             {
@@ -68,17 +68,17 @@ namespace stonevox
                     {
                         for (int i = 0; i < 10; i++)
                         {
-                            var colorpal = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                            var colorpal = Singleton<GUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
 
                             if ((bool)colorpal.customData["active"])
                             {
                                 colorpal.appearence.Get<PlainBackground>("background").color = mat.colors[voxel.colorindex];
-                                Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                                Singleton<GUI>.INSTANCE.Dirty = true;
 
-                                Singleton<ClientBrush>.INSTANCE.brushColor = mat.colors[voxel.colorindex];
+                                Singleton<BrushManager>.INSTANCE.brushColor = mat.colors[voxel.colorindex];
 
                                 Color4 colorr = mat.colors[voxel.colorindex];
-                                Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, colorpal, colorr);
+                                Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, colorpal, colorr);
                             }
                         }
                     }

@@ -13,7 +13,7 @@ namespace stonevox
         public Matrix4 view;
         public Matrix4 modelviewprojection;
 
-        private ClientInput input;
+        private Input input;
         private QbManager manager;
 
         public Vector3 cameraright { get { return Vector3.Cross(direction, VectorUtils.UP); } }
@@ -33,7 +33,7 @@ namespace stonevox
         public bool freecam;
 
 
-        public Camera(GLWindow window, ClientInput input, QbManager manager)
+        public Camera(GLWindow window, Input input, QbManager manager)
             : base()
         {
             this.input = input;
@@ -56,7 +56,7 @@ namespace stonevox
             {
                 mousewheelhandler = (e) =>
                     {
-                        if (!Singleton<ClientGUI>.INSTANCE.OverWidget)
+                        if (!Singleton<GUI>.INSTANCE.OverWidget)
                         {
                             if (e.Delta < 0)
                             {
@@ -67,7 +67,7 @@ namespace stonevox
                                 position += direction * 6 * 1f;
                             }
                         }
-                        else if (Singleton<ClientGUI>.INSTANCE.lastWidgetOver.Drag)
+                        else if (Singleton<GUI>.INSTANCE.lastWidgetOver.Drag)
                         {
                             if (e.Delta < 0)
                             {
@@ -85,7 +85,7 @@ namespace stonevox
 
         public void update(float delta)
         {
-            if (!Singleton<ClientGUI>.INSTANCE.OverWidget)
+            if (!Singleton<GUI>.INSTANCE.OverWidget)
             {
                 if (input.Keydown(Key.Q))
                     position += Vector3.UnitY * -15f * delta;

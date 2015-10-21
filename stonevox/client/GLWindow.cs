@@ -33,12 +33,12 @@ namespace stonevox
 
         // this goes along with the comment below
         // these are all singeltons now
-        ClientInput input;
+        Input input;
         Camera camera;
         Selection selection;
-        ClientBrush brushes;
-        ClientGUI gui;
-        ClientBroadcaster broadcaster;
+        BrushManager brushes;
+        GUI gui;
+        Broadcaster broadcaster;
         UndoRedo undoredo;
         Raycaster raycaster;
         Floor floor;
@@ -102,13 +102,13 @@ namespace stonevox
 
             ShaderUtil.CreateShader("quad_interpolation", "./data/shaders/QuadInterpolation.vs", "./data/shaders/QuadInterpolation.fs");
 
-            broadcaster = new ClientBroadcaster();
+            broadcaster = new Broadcaster();
             manager = new QbManager(broadcaster);
-            input = new ClientInput(this);
+            input = new Input(this);
             camera = new Camera(this, input, manager);
-            brushes = new ClientBrush(this, input);
+            brushes = new BrushManager(this, input);
             floor = new Floor(camera, broadcaster);
-            gui = new ClientGUI(this, manager, input);
+            gui = new GUI(this, manager, input);
             selection = new Selection(this,brushes, input, manager, floor, gui);
             renderer = new Wireframe(camera, selection, floor, input);
             undoredo = new UndoRedo(input);

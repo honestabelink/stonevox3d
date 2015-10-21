@@ -23,7 +23,7 @@ namespace stonevox.gui.editor
         private void GUIEditor_Load(object sender, EventArgs e)
         {
             broadcasthandler = broadcasthook;
-            Singleton<ClientBroadcaster>.INSTANCE.handlers.Add(broadcasthandler);
+            Singleton<Broadcaster>.INSTANCE.handlers.Add(broadcasthandler);
             CollectionEditorHook.FormClosed += CollectionEditor_FormClosed;
 
             Type[] Types = Assembly.GetExecutingAssembly().GetTypes();
@@ -83,7 +83,7 @@ namespace stonevox.gui.editor
 
                         propertzGrid1.SelectedObject = this.widgetData;
 
-                        Singleton<ClientGUI>.INSTANCE.widgets.Add(widget);
+                        Singleton<GUI>.INSTANCE.widgets.Add(widget);
                     };
                     
                     this.toolStripDropDownButton1.DropDownItems.Add(widgetToolStrip);
@@ -103,7 +103,7 @@ namespace stonevox.gui.editor
 
         private void GUIEditor_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Singleton<ClientBroadcaster>.INSTANCE.handlers.Remove(broadcasthandler);
+            Singleton<Broadcaster>.INSTANCE.handlers.Remove(broadcasthandler);
         }
 
         void broadcasthook(Message message, Widget widget, object[] args)
@@ -198,7 +198,7 @@ namespace stonevox.gui.editor
                 if (c == DialogResult.OK)
                 {
                     GUIData data = new GUIData();
-                    foreach (var widget in Singleton<ClientGUI>.INSTANCE.widgets)
+                    foreach (var widget in Singleton<GUI>.INSTANCE.widgets)
                     {
                         data.widgets.Add(widget.ToWidgetData());
                     }

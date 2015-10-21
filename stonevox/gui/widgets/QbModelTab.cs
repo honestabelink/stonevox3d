@@ -115,7 +115,7 @@ namespace stonevox
             return new SizeF();
         }
 
-        public void AddWidgets(ClientGUI gui)
+        public void AddWidgets(GUI gui)
         {
             gui.widgets.Add(this);
             gui.widgets.Add(label);

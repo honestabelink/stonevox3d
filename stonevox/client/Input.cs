@@ -10,7 +10,7 @@ namespace stonevox
     public delegate void MouseMoveHandler(MouseMoveEventArgs e);
     public delegate void MouseWheelHandler(MouseWheelEventArgs e);
 
-    public class ClientInput : Singleton<ClientInput>
+    public class Input : Singleton<Input>
     {
 
         public List<InputHandler> messaginghandlers = new List<InputHandler>();
@@ -35,7 +35,7 @@ namespace stonevox
 
         private bool isFocused { get { return window.isfocused; } }
 
-        public ClientInput(GLWindow window)
+        public Input(GLWindow window)
              : base()
         {
             this.window = window;

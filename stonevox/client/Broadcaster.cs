@@ -60,19 +60,19 @@ namespace stonevox
 
     public delegate void BroadcastMessageHandler(Message message, Widget windget, object[] args);
 
-    public class ClientBroadcaster : Singleton<ClientBroadcaster>
+    public class Broadcaster : Singleton<Broadcaster>
     {
-        ClientGUI gui;
+        GUI gui;
 
         public List<BroadcastMessageHandler> handlers;
 
-        public ClientBroadcaster()
+        public Broadcaster()
              : base()
         {
             handlers = new List<BroadcastMessageHandler>();
         }
 
-        public void SetGUI(ClientGUI gui)
+        public void SetGUI(GUI gui)
         {
             this.gui = gui;
         }

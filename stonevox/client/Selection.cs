@@ -16,11 +16,11 @@ namespace stonevox
         float cubesize = .5f;
         float[] buffer;
 
-        private ClientBrush brushes;
-        private ClientInput input;
+        private BrushManager brushes;
+        private Input input;
         private QbManager manager;
         private Floor floor;
-        private ClientGUI gui;
+        private GUI gui;
         public Raycaster raycaster;
 
         public bool handledselectionchange = true;
@@ -35,7 +35,7 @@ namespace stonevox
 
         private Label statusStrip;
 
-        public Selection(GLWindow window, ClientBrush tools, ClientInput input, QbManager manager, Floor floor, ClientGUI gui)
+        public Selection(GLWindow window, BrushManager tools, Input input, QbManager manager, Floor floor, GUI gui)
              : base()
         {
             this.brushes = tools;
@@ -58,7 +58,7 @@ namespace stonevox
             {
                 mousedownhandler = (e) =>
                 {
-                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
+                    if (Singleton<GUI>.INSTANCE.OverWidget) return;
 
                     if (e.Button == MouseButton.Left && !dirty && handledselectionchange && Singleton<Raycaster>.INSTANCE.HasHit)
                     {

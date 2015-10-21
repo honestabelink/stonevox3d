@@ -105,7 +105,7 @@ namespace stonevox
         void UpdateEnable(bool value)
         {
             children.ForEach(t => t.Enable = value);
-            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+            Singleton<GUI>.INSTANCE.Dirty = true;
         }
 
         float DetermineLocationX()
@@ -181,14 +181,14 @@ namespace stonevox
         {
             handler.Keypresshandler?.Invoke(this, e);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetKeyPress, this, e);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetKeyPress, this, e);
         }
 
         public virtual void HandleMouseMove(MouseMoveEventArgs e)
         {
             handler.mousemovehandler?.Invoke(this, e);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseMove, this, e);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetMouseMove, this, e);
         }
 
         public virtual void HandleMouseDown(MouseButtonEventArgs e)
@@ -202,7 +202,7 @@ namespace stonevox
 
             handler.mousedownhandler?.Invoke(this, e);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseDown, this, e);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetMouseDown, this, e);
 
             lastClickTime = DateTime.Now;
         }
@@ -211,42 +211,42 @@ namespace stonevox
         public virtual void HandleMouseDoubleClick(MouseButtonEventArgs e)
         {
             handler.mousedoubleclick?.Invoke(this, e);
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseDoubleClick, this, e);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetMouseDoubleClick, this, e);
         }
 
         public virtual void HandleMouseUp(MouseButtonEventArgs e)
         {
             handler.mouseuphandler?.Invoke(this, e);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseUp, this, e);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetMouseUp, this, e);
         }
 
         public virtual void HandleMouseWheel(MouseWheelEventArgs e)
         {
             handler.mousewheelhandler?.Invoke(this, e);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseScroll, this, e);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetMouseScroll, this, e);
         }
 
         public virtual void HandleMouseEnter()
         {
             handler.mouseenter?.Invoke(this);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseEnter, this);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetMouseEnter, this);
         }
 
         public virtual void HandleMouseLeave()
         {
             handler.mouseleave?.Invoke(this);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseLeave, this);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetMouseLeave, this);
         }
 
         public virtual void HandleMouseOver()
         {
             handler.mouseover?.Invoke(this);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetMouseOver, this);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetMouseOver, this);
         }
 
         public virtual void HandleFocusedGained()
@@ -254,7 +254,7 @@ namespace stonevox
             focused = true;
             handler.focusgained?.Invoke(this);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetFocus, this);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetFocus, this);
         }
 
         public virtual void HandleFocusedLost()
@@ -262,7 +262,7 @@ namespace stonevox
             focused = false;
             handler.focuslost?.Invoke(this);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WidgetFocusLost, this);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WidgetFocusLost, this);
         }
 
         public virtual void HandleMessageRecieved(BroadcastMessage message)
@@ -287,7 +287,7 @@ namespace stonevox
             if (height.HasValue)
                 size.Y = Scale.vSizeScale(height.Value);
 
-            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+            Singleton<GUI>.INSTANCE.Dirty = true;
         }
 
         public virtual void SetBoundsNoScaling(float? x, float? z, float? width = null, float? height = null)
@@ -307,7 +307,7 @@ namespace stonevox
             if (height.HasValue)
                 size.Y = height.Value;
 
-            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+            Singleton<GUI>.INSTANCE.Dirty = true;
         }
 
         public virtual void Update(FrameEventArgs e)
@@ -348,7 +348,7 @@ namespace stonevox
 
             if (data.ParentID != -1)
             {
-                Parent = Singleton<ClientGUI>.INSTANCE.widgets.Find((e) => e.ID == data.ParentID);
+                Parent = Singleton<GUI>.INSTANCE.widgets.Find((e) => e.ID == data.ParentID);
             }
 
             this.SetBounds(data.Location.X, data.Location.Y, data.Size.X, data.Size.Y);
@@ -381,7 +381,7 @@ namespace stonevox
 
         public int GetNextAvailableID()
         {
-            return Singleton<ClientGUI>.INSTANCE.NextAvailableWidgeID;
+            return Singleton<GUI>.INSTANCE.NextAvailableWidgeID;
         }
 
         public void DoTranslation(string name)

@@ -98,7 +98,7 @@ namespace stonevox
                 else
                     textAppearence.AppendText = "|";
 
-                Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                Singleton<GUI>.INSTANCE.Dirty = true;
             }
         }
 
@@ -163,7 +163,7 @@ namespace stonevox
             if (handler.textboxtextchange != null)
                 handler.textboxtextchange(this);
 
-            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+            Singleton<GUI>.INSTANCE.Dirty = true;
         }
 
         public void HandleTextCommit()
@@ -171,7 +171,7 @@ namespace stonevox
             if (handler.textboxtextcommit != null)
                 handler.textboxtextcommit(this);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.TextboxTextCommited, this, text);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.TextboxTextCommited, this, text);
         }
 
         public override Widget FromWidgetData(WidgetData data)

@@ -123,7 +123,7 @@ namespace stonevox
                     default:
                         break;
                 }
-                Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                Singleton<GUI>.INSTANCE.Dirty = true;
             }
 
             base.HandleMouseDown(e);

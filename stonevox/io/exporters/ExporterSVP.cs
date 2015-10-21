@@ -133,7 +133,7 @@ namespace stonevox
                         w.Write(colorpalletflag);
                         for (int i = 0; i < 10; i++)
                         {
-                            var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS+ i).appearence.Get<PlainBackground>("background").color;
+                            var c = Singleton<GUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS+ i).appearence.Get<PlainBackground>("background").color;
                             w.Write(c.R);
                             w.Write(c.G);
                             w.Write(c.B);

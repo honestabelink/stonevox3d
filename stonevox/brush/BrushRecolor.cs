@@ -30,16 +30,16 @@ namespace stonevox
 
         public BrushRecolor()
         {
-            Singleton<ClientInput>.INSTANCE.AddHandler(new InputHandler()
+            Singleton<Input>.INSTANCE.AddHandler(new InputHandler()
             {
                 mouseuphandler = (e) =>
                 {
                     if (!Active) return;
 
-                    if (e.Button == MouseButton.Right && Singleton<ClientInput>.INSTANCE.Keydown(Key.AltLeft) && state == ToolState.Base)
+                    if (e.Button == MouseButton.Right && Singleton<Input>.INSTANCE.Keydown(Key.AltLeft) && state == ToolState.Base)
                     {
                         state = ToolState.Disabled;
-                        if (Singleton<ClientInput>.INSTANCE.mouseup(MouseButton.Left))
+                        if (Singleton<Input>.INSTANCE.mouseup(MouseButton.Left))
                         {
                             CleanForToolReset();
                             state = ToolState.Start;
@@ -55,7 +55,7 @@ namespace stonevox
             });
         }
 
-        public bool OnRaycastHitchanged(ClientInput input, QbMatrix matrix, RaycastHit hit, ref Colort color, MouseButtonEventArgs e)
+        public bool OnRaycastHitchanged(Input input, QbMatrix matrix, RaycastHit hit, ref Colort color, MouseButtonEventArgs e)
         {
             lastmatrix = matrix;
             switch (state)

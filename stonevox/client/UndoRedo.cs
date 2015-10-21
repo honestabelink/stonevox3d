@@ -7,7 +7,7 @@ namespace stonevox
         public LimitedSizeStack<UndoData> undos;
         public LimitedSizeStack<UndoData> redos;
 
-        public UndoRedo(ClientInput input)
+        public UndoRedo(Input input)
             : base()
         {
             undos = new LimitedSizeStack<UndoData>(100);
@@ -17,7 +17,7 @@ namespace stonevox
             {
                 Keydownhandler = (e) =>
                 {
-                    var gui =Singleton<ClientGUI>.INSTANCE;
+                    var gui =Singleton<GUI>.INSTANCE;
 
                     if (gui.OverWidget)
                     {
@@ -63,7 +63,7 @@ namespace stonevox
                     break;
             }
 
-            Singleton<ClientBrush>.INSTANCE.brushes[undo.brush].RemoveVolume(undo.volume, undo.matrix, undo.data);
+            Singleton<BrushManager>.INSTANCE.brushes[undo.brush].RemoveVolume(undo.volume, undo.matrix, undo.data);
             undo.matrix.Clean();
             redos.Push(undo);
         }
@@ -89,7 +89,7 @@ namespace stonevox
                     break;
             }
 
-            Singleton<ClientBrush>.INSTANCE.brushes[redo.brush].AddVolume(redo.volume, redo.matrix, ref redo.color, redo.data);
+            Singleton<BrushManager>.INSTANCE.brushes[redo.brush].AddVolume(redo.volume, redo.matrix, ref redo.color, redo.data);
             redo.matrix.Clean();
             undos.Push(redo);
         }

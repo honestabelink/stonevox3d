@@ -19,7 +19,7 @@ namespace stonevox
         public bool drawWireframe = true;
         public WireframeType wireFrameType = WireframeType.SmartOutline;
 
-        public Wireframe(Camera camera, Selection selection, Floor floor, ClientInput input)
+        public Wireframe(Camera camera, Selection selection, Floor floor, Input input)
             : base()
         {
             voxelShader = ShaderUtil.CreateShader("qb", "./data/shaders/voxel.vs", "./data/shaders/voxel.fs");
@@ -35,7 +35,7 @@ namespace stonevox
             {
                 Keydownhandler = (e) =>
                 {
-                    bool shift = Singleton<ClientInput>.INSTANCE.Keydown(OpenTK.Input.Key.ShiftLeft);
+                    bool shift = Singleton<Input>.INSTANCE.Keydown(OpenTK.Input.Key.ShiftLeft);
 
                     if (e.Key == Key.G && !e.Shift)
                     {
@@ -63,13 +63,13 @@ namespace stonevox
                     {
                         wireFrameType = (WireframeType)enumer.Current;
 
-                        Singleton<ClientGUI>.INSTANCE.Get<Button>(GUIID.GRIDOPTIONS).StatusText =
+                        Singleton<GUI>.INSTANCE.Get<Button>(GUIID.GRIDOPTIONS).StatusText =
                                 StatusText.button_gridoptions.Replace("$(type)", wireFrameType.ToString());
 
-                        Singleton<ClientGUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = 
+                        Singleton<GUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = 
                                 StatusText.button_gridoptions.Replace("$(type)", wireFrameType.ToString());
 
-                        Singleton<ClientGUI>.INSTANCE.Dirty = true;
+                        Singleton<GUI>.INSTANCE.Dirty = true;
                         return;
                     }
                 }
@@ -77,13 +77,13 @@ namespace stonevox
 
             wireFrameType = WireframeType.WireframeBlack;
 
-            Singleton<ClientGUI>.INSTANCE.Get<Button>(GUIID.GRIDOPTIONS).StatusText =
+            Singleton<GUI>.INSTANCE.Get<Button>(GUIID.GRIDOPTIONS).StatusText =
                             StatusText.button_gridoptions.Replace("$(type)", wireFrameType.ToString());
 
-            Singleton<ClientGUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text =
+            Singleton<GUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text =
                             StatusText.button_gridoptions.Replace("$(type)", wireFrameType.ToString());
 
-            Singleton<ClientGUI>.INSTANCE.Dirty = true;
+            Singleton<GUI>.INSTANCE.Dirty = true;
         }
 
         public void Render(QbModel model)

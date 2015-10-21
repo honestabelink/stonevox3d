@@ -134,7 +134,7 @@ namespace stonevox
             }
         }
 
-        public void AddWidgets(ClientGUI gui)
+        public void AddWidgets(GUI gui)
         {
             gui.widgets.Add(this);
 
@@ -162,7 +162,7 @@ namespace stonevox
                 // hacks
                 Client.OpenGLContextThread.Add(() =>
                 {
-                    tab.AddWidgets(Singleton<ClientGUI>.INSTANCE);
+                    tab.AddWidgets(Singleton<GUI>.INSTANCE);
                     UpdateTabs();
                 });
             }

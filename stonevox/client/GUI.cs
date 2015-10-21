@@ -34,12 +34,12 @@ namespace stonevox
         public const int ACTIVE_MATRIX_NAME = 850;
     }
 
-    public class ClientGUI : Singleton<ClientGUI>
+    public class GUI : Singleton<GUI>
     {
         public float scale = 1.0f;
 
         public List<Widget> widgets;
-        private ClientInput input;
+        private Input input;
         private GLWindow window;
         private QbManager manager;
 
@@ -64,12 +64,12 @@ namespace stonevox
         int framebuffer;
         int color;
 
-        public ClientGUI(GLWindow window, QbManager manager, ClientInput input)
+        public GUI(GLWindow window, QbManager manager, Input input)
              : base()
         {
             this.window = window;
             this.manager = manager;
-            Singleton<ClientBroadcaster>.INSTANCE.SetGUI(this);
+            Singleton<Broadcaster>.INSTANCE.SetGUI(this);
 
             framebuffer = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
@@ -304,8 +304,8 @@ namespace stonevox
                 {
                     Singleton<Raycaster>.INSTANCE.Enabled = true;
 
-                    if (Client.window.Cursor != Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor)
-                        Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                    if (Client.window.Cursor != Singleton<BrushManager>.INSTANCE.currentBrush.Cursor)
+                        Client.window.Cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
                 }
                 else
                 {
@@ -434,7 +434,7 @@ namespace stonevox
             colorpallete.Clear();
             for (int i = 0; i < 10; i++)
             {
-                var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                var c = Singleton<GUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
                 if (c.customData.Count > 0 && (bool)c.customData["active"])
                 {
                     activecolorindex = i;
@@ -460,7 +460,7 @@ namespace stonevox
             {
                 for (int i = 0; i < 10; i++)
                 {
-                    var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                    var c = Singleton<GUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
                     c.customData["active"] = false;
                     c.appearence.Get<PlainBackground>("background").color = colorpallete[i];
                 }
@@ -468,7 +468,7 @@ namespace stonevox
             }
             for (int i = 0; i < 10; i++)
             {
-                var c = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                var c = Singleton<GUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
                 if (i == activecolorindex)
                 {
                     c.HandleMouseDown(new MouseButtonEventArgs(0, 0, MouseButton.Left, true));
@@ -538,9 +538,9 @@ namespace stonevox
                 {
                     if (s.Button == MouseButton.Left)
                     {
-                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushType.Recolor);
-                        e.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
-                        background.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        Singleton<BrushManager>.INSTANCE.SetCurrentBrush(VoxelBrushType.Recolor);
+                        e.cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
+                        background.cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
                         Client.window.Cursor = e.cursor;
                     }
                 },
@@ -562,9 +562,9 @@ namespace stonevox
                 {
                     if (s.Button == MouseButton.Left)
                     {
-                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushType.Add);
-                        e.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
-                        background.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        Singleton<BrushManager>.INSTANCE.SetCurrentBrush(VoxelBrushType.Add);
+                        e.cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
+                        background.cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
                         Client.window.Cursor = e.cursor;
                     }
                 },
@@ -585,9 +585,9 @@ namespace stonevox
                 {
                     if (s.Button == MouseButton.Left)
                     {
-                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(VoxelBrushType.Remove);
-                        e.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
-                        background.cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                        Singleton<BrushManager>.INSTANCE.SetCurrentBrush(VoxelBrushType.Remove);
+                        e.cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
+                        background.cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
                         Client.window.Cursor = e.cursor;
                     }
                 },
@@ -787,7 +787,7 @@ namespace stonevox
                         target.cursor = null;
 
                         if (lastWidgetOverIndex == -1)
-                            Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                            Client.window.Cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
                         else
                         {
                             if (lastWidgetOver != target)
@@ -796,7 +796,7 @@ namespace stonevox
                                 Client.window.Cursor = cursor;
                             }
                             else
-                                Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                                Client.window.Cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
                         }
                     }
                 }
@@ -887,7 +887,7 @@ namespace stonevox
 
                         ColorConversion.ColorToHSV(color, out hu, out sat, out vi);
 
-                        Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, (float)hu, (float)sat, (float)vi);
+                        Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, (float)hu, (float)sat, (float)vi);
                     });
                 }
             };
@@ -1033,7 +1033,7 @@ namespace stonevox
                         float sat = s.Text.SafeToFloat() / 100f;
                         float vi = v.Text.SafeToFloat() / 100f;
 
-                        Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
+                        Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
                     }
                     else if (e.ID >= GUIID.RGB_R && e.ID <= GUIID.RGB_B)
                     {
@@ -1047,7 +1047,7 @@ namespace stonevox
 
                         ColorConversion.ColorToHSV(Color.FromArgb(red, green, blue), out hu, out sat, out vi);
 
-                        Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, (float)hu, (float)sat, (float)vi);
+                        Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, (float)hu, (float)sat, (float)vi);
                     }
                 }
             };
@@ -1075,7 +1075,7 @@ namespace stonevox
                     float sat = Scale.scale(mouseX, x, x + e.size.X, 0, 1);
                     float vi = Scale.scale(mouseY, y, y + e.size.Y, 0, 1);
 
-                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
+                    Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
                 },
                 mousemovehandler = (e, mouse) =>
                 {
@@ -1101,7 +1101,7 @@ namespace stonevox
                     float sat = Scale.scale(mouseX, x, x + e.size.X, 0, 1);
                     float vi = Scale.scale(mouseY, y, y + e.size.Y, 0, 1);
 
-                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
+                    Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
                 }
             };
 
@@ -1121,7 +1121,7 @@ namespace stonevox
                     float sat = (float)Get<TextBox>(GUIID.HSV_S).customData["hsv_value"];
                     float vi = (float)Get<TextBox>(GUIID.HSV_V).customData["hsv_value"];
 
-                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
+                    Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
                 },
                 mousemovehandler = (e, mouse) =>
                 {
@@ -1147,7 +1147,7 @@ namespace stonevox
                     float sat = (float)Get<TextBox>(GUIID.HSV_S).customData["hsv_value"];
                     float vi = (float)Get<TextBox>(GUIID.HSV_V).customData["hsv_value"];
 
-                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
+                    Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, hu, sat, vi);
                 }
             };
 
@@ -1199,14 +1199,14 @@ namespace stonevox
                     {
                         Color4 color = (Color4)args[0];
 
-                        Singleton<ClientBrush>.INSTANCE.brushColor = color;
+                        Singleton<BrushManager>.INSTANCE.brushColor = color;
 
                         double hu;
                         double sat;
                         double vi;
 
                         ColorConversion.ColorToHSV(color.ToSystemDrawingColor(), out hu, out sat, out vi);
-                        Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, (float)hu, (float)sat, (float)vi);
+                        Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, (float)hu, (float)sat, (float)vi);
                     }
                     else if (message == Message.ColorSelectionUpdate)
                     {
@@ -1257,7 +1257,7 @@ namespace stonevox
                     {
                         if (e.Key == Key.Enter)
                         {
-                            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionCommit, cur_bg.color);
+                            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionCommit, cur_bg.color);
                             background.Enable = false;
                         }
                         else if (e.Key == Key.Escape)
@@ -1281,7 +1281,7 @@ namespace stonevox
                 {
                     if (mouse.Button == MouseButton.Left)
                     {
-                        Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionCommit, cur_bg.color);
+                        Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionCommit, cur_bg.color);
                         background.Enable = false;
                     }
                 }
@@ -1351,7 +1351,7 @@ namespace stonevox
 
             widgets.Add(floorcolor);
 
-            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, 0f, 1f, 1f);
+            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, 0f, 1f, 1f);
         }
 
         void Build_ColorToolbar()
@@ -1454,7 +1454,7 @@ namespace stonevox
                             Colort t = new Colort();
                             Singleton<Raycaster>.INSTANCE.lastHit = hit;
                             Singleton<Selection>.INSTANCE.UpdateVisibleSelection();
-                            Singleton<ClientBrush>.INSTANCE.brushes[VoxelBrushType.ColorSelect].OnRaycastHitchanged(input, null, hit, ref t, null);
+                            Singleton<BrushManager>.INSTANCE.brushes[VoxelBrushType.ColorSelect].OnRaycastHitchanged(input, null, hit, ref t, null);
                         });
                     }
 
@@ -1522,15 +1522,15 @@ namespace stonevox
 
                             for (int i = 0; i < 10; i++)
                             {
-                                var colorpal = Singleton<ClientGUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                                var colorpal = Singleton<GUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
 
                                 if ((bool)colorpal.customData["active"])
                                 {
                                     Color4 color = new Color4(bytes[0], bytes[1], bytes[2], bytes[3]);
                                     colorpal.appearence.Get<PlainBackground>("background").color = color;
-                                    Singleton<ClientGUI>.INSTANCE.Dirty = true;
-                                    Singleton<ClientBrush>.INSTANCE.brushColor = color;
-                                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, colorpal, color);
+                                    Singleton<GUI>.INSTANCE.Dirty = true;
+                                    Singleton<BrushManager>.INSTANCE.brushColor = color;
+                                    Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, colorpal, color);
                                     break;
                                 }
                             }
@@ -1541,7 +1541,7 @@ namespace stonevox
                         eyedropper.cursor = null;
 
                         if (lastWidgetOverIndex == -1)
-                            Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                            Client.window.Cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
                         else
                         {
                             if (lastWidgetOver != eyedropper)
@@ -1550,7 +1550,7 @@ namespace stonevox
                                 Client.window.Cursor = cursor;
                             }
                             else
-                                Client.window.Cursor = Singleton<ClientBrush>.INSTANCE.currentBrush.Cursor;
+                                Client.window.Cursor = Singleton<BrushManager>.INSTANCE.currentBrush.Cursor;
                         }
                     }
                 }
@@ -1589,7 +1589,7 @@ namespace stonevox
                         {
                             e.customData["active"] = true;
                             border.color = Color4.Yellow;
-                            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, e, bg.color);
+                            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, e, bg.color);
                         }
                         else
                         {
@@ -1598,7 +1598,7 @@ namespace stonevox
                             if (!colorpicker.Enable)
                             {
                                 colorpicker.Enable = true;
-                                Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowOpened, colorpicker);
+                                Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WindowOpened, colorpicker);
                             }
                         }
                     },
@@ -1635,7 +1635,7 @@ namespace stonevox
                             {
                                 Color4 color = (Color4)args[0];
                                 bg.color = color;
-                                Singleton<ClientBrush>.INSTANCE.brushColor = color;
+                                Singleton<BrushManager>.INSTANCE.brushColor = color;
                             }
                         }
                     }
@@ -1684,7 +1684,7 @@ namespace stonevox
                     windowbuttonOFF.Enable = true;
                     background.DoTranslation("transistion_on");
 
-                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowOpened, background);
+                    Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WindowOpened, background);
                 }
             };
 
@@ -1697,7 +1697,7 @@ namespace stonevox
                     windowbuttonON.Enable = true;
                     background.DoTranslation("transistion_off");
 
-                    Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowClosed, background);
+                    Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WindowClosed, background);
                 }
             };
 
@@ -2093,9 +2093,9 @@ namespace stonevox
                         background.Enable = !background.Enable;
 
                         if (background.Enable)
-                            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowOpened, background);
+                            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WindowOpened, background);
                         else
-                            Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.WindowClosed, background);
+                            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WindowClosed, background);
                     }
                 },
                 messagerecived = (e, message, widget, args) =>

@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace stonevox
 {
-    public class ClientBrush : Singleton<ClientBrush>
+    public class BrushManager : Singleton<BrushManager>
     {
         public Colort brushColor = new Colort(.3f, .2f, .8f);
         public IVoxelBrush currentBrush;
@@ -15,7 +15,7 @@ namespace stonevox
 
         private GLWindow window;
 
-        public ClientBrush(GLWindow window, ClientInput input)
+        public BrushManager(GLWindow window, Input input)
             : base()
         {
             this.window = window;
@@ -97,7 +97,7 @@ namespace stonevox
             if (Singleton<Raycaster>.INSTANCE != null)
                 Singleton<Raycaster>.INSTANCE.lastHit = new RaycastHit() { distance = 10000 };
 
-            if (Singleton<ClientGUI>.INSTANCE?.OverWidget == false)
+            if (Singleton<GUI>.INSTANCE?.OverWidget == false)
                 window.Cursor = currentBrush.Cursor;
         }
 
@@ -129,7 +129,7 @@ namespace stonevox
             SetCurrentBrush(first);
         }
 
-        public bool onselectionchanged(ClientInput input, QbMatrix matrix, RaycastHit hit, MouseButtonEventArgs e = null)
+        public bool onselectionchanged(Input input, QbMatrix matrix, RaycastHit hit, MouseButtonEventArgs e = null)
         {
             if (matrix != null && !matrix.Visible) return true;
             return currentBrush.OnRaycastHitchanged(input, matrix, hit, ref brushColor, e);

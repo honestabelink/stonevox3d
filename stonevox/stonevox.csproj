@@ -146,14 +146,29 @@
     <Compile Include="brush\BrushColorSelection.cs" />
     <Compile Include="brush\BrushMatrixSelection.cs" />
     <Compile Include="brush\VoxelBrushType.cs" />
+    <Compile Include="client\Broadcaster.cs" />
+    <Compile Include="client\BrushManager.cs" />
+    <Compile Include="client\Camera.cs" />
+    <Compile Include="client\Colort.cs" />
+    <Compile Include="client\ConsoleCommands.cs" />
+    <Compile Include="client\DragDropTarget.cs" />
+    <Compile Include="client\Floor.cs" />
+    <Compile Include="client\GLWindow.cs" />
+    <Compile Include="client\GUI.cs" />
+    <Compile Include="client\Input.cs" />
+    <Compile Include="client\QbManger.cs" />
+    <Compile Include="client\Raycaster.cs" />
+    <Compile Include="client\Raycaster2.cs" />
+    <Compile Include="client\Selection.cs" />
+    <Compile Include="client\Singleton.cs" />
+    <Compile Include="client\SyncWindow.cs" />
+    <Compile Include="client\UndoRedo.cs" />
     <Compile Include="gui\widgets\QbModelTab.cs" />
     <Compile Include="gui\widgets\QbModelTabs.cs" />
     <Compile Include="gui\widgets\ToggleButton.cs" />
     <Compile Include="io\exporters\ExporterSVP.cs" />
     <Compile Include="io\importers\ImporterSVP.cs" />
     <Compile Include="utils\Screenshot.cs" />
-    <Compile Include="_client\Floor.cs" />
-    <Compile Include="_client\UndoRedo.cs" />
     <Content Include="data\images\addmatrix.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -352,16 +367,6 @@
     <Compile Include="utils\SideUtil.cs" />
     <Compile Include="utils\StatusText.cs" />
     <Compile Include="utils\StopwatchUtil.cs" />
-    <Compile Include="_client\Camera.cs" />
-    <Compile Include="_client\ClientBroadcaster.cs" />
-    <Compile Include="_client\ClientBrush.cs" />
-    <Compile Include="_client\ClientGUI.cs" />
-    <Compile Include="_client\Colort.cs" />
-    <Compile Include="_client\ConsoleCommands.cs" />
-    <Compile Include="_client\DragDropTarget.cs" />
-    <Compile Include="_client\GLWindow.cs" />
-    <Compile Include="_client\ClientInput.cs" />
-    <Compile Include="_client\Raycaster.cs" />
     <Compile Include="io\exporters\ExporterObj.cs" />
     <Compile Include="io\exporters\ExporterQb.cs" />
     <Compile Include="io\IExporter.cs" />
@@ -388,14 +393,9 @@
     <Compile Include="qbtypes\QbMatrix.cs" />
     <Compile Include="utils\GLUtils.cs" />
     <Compile Include="qbtypes\Voxel.cs" />
-    <Compile Include="_client\QbManger.cs" />
     <Compile Include="utils\ShaderUtil.cs" />
     <Compile Include="utils\VectorUtils.cs" />
-    <Compile Include="_client\Raycaster2.cs" />
-    <Compile Include="_client\Selection.cs" />
-    <Compile Include="_client\Singleton.cs" />
     <Compile Include="renderer\SSAO.cs" />
-    <Compile Include="_client\SyncWindow.cs" />
     <Compile Include="renderer\Wireframe.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -409,7 +409,6 @@
     <Content Include="data\shaders\QuadInterpolation.vs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="ClassDiagram1.cd" />
     <None Include="data\shaders\SSAO_geometry.vs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

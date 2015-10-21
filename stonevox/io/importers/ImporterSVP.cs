@@ -39,7 +39,7 @@ namespace stonevox
 
                 for (int i = 0; i < 10; i++)
                 {
-                    var colorpal = Singleton< ClientGUI >.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
+                    var colorpal = Singleton< GUI >.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
 
                     var c = colorpal.appearence.Get<PlainBackground>("background");
                     c.color.R = reader.ReadSingle();
@@ -48,7 +48,7 @@ namespace stonevox
 
                     bool e =(bool)colorpal.customData["active"];
                     if (e)
-                        Singleton<ClientBroadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, colorpal, c.color);
+                        Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionChanged, colorpal, c.color);
                 }
 
                 model.version = reader.ReadUInt32();

@@ -35,25 +35,25 @@ namespace stonevox
 
         public BrushMatrixSelection()
         {
-            Singleton<ClientInput>.INSTANCE.AddHandler(new InputHandler()
+            Singleton<Input>.INSTANCE.AddHandler(new InputHandler()
             {
                 Keydownhandler = (e) =>
                 {
-                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
+                    if (Singleton<GUI>.INSTANCE.OverWidget) return;
                     if (!Active && e.Key == Key.Space)
                     {
-                        Singleton<ClientBrush>.INSTANCE.SetCurrentBrush(BrushType);
+                        Singleton<BrushManager>.INSTANCE.SetCurrentBrush(BrushType);
                     }
                 },
                 Keyuphandler = (e) =>
                 {
-                    if (Singleton<ClientGUI>.INSTANCE.OverWidget) return;
+                    if (Singleton<GUI>.INSTANCE.OverWidget) return;
 
                     if (Active && (e.Key == Key.Space || e.Key == Key.Space))
                     {
-                        var clientbrush = Singleton<ClientBrush>.INSTANCE;
+                        var clientbrush = Singleton<BrushManager>.INSTANCE;
                         clientbrush.SetCurrentBrush(clientbrush.previousBrush.BrushType);
-                        Singleton<ClientGUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = "";
+                        Singleton<GUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = "";
                         if (lastmatrix != null)
                         {
                             Singleton<QbManager>.INSTANCE.ActiveMatrix = lastmatrix;
@@ -67,7 +67,7 @@ namespace stonevox
         }
 
 
-        public bool OnRaycastHitchanged(ClientInput input, QbMatrix matrix, RaycastHit hit, ref Colort color, MouseButtonEventArgs e)
+        public bool OnRaycastHitchanged(Input input, QbMatrix matrix, RaycastHit hit, ref Colort color, MouseButtonEventArgs e)
         {
             if (matrix == null)
             {
@@ -75,7 +75,7 @@ namespace stonevox
                 {
                     lastmatrix.highlight = Color4.White;
                     lastmatrix = null;
-                    Singleton<ClientGUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = "";
+                    Singleton<GUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = "";
                 }
                 return true;
             }
@@ -87,7 +87,7 @@ namespace stonevox
                 matrix.highlight = new Colort(1.5f, 1.5f, 1.5f);
 
                 lastmatrix = matrix;
-                Singleton<ClientGUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = $"Over Matrix : {matrix.name}";
+                Singleton<GUI>.INSTANCE.Get<Label>(GUIID.STATUS_TEXT).text = $"Over Matrix : {matrix.name}";
             }
             return true;
         }

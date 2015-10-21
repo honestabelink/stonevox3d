@@ -16,7 +16,7 @@ namespace stonevox
         private float lastvalue;
         public float fontHeight;
 
-        private ClientGUI gui;
+        private GUI gui;
 
         public VerticalScrollbar() : base()
         {
@@ -37,7 +37,7 @@ namespace stonevox
             SetBounds(null, null, width, height);
             AddAppearence();
 
-            gui = Singleton<ClientGUI>.INSTANCE;
+            gui = Singleton<GUI>.INSTANCE;
         }
 
         void AddAppearence()
