@@ -12,50 +12,6 @@ namespace stonevox
 {
     class Program
     {
-        [DllImport("kernel32.dll", ExactSpelling = true)]
-        public static extern IntPtr GetConsoleWindow();
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        static string lol = "i_made_onion_games_in_the_past";
-
-        public static string Encrypt(string ip)
-        {
-            string e = EncryptOrDecyzpt(ip, lol);
-            string re = "";
-
-            foreach (var c in e)
-                re += ((int)c).ToString() + '-';
-
-            re = re.Remove(re.Length - 1);
-
-            return re;
-        }
-
-        public static string Decrypt(string ip)
-        {
-            string d = "";
-
-            string[] chars = ip.Split('-');
-
-            foreach (var c in chars)
-                d += (char)(Convert.ToInt32(c));
-
-            return EncryptOrDecyzpt(d, lol);
-        }
-
-        public static string EncryptOrDecyzpt(string text, string Key)
-        {
-            var result = new StringBuilder();
-
-            for (int c = 0; c < text.Length; c++)
-                result.Append((char)((uint)text[c] ^ (uint)Key[c % Key.Length]));
-
-            return result.ToString();
-        }
-
         public static Thread serverthread;
         public static Thread clientthread;
 
@@ -193,9 +149,9 @@ namespace stonevox
                 }
             }
 
-            Server.net.Shutdown("shutting down");
-            Client.net.Shutdown("shutting down");
-            Client.window.Close();
+            Server.net?.Shutdown("shutting down");
+            Client.net?.Shutdown("shutting down");
+            Client.window?.Close();
         }
 
         public static void startClient()
@@ -210,6 +166,50 @@ namespace stonevox
         {
             Server.defaultConfigure();
             Server.start();
+        }
+
+        [DllImport("kernel32.dll", ExactSpelling = true)]
+        public static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        static string lol = "i_made_onion_games_in_the_past";
+
+        public static string Encrypt(string ip)
+        {
+            string e = EncryptOrDecyzpt(ip, lol);
+            string re = "";
+
+            foreach (var c in e)
+                re += ((int)c).ToString() + '-';
+
+            re = re.Remove(re.Length - 1);
+
+            return re;
+        }
+
+        public static string Decrypt(string ip)
+        {
+            string d = "";
+
+            string[] chars = ip.Split('-');
+
+            foreach (var c in chars)
+                d += (char)(Convert.ToInt32(c));
+
+            return EncryptOrDecyzpt(d, lol);
+        }
+
+        public static string EncryptOrDecyzpt(string text, string Key)
+        {
+            var result = new StringBuilder();
+
+            for (int c = 0; c < text.Length; c++)
+                result.Append((char)((uint)text[c] ^ (uint)Key[c % Key.Length]));
+
+            return result.ToString();
         }
     }
 }
