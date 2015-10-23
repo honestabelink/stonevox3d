@@ -1,6 +1,5 @@
 ﻿using OpenTK;
 using OpenTK.Input;
-using Polenter.Serialization;
 using System;
 using System.Reflection;
 using System.Windows.Forms;
@@ -203,8 +202,8 @@ namespace stonevox.gui.editor
                         data.widgets.Add(widget.ToWidgetData());
                     }
 
-                    SharpSerializer s = new SharpSerializer();
-                    s.Serialize(data, save.FileName);
+                    //SharpSerializer s = new SharpSerializer();
+                    //s.Serialize(data, save.FileName);
 
                 }
             }

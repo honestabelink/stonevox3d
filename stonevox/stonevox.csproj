@@ -127,10 +127,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\OpenTK.dll</HintPath>
     </Reference>
-    <Reference Include="Polenter.SharpSerializer, Version=2.20.0.0, Culture=neutral, PublicKeyToken=8f4f20011571ee5f, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpSerializer.2.20\lib\net20\Polenter.SharpSerializer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
@@ -301,7 +297,7 @@
     <Compile Include="gui\appearences\SmoothBackground.cs" />
     <Compile Include="gui\widgets\QbModelMatrixListbox.cs" />
     <Compile Include="memory\VoxelSideBuffer.cs" />
-    <Content Include="OpenTK.dll" />
+    <None Include="OpenTK.dll" />
     <Content Include="Properties\AssemblyInfo.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AssemblyInfo1.cs</LastGenOutput>
