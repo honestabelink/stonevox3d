@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace stonevox
 {
@@ -29,24 +30,40 @@ namespace stonevox
                         QbMatrix m = model.matrices[i];
                         if (!m.Visible) continue;
 
-                        w.Write(m.name);
-                        w.Write((uint)m.size.X);
-                        w.Write((uint)m.size.Y);
-                        w.Write((uint)m.size.Z);
+                        int startx = Math.Min(0 , m.minx );
+                        int starty = Math.Min(0, m.miny);
+                        int startz = Math.Min(0 , m.minz );
 
-                        w.Write((uint)m.position.X);
-                        w.Write((uint)m.position.Y);
-                        w.Write((uint)m.position.Z);
+                        int width = (int)(Math.Abs(Math.Min(0, m.minx)) + m.maxx + 1);
+                        int height = (int)(Math.Abs(Math.Min(0, m.miny)) + m.maxy + 1);
+                        int length = (int)(Math.Abs(Math.Min(0, m.minz)) + m.maxz + 1);
+
+                        if (width < m.size.X)
+                            width = (int)m.size.X;
+
+                        if (height < m.size.Y)
+                            height = (int)m.size.Y;
+
+                        if (length < m.size.Z)
+                            length = (int)m.size.Z;
+
+                        w.Write(m.name);
+                        w.Write((uint)width);
+                        w.Write((uint)height);
+                        w.Write((uint)length);
+
+                        w.Write((int)m.position.X);
+                        w.Write((int)m.position.Y);
+                        w.Write((int)m.position.Z);
 
                         if (model.compressed == 0)
                         {
-
                             Voxel voxel;
-                            for (int z = 0; z < m.size.Z; z++)
-                                for (int y = 0; y < m.size.Y; y++)
-                                    for (int x = 0; x < m.size.X; x++)
+                            for (int z = startz; z < startz + length; z++)
+                                for (int y = starty; y < starty + height; y++)
+                                    for (int x = startx; x < startx + width; x++)
                                     {
-                                        int zz = model.zAxisOrientation == (int)0 ? z : (int)(m.size.Z - z - 1);
+                                        int zz = model.zAxisOrientation == (int)0 ? z : (int)(length - z - 1);
 
                                         if (m.voxels.TryGetValue(m.GetHash(x, y, zz), out voxel))
                                         {

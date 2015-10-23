@@ -23,20 +23,20 @@ namespace stonevox
         {
             Client.OpenGLContextThread.Add(() =>
             {
-                int width = Client.window.Width;
-                int height = Client.window.Height;
+                int Wwidth = Client.window.Width;
+                int Wheight = Client.window.Height;
 
                 int framebuffer = GL.GenBuffer();
                 GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
 
                 int color = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture2D, color);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, Wwidth, Wheight, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
                 GL.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, color, 0);
 
                 int depth = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture2D, depth);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent24, width, height, 0, PixelFormat.DepthComponent, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent24, Wwidth, Wheight, 0, PixelFormat.DepthComponent, PixelType.UnsignedByte, IntPtr.Zero);
                 GL.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, TextureTarget.Texture2D, depth, 0);
 
                 GL.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
@@ -99,7 +99,7 @@ namespace stonevox
                 var cameraup = Vector3.Cross(cameraright, direction);
 
                 var view = Matrix4.LookAt(position, position + direction, cameraup);
-                var modelviewprojection = view * Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45), (float)width / (float)height, 1, 300);
+                var modelviewprojection = view * Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45), (float)Wwidth / (float)Wheight, 1, 300);
 
                 Shader voxelShader = ShaderUtil.GetShader("qb");
 
@@ -113,7 +113,7 @@ namespace stonevox
                 using (FileStream f = new FileStream(fullpath, FileMode.OpenOrCreate))
                 {
                     var bit = Screenshot.ScreenShot(ReadBufferMode.ColorAttachment0);
-                    bit = cropImage(bit, new Rectangle(width /4, 0, width - ((width/4)*2), height));
+                    bit = cropImage(bit, new Rectangle(Wwidth /4, 0, Wwidth - ((Wwidth/4)*2), Wheight));
                     bit = bit.ResizeImage(ResizeKeepAspect(bit.Size, 400, 400));
                     byte[] buffer = new byte[0];
                     using (MemoryStream m = new MemoryStream())
@@ -152,24 +152,40 @@ namespace stonevox
                             QbMatrix m = model.matrices[i];
                             if (!m.Visible) continue;
 
-                            w.Write(m.name);
-                            w.Write((uint)m.size.X);
-                            w.Write((uint)m.size.Y);
-                            w.Write((uint)m.size.Z);
+                            int startx = Math.Min(0, m.minx);
+                            int starty = Math.Min(0, m.miny);
+                            int startz = Math.Min(0, m.minz);
 
-                            w.Write((uint)m.position.X);
-                            w.Write((uint)m.position.Y);
-                            w.Write((uint)m.position.Z);
+                            int width = (int)(Math.Abs(Math.Min(0, m.minx)) + m.maxx + 1);
+                            int height = (int)(Math.Abs(Math.Min(0, m.miny)) + m.maxy + 1);
+                            int length = (int)(Math.Abs(Math.Min(0, m.minz)) + m.maxz + 1);
+
+                            if (width < m.size.X)
+                                width = (int)m.size.X;
+
+                            if (height < m.size.Y)
+                                height = (int)m.size.Y;
+
+                            if (length < m.size.Z)
+                                length = (int)m.size.Z;
+
+                            w.Write(m.name);
+                            w.Write((uint)width);
+                            w.Write((uint)height);
+                            w.Write((uint)length);
+
+                            w.Write((int)m.position.X);
+                            w.Write((int)m.position.Y);
+                            w.Write((int)m.position.Z);
 
                             if (model.compressed == 0)
                             {
-
                                 Voxel voxel;
-                                for (int z = 0; z < m.size.Z; z++)
-                                    for (int y = 0; y < m.size.Y; y++)
-                                        for (int x = 0; x < m.size.X; x++)
+                                for (int z = startz; z < startz + length; z++)
+                                    for (int y = starty; y < starty + height; y++)
+                                        for (int x = startx; x < startx + width; x++)
                                         {
-                                            int zz = model.zAxisOrientation == (int)0 ? z : (int)(m.size.Z - z - 1);
+                                            int zz = model.zAxisOrientation == (int)0 ? z : (int)(length - z - 1);
 
                                             if (m.voxels.TryGetValue(m.GetHash(x, y, zz), out voxel))
                                             {
