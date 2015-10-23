@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace stonevox
 {
@@ -54,6 +55,11 @@ namespace stonevox
                 {
                     if (mouse.IsPressed && mouse.Button == OpenTK.Input.MouseButton.Left)
                     {
+                        var result = MessageBox.Show("There might be unsaved changes to this model. Are you sure you want to close it?", "StoneVox : Closing Model", MessageBoxButtons.OKCancel);
+
+                        if (result == DialogResult.Cancel || result == DialogResult.Abort)
+                            return;
+
                         Singleton<QbManager>.INSTANCE.RemoveModel(this.model);
                     }
                 }
