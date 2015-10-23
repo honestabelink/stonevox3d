@@ -2,13 +2,14 @@
 {
     public static class StatusText
     {
-        public const string button_target = "Click and Drag over\nMatrix to select it\nShortcut - Space";
-        public const string button_eyedrop = "Click and Drag over\nanything to color pick\nShortcut - Shift";
+        public const string button_target = "Drag over Matrix to select it\nShortcut - Hold Space";
+        public const string button_eyedrop = "Drag over anything to color pick\nShortcut - Hold Shift & Click";
         public const string button_gridoptions = "Voxel Outlining : $(type)\nShortcut - Shift + G\nEnable/Disable - G";
 
         public const string button_add = "Add Voxel Tool\nClick and Drag to fill by volume\nTab - cycle tools";
         public const string button_remove= "Remove Voxel Tool\nClick and Drag to remove by volume\nTab - cycle tools";
         public const string button_recolor= "Recolor Voxel Tool\nClick and Drag to recolor by volume\nTab - cycle tools";
+        public const string button_IO = "Open-Save-Import Files";
 
         public const string picture_colorpicker_header = "Click and Drag to move color picker";
         public const string button_colorpallete = "Click to Set Active Color\nClick again to open Color Picker";

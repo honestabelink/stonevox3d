@@ -5,6 +5,7 @@ using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -20,18 +21,21 @@ namespace stonevox
         public const int RGB_G = 504;
         public const int RGB_B = 505;
 
+        public const int MATRIX_LISTBOX_WINDOW = 700;
+        public const int MATRIX_SIZE_TEXTBOX = 701;
+        public const int IO_WINDOW = 900;
         public const int COLOR_PICKER_WINDOW = 600;
+
         public const int COLORQUAD = 601;
 
         public const int START_COLOR_SELECTORS = 1000;
-
-        public const int MATRIX_LISTBOX_WINDOW = 700;
 
         public const int STATUS_TEXT = 750;
 
         public const int GRIDOPTIONS = 800;
 
         public const int ACTIVE_MATRIX_NAME = 850;
+
     }
 
     public class GUI : Singleton<GUI>
@@ -423,9 +427,7 @@ namespace stonevox
                 return (T)widget.First();
             else
             {
-                var w = Activator.CreateInstance<T>();
-                w.ID = 10000000;
-                return w;
+                return null;
             }
         }
 
@@ -435,18 +437,18 @@ namespace stonevox
             for (int i = 0; i < 10; i++)
             {
                 var c = Singleton<GUI>.INSTANCE.Get<EmptyWidget>(GUIID.START_COLOR_SELECTORS + i);
-                if (c.customData.Count > 0 && (bool)c.customData["active"])
+                if (c?.customData.Count > 0 && (bool)c.customData["active"])
                 {
                     activecolorindex = i;
                 }
 
-                if (c.appearence.Count > 0)
+                if (c?.appearence.Count > 0)
                     colorpallete.Add(c.appearence.Get<PlainBackground>("background").color);
             }
             widgetIDs = 100000;
             object handler = null;
-            Get<EmptyWidget>(GUIID.COLOR_PICKER_WINDOW).customData.TryGetValue("inputhandler", out handler);
-            input.removehandler(handler as InputHandler);
+            Get<EmptyWidget>(GUIID.COLOR_PICKER_WINDOW)?.customData.TryGetValue("inputhandler", out handler);
+            input?.removehandler(handler as InputHandler);
 
             lastWidgetFocusedID = -1;
             lastWidgetOverIndex = -1;
@@ -498,6 +500,271 @@ namespace stonevox
             Build_MatrixList();
             Build_Screenshot();
             Build_ColorPicker();
+            Build_IOWindow();
+        }
+
+        void Build_IOWindow()
+        {
+            // background
+            EmptyWidget background = new EmptyWidget(GUIID.IO_WINDOW);
+            background.appearence.AddAppearence("background", new Picture("./data/images/save_window_background.png"));
+            background.SetBoundsNoScaling(0 - background.size.X / 2f, 0 - background.size.Y /2f);
+
+            Button cancel = new Button("./data/images/colorpicker_cancel.png", "./data/images/colorpicker_cancel_highlight.png");
+            cancel.Parent = background;
+            cancel.SetBoundsNoScaling(background.Absolute_X + background.size.X -cancel.size.X *2.3f, background.Absolute_Y + background.size.Y * .04f);
+
+            Button openingTab = new Button("./data/images/tab.png", "./data/images/tab_highlight.png");
+            openingTab.Parent = background;
+            openingTab.SetBoundsNoScaling(background.Absolute_X + background.size.X * .03f, background.Absolute_Y + background.size.Y * .96f);
+
+            PlainText openingText = new PlainText(false, "Open", Color.White);
+            openingTab.appearence.AddAppearence("text", openingText);
+            openingText.Alignment = QuickFont.QFontAlignment.Centre;
+            openingText.offsetX = (openingTab.size.X*.25f).UnScaleHorizontalSize();
+            openingText.offsetY = (openingTab.size.Y * .03f).UnScaleVerticlSize();
+
+            widgets.Add(openingTab);
+
+            Button savingTab= new Button("./data/images/tab.png", "./data/images/tab_highlight.png");
+            savingTab.Parent = background;
+            savingTab.SetBoundsNoScaling(openingTab.Absolute_X + openingTab.size.X + background.size.X * .02f, background.Absolute_Y + background.size.Y * .93f);
+
+            PlainText savingText = openingText.Clone();
+            savingText.Text = "Save";
+            savingTab.appearence.AddAppearence("text", savingText);
+
+            widgets.Add(savingTab);
+
+            Button importingTab= new Button("./data/images/tab.png", "./data/images/tab_highlight.png");
+            importingTab.Parent = background;
+            importingTab.SetBoundsNoScaling(savingTab.Absolute_X + savingTab .size.X+ background.size.X * .02f, background.Absolute_Y + background.size.Y * .93f);
+
+            importingTab.size.X += importingTab.size.X * .25f;
+
+            PlainText importingText = openingText.Clone();
+            importingText.Text = "Import";
+            importingText.offsetX = (importingTab.size.X * .25f).UnScaleHorizontalSize();
+            importingTab.appearence.AddAppearence("text", importingText);
+
+            widgets.Add(importingTab);
+            widgets.Add(background);
+            widgets.Add(cancel);
+
+
+            // open
+            EmptyWidget openGroup = new EmptyWidget();
+            widgets.Add(openGroup);
+
+            Label recentFiles = new Label("Recent Files (coming soon)", Color.White);
+            recentFiles.Parent = openGroup;
+            recentFiles.SetBoundsNoScaling(background.Absolute_X + background.size.X * .05f, background.Absolute_Y + background.size.Y * .9f);
+            widgets.Add(recentFiles);
+
+            Button openButton = new Button("./data/images/open.png", "./data/images/open_highlight.png");
+            openButton.Parent = openGroup;
+            openButton.SetBoundsNoScaling(background.Absolute_X + background.size.X - cancel.size.X * 1.2f, background.Absolute_Y + background.size.Y * .04f);
+            widgets.Add(openButton);
+
+            // save
+            EmptyWidget saveGroup = new EmptyWidget();
+            widgets.Add(saveGroup);
+
+            Label amazingSaveOptions = new Label("Insert Amazing Saving Options :)", Color.White);
+            amazingSaveOptions.Parent = saveGroup;
+            amazingSaveOptions.SetBoundsNoScaling(background.Absolute_X + background.size.X * .05f, background.Absolute_Y + background.size.Y * .9f);
+            widgets.Add(amazingSaveOptions);
+
+            Button saveButton = new Button("./data/images/screenshot_save.png", "./data/images/screenshot_save_highlight.png");
+            saveButton.Parent = saveGroup;
+            saveButton.SetBoundsNoScaling(background.Absolute_X + background.size.X - cancel.size.X * 1.2f, background.Absolute_Y + background.size.Y * .04f);
+            widgets.Add(saveButton);
+
+            // import
+            EmptyWidget importGroup = new EmptyWidget();
+            widgets.Add(importGroup);
+
+            Label smodlabel = new Label("Import Files (including game files)\nAgain Coming Soon", Color.White);
+            smodlabel.Parent = importGroup;
+            smodlabel.SetBoundsNoScaling(background.Absolute_X + background.size.X * .05f, background.Absolute_Y + background.size.Y * .9f - smodlabel.size.Y *.5f);
+            widgets.Add(smodlabel);
+
+            Button importButton = new Button("./data/images/import.png", "./data/images/import_highlight.png");
+            importButton.Parent = importGroup;
+            importButton.SetBoundsNoScaling(background.Absolute_X + background.size.X - cancel.size.X * 1.2f, background.Absolute_Y + background.size.Y * .04f);
+            widgets.Add(importButton);
+
+            String currentTab = "open";
+
+            var tabHandler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        if (e.ID == openingTab.ID)
+                        {
+                            currentTab = "open";
+                            openGroup.Enable = true;
+                            saveGroup.Enable = false;
+                            importGroup.Enable = false;
+
+                            openingTab.SetBoundsNoScaling(null, background.Absolute_Y + background.size.Y * .96f);
+                            savingTab.SetBoundsNoScaling(null, background.Absolute_Y + background.size.Y * .93f);
+                            importingTab.SetBoundsNoScaling(null, background.Absolute_Y + background.size.Y * .93f);
+                        }
+                        else if (e.ID == savingTab.ID)
+                        {
+                            currentTab = "save";
+                            openGroup.Enable = false;
+                            saveGroup.Enable = true;
+                            importGroup.Enable = false;
+
+                            openingTab.SetBoundsNoScaling(null, background.Absolute_Y + background.size.Y * .93f);
+                            savingTab.SetBoundsNoScaling(null, background.Absolute_Y + background.size.Y * .96f);
+                            importingTab.SetBoundsNoScaling(null, background.Absolute_Y + background.size.Y * .93f);
+                        }
+                        else
+                        {
+                            currentTab = "import";
+                            openGroup.Enable = false;
+                            saveGroup.Enable = false;
+                            importGroup.Enable = true;
+
+                            openingTab.SetBoundsNoScaling(null, background.Absolute_Y + background.size.Y * .93f);
+                            savingTab.SetBoundsNoScaling(null, background.Absolute_Y + background.size.Y * .93f);
+                            importingTab.SetBoundsNoScaling(null, background.Absolute_Y + background.size.Y * .96f);
+                        }
+                    }
+                }
+            };
+            openingTab.handler = tabHandler;
+            savingTab.handler = tabHandler;
+            importingTab.handler = tabHandler;
+
+            background.handler = new WidgetEventHandler()
+            {
+                messagerecived = (e, message, widget, args) =>
+                {
+                    if (message == Message.WindowOpened)
+                    {
+                        if (args.Count() > 0)
+                        {
+                            EmptyWidget possibleIOWindow = args[0] as EmptyWidget;
+
+                            if (possibleIOWindow == background)
+                            {
+                                // opening IO window message
+                                if (currentTab == "open")
+                                    openGroup.Enable = true;
+                                else if (currentTab == "save")
+                                    saveGroup.Enable = true;
+                                else if (currentTab == "import")
+                                    importGroup.Enable = true;
+                            }
+                        }
+                        else
+                        {
+                            // another window opening
+                            background.Enable = false;
+                            openGroup.Enable = false;
+                            saveGroup.Enable = false;
+                            importGroup.Enable = false;
+                        }
+                    }
+                }
+            };
+
+            cancel.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        background.Enable = false;
+                        openGroup.Enable = false;
+                        saveGroup.Enable = false;
+                        importGroup.Enable = false;
+                    }
+                }
+            };
+
+
+            openButton.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        var open = new OpenFileDialog();
+                        open.Multiselect = false;
+                        open.Title = "Open .qb File";
+                        open.DefaultExt = ".qb";
+
+                        var result = open.ShowDialog();
+
+                        if (result == DialogResult.OK)
+                        {
+                            background.Enable = false;
+                            openGroup.Enable = false;
+                            saveGroup.Enable = false;
+                            importGroup.Enable = false;
+
+                            Client.OpenGLContextThread.Add(() =>
+                            {
+                                ImportExportUtil.Import(open.FileName);
+                            });
+                        }
+                    }
+                }
+            };
+
+            saveButton.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        var save = new SaveFileDialog();
+                        save.Title = "Save File";
+                        save.Filter = "StoneVox Project (.svp)|*.svp|Qubicle Binary (.qb)|*.qb|Wavefront OBJ (.obj)|*.obj|All files (*.*)|*.*";
+                        save.DefaultExt = ".svp";
+
+                        var result = save.ShowDialog();
+
+                        if (result == DialogResult.OK)
+                        {
+                            background.Enable = false;
+                            openGroup.Enable = false;
+                            saveGroup.Enable = false;
+                            importGroup.Enable = false;
+
+                            QbModel model = manager.ActiveModel;
+                            model.name = save.FileName.Split('\\').Last();
+                            if (model.name.Contains('.'))
+                                model.name = model.name.Split('.').First();
+                            Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ModelRenamed, model, model.name);
+                            ImportExportUtil.Export(save.FileName.Split('\\').Last().Replace(model.name, ""), model.name, Path.GetDirectoryName(save.FileName), model);
+                        }
+                    }
+                }
+            };
+
+            importButton.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+
+                    }
+                }
+            };
+
+            background.Enable = false;
+            openGroup.Enable = false;
+            saveGroup.Enable = false;
+            importGroup.Enable = false;
         }
 
         void Build_ModelTabs()
@@ -602,6 +869,21 @@ namespace stonevox
             Button save = new Button("./data/images/save.png",
                                                          "./data/images/save_highlight.png");
             save.SetBoundsNoScaling(background.location.X + ((selection.size.X / 2.6f) * 5f) + selection.size.X * 4f, -1);
+            save.StatusText = StatusText.button_IO;
+
+            save.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        var IOWindow = Get<EmptyWidget>(GUIID.IO_WINDOW);
+                        IOWindow.Enable = true;
+                        Singleton<Broadcaster>.INSTANCE.Broadcast(Message.WindowOpened, e, IOWindow);
+                    }
+                }
+            };
+
             widgets.Add(save);
 
             Label status = new Label(GUIID.STATUS_TEXT, "", Color.Yellow, true);
@@ -2012,7 +2294,7 @@ namespace stonevox
 
             Vector3 activeMatrixSize = manager.HasModel ? manager.ActiveMatrix.size : Vector3.Zero;
 
-            TextBox textbox_setMatrixSize = new TextBox($"{activeMatrixSize.X},{activeMatrixSize.Y},{activeMatrixSize.Z}", Color.White, 15);
+            TextBox textbox_setMatrixSize = new TextBox(GUIID.MATRIX_SIZE_TEXTBOX,$"{activeMatrixSize.X},{activeMatrixSize.Y},{activeMatrixSize.Z}", Color.White, 15);
             textbox_setMatrixSize.Parent = background;
             textbox_setMatrixSize.SetBoundsNoScaling(textbox_setMatrixName.Absolute_X, label_setMatrixSize.Absolute_Y);
             textbox_setMatrixSize.size.X = textbox_setMatrixName.size.X;
@@ -2037,11 +2319,20 @@ namespace stonevox
                     if (message == Message.ActiveMatrixChanged || message == Message.ModelImported)
                     {
                         QbMatrix m = manager.ActiveMatrix;
-                        int x = (int)m.size.X;
-                        int y = (int)m.size.Y;
-                        int z = (int)m.size.Z;
+                        int width =  (int)(Math.Abs(Math.Min(0, m.minx)) + m.maxx + 1);
+                        int length = (int)(Math.Abs(Math.Min(0, m.minz)) + m.maxz + 1);
+                        int height = (int)(Math.Abs(Math.Min(0, m.miny)) + m.maxy + 1);
 
-                        textbox_setMatrixSize.Text = $"{x},{y},{z}";
+                        if (width < m.size.X)
+                            width = (int)m.size.X;
+
+                        if (length < m.size.Z)
+                            length = (int)m.size.Z;
+
+                        if (height < m.size.Y)
+                            height = (int)m.size.Y;
+
+                        textbox_setMatrixSize.Text = $"{width},{height},{length}";
                     }
                 },
                 focusgained = (e) =>
