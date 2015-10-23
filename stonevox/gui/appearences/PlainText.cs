@@ -33,6 +33,9 @@ namespace stonevox
         public bool AutoSize;
         public string AppendText = "";
 
+        public float offsetX;
+        public float offsetY;
+
         private string text = "";
         private Color color = Color.White;
         public QFontAlignment Alignment;
@@ -49,11 +52,18 @@ namespace stonevox
         }
 
         public PlainText(bool autoSize, string text, Color color, QFontAlignment alignment)
+            :this(autoSize, text, color, alignment, 0, 0)
+        {
+        }
+
+        public PlainText(bool autoSize, string text, Color color, QFontAlignment alignment, float offsetX, float offsetY)
         {
             this.AutoSize = autoSize;
             this.text = text;
             this.Color = color;
             this.Alignment = alignment;
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
         }
 
         public override void Initialize()
@@ -67,7 +77,7 @@ namespace stonevox
 
             QFont.Begin();
             Client.window.Qfont.Options.Colour = color;
-            Client.window.Qfont.Print(text + AppendText, Alignment, new Vector2(xx, yy));
+            Client.window.Qfont.Print(text + AppendText, Alignment, new Vector2(xx+offsetX , yy+offsetY));
             QFont.End();
         }
 
@@ -100,11 +110,16 @@ namespace stonevox
         public override Appearence FromData(AppearenceData data)
         {
             PlainTextData _data = data as PlainTextData;
-            return new PlainText(_data.AutoSize, _data.Text, _data.Color);
+            return new PlainText(_data.AutoSize, _data.Text, _data.Color, _data.Alignment, _data.OffsetX, _data.OffsetY);
         }
         public override AppearenceData ToData()
         {
-            return new PlainTextData(AutoSize, text, color);
+            return new PlainTextData(AutoSize, text, color, Alignment, offsetX, offsetY);
+        }
+
+        public PlainText Clone()
+        {
+            return FromData(ToData()) as PlainText;
         }
     }
 }
