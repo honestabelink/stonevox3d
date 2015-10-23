@@ -6,6 +6,7 @@ using QuickFont;
 using stonevox.gui.editor;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -256,6 +257,28 @@ namespace stonevox
                 GUIEditor editor = new GUIEditor();
                 editor.Show();
             }
+            //else if (e.Key == Key.T)
+            //{
+            //    Stopwatch w = Stopwatch.StartNew();
+            //    var model = Singleton<QbManager>.INSTANCE.ActiveMatrix;
+
+            //    Colort color = new Colort(1f, 0f, 0f);
+
+            //    var volume = new VoxelVolume()
+            //    {
+            //        minx = 0,
+            //        maxx = 100,
+            //        miny = 0,
+            //        maxy = 100,
+            //        minz = 0,
+            //        maxz = 100
+            //    };
+
+            //    model.Add(volume, ref color);
+
+            //    w.Stop();
+            //    Console.WriteLine("add " + w.ElapsedMilliseconds.ToString());
+            //}
             //else if (e.Key == Key.T)
             //{
             //    Stopwatch w = Stopwatch.StartNew();
