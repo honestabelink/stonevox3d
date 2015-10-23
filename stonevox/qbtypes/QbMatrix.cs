@@ -544,13 +544,27 @@ namespace stonevox
 
         public void MatchFloorToSize()
         {
-            float x      = Math.Min(0 -1, minx-1);
-            float y      = Math.Min(0, miny);
-            float z      = Math.Min(0- 1, minz-1);
-            float width  = Math.Abs(Math.Min(0-1, minx-1))+ Math.Max(size.X +1, maxx +1);
-            float length =Math.Abs(Math.Min(0-1, minz-1))+  Math.Max(size.Z+1, maxz+1);
+            float x = Math.Min(0 - 1, minx - 1);
+            float y = Math.Min(0, miny);
+            float z = Math.Min(0 - 1, minz - 1);
 
-            Singleton<Floor>.INSTANCE.SetFloorSize(x,y,z, width, length);
+            int width = (int)(Math.Abs(Math.Min(0 - 1, minx - 1)) + maxx + 1);
+            int height = (int)(Math.Abs(Math.Min(0, miny)) + maxy + 1);
+            int length = (int)(Math.Abs(Math.Min(0 - 1, minz - 1)) + maxz + 1);
+
+            if (width < size.X + 1)
+                width = (int)size.X + 1;
+
+            if (height < size.Y)
+                height = (int)size.Y;
+
+            if (length < size.Z + 1)
+                length = (int)size.Z + 1;
+
+            var matrixSizeTextbox = Singleton<GUI>.INSTANCE.Get<TextBox>(GUIID.MATRIX_SIZE_TEXTBOX);
+            if (matrixSizeTextbox != null)
+                matrixSizeTextbox.Text = $"{width - 1},{height},{length - 1}";
+            Singleton<Floor>.INSTANCE.SetFloorSize(x, y, z, width, length);
         }
 
         public double GetHash(int x, int y, int z)
@@ -1003,6 +1017,93 @@ namespace stonevox
             colorindexholes = unused;
         }
 
+        #endregion
+
+        #region NewVoxelEditing
+
+        public void Add(VoxelVolume volume, ref Colort color)
+        {
+            int colorIndex = GetColorIndex(color.R, color.G, color.B);
+            double hash = 0;
+            // for all inner points in volume...
+            for (int z = volume.minz + 1; z <= volume.maxz - 1; z++)
+                for (int y = volume.miny + 1; y <= volume.maxy - 1; y++)
+                    for (int x = volume.minx + 1; x <= volume.maxx - 1; x++)
+                    {
+                        hash = GetHash(x, y, z);
+                        if (!voxels.TryGetValue(hash, out voxel))
+                        {
+                            // alphamask = 1 because we know we're this point is inside the voxel volume
+                            Voxel voxel = new Voxel(x, y, z, (byte)1, colorIndex);
+                            voxel.dirty = true;
+                            voxels.TryAdd(hash, voxel);
+
+                            // since this is new voxel we don't need to update any visible geometry
+                            // (again it is interior voxel)
+                        }
+                        // we have a voxel here already
+                        else
+                        {
+                            // nuke all visible geometry of voxel
+                            voxel.alphamask = 1;
+                            voxel.dirty = true;
+                            UpdateVoxel();
+                        }
+                    }
+
+            var insideVolume = new VoxelVolume()
+            {
+                minx = volume.minx + 1,
+                miny = volume.miny + 1,
+                minz = volume.minz + 1,
+                maxx = volume.maxx - 1,
+                maxy = volume.maxy - 1,
+                maxz = volume.maxz - 1,
+            };
+
+            // for all exterior voxels
+            for (int z = volume.minz; z <= volume.maxz; z++)
+                for (int y = volume.miny; y <= volume.maxy; y++)
+                    for (int x = volume.minx; x <= volume.maxx; x++)
+                    {
+                        if (!insideVolume.ContainsPoint(x,y, z))
+                            Add(x, y, z, color);
+                    }
+        }
+
+        public void Add(VoxelVolume volume, VoxelVolume preVolume, ref Colort color)
+        {
+            int colorIndex = GetColorIndex(color.R, color.G, color.B);
+            double hash = 0;
+            // for all inner points in volume...
+            for (int z = volume.minz + 1; z <= volume.maxz - 1; z++)
+                for (int y = volume.miny + 1; y <= volume.maxy - 1; y++)
+                    for (int x = volume.minx + 1; x <= volume.maxx - 1; x++)
+                    {
+                        // if point not inside prevoius volume
+                        if (!preVolume.ContainsPoint(x, y, z))
+                        {
+                            hash = GetHash(x, y, z);
+                            if (!voxels.TryGetValue(hash, out voxel))
+                            {
+                                // alphamask = 1 because we know we're this point is inside the voxel volume
+                                Voxel voxel = new Voxel(x, y, z, (byte)1, colorIndex);
+                                voxels.TryAdd(hash, voxel);
+
+                                // since this is new voxel we don't need to update any visible geometry
+                                // (again it is interior voxel)
+                            }
+                            // we have a voxel here already
+                            else
+                            {
+                                // nuke all visible geometry of voxel
+                                voxel.alphamask = 1;
+                                UpdateVoxel();
+                            }
+                        }
+                    }
+
+        }
         #endregion
     }
 }
