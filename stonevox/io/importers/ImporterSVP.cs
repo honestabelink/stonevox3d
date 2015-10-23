@@ -65,7 +65,7 @@ namespace stonevox
                     byte l = reader.ReadByte();
                     m.name = System.Text.Encoding.Default.GetString(reader.ReadBytes(l));
                     m.setsize((int)reader.ReadUInt32(), (int)reader.ReadUInt32(), (int)reader.ReadUInt32());
-                    m.position = new OpenTK.Vector3(reader.ReadUInt32(), reader.ReadUInt32(), reader.ReadUInt32());
+                    m.position = new OpenTK.Vector3(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
 
                     byte r;
                     byte g;
