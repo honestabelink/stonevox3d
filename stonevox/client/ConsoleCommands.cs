@@ -250,18 +250,45 @@ namespace stonevox
         [ConsoleArgs("filepath - path to file to load")]
         public static void loadqb(string path)
         {
-            StopwatchUtil.startclient("internalqbread", "Begin Qb Read");
-            ImporterQb importer = new ImporterQb();
-            QbModel model = importer._read(path);
+            if (!File.Exists(path))
+            {
+                Client.print("error", $"Error : loadqb -File {path}, was not found.");
+                return;
+            }
 
-            StopwatchUtil.stopclient("internalqbread", "End Qb Read");
+            Client.OpenGLContextThread.Add(() =>
+            {
+                ImportExportUtil.Import(path);
+            });
+        }
 
-            StopwatchUtil.startclient("clientwriteqbpacket", "Begin Qb Packet Write");
-            var packet = PacketWriter.write<Packet_QbImported>(NetEndpoint.CLIENT);
-            packet.write(model);
-            packet.send();
-            StopwatchUtil.stopclient("clientwriteqbpacket", "End qb Packet Write");
+        [ConsoleCommand("loadqbnetworking", 1)]
+        [ConsoleCommandDescription("Loads a .qb file internally, then sends the loaded model to all clients connected.")]
+        [ConsoleArgs("filepath - path to file to load")]
+        public static void loadqbnetworking(string path)
+        {
+            if (Client.net != null && Client.net.ConnectionsCount == 0)
+            {
+                Client.print("error", "Error : loadqbnetworking - is meant for network loading of files. Connect your client to a server before running this command, or try using \"loadqb\"");
+                return;
+            }
 
+            Client.OpenGLContextThread.Add(() =>
+            {
+
+                StopwatchUtil.startclient("internalqbread", "Begin Qb Read");
+                ImporterQb importer = new ImporterQb();
+                QbModel model = importer._read(path);
+
+                StopwatchUtil.stopclient("internalqbread", "End Qb Read");
+
+                StopwatchUtil.startclient("clientwriteqbpacket", "Begin Qb Packet Write");
+                var packet = PacketWriter.write<Packet_QbImported>(NetEndpoint.CLIENT);
+                packet.write(model);
+                packet.send();
+                StopwatchUtil.stopclient("clientwriteqbpacket", "End qb Packet Write");
+
+            });
         }
 
 
@@ -292,6 +319,10 @@ namespace stonevox
             Client.OpenGLContextThread.Add(() =>
             {
                 Console.WriteLine();
+
+                var osversion= Environment.OSVersion.VersionString;
+                Client.print("debug", osversion);
+
                 string majorminor = GL.GetString(StringName.Version);
                 Client.print("debug", string.Format("Available OpenGL version : {0}", majorminor));
 
@@ -380,6 +411,7 @@ namespace stonevox
                     {
                         using (StreamWriter s = new StreamWriter(file))
                         {
+                            s.WriteLine(osversion);
                             s.WriteLine(string.Format("Available OpenGL version : {0}", majorminor));
                             s.WriteLine(string.Format("Vendor : {0}", vendor));
                             s.WriteLine(string.Format("Available Render version : {0}", renderer));
@@ -388,27 +420,9 @@ namespace stonevox
                             s.WriteLine();
                             s.WriteLine(string.Format("Available Extensions : {0}", supports.Length));
 
-                            for (int i = 0; i < supports.Length; i += 3)
+                            for (int i = 0; i < supports.Length; i++)
                             {
-                                s.WriteLine(string.Format("   {0}, {1}, {2}", supports[i], supports[i + 1], supports[i + 2]));
-                            }
-
-                            try
-                            {
-                                int mod = supports.Length % 3;
-
-                                string bb = "";
-
-                                for (int i = supports.Length - mod; i < supports.Length; i++)
-                                {
-                                    bb += supports[i] + ", ";
-                                }
-                                s.WriteLine(string.Format("    {0}", bb));
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine(ex.ToString());
-                                s.WriteLine("LITTLE ERROR WRITTING");
+                                s.WriteLine(string.Format("    {0}", supports[i]));
                             }
 
                             s.WriteLine();
