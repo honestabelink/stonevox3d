@@ -26,6 +26,7 @@ namespace stonevox
             brushes.Add(VoxelBrushType.Recolor, new BrushRecolor());
             brushes.Add(VoxelBrushType.MatrixSelect, new BrushMatrixSelection());
             brushes.Add(VoxelBrushType.ColorSelect, new BrushColorSelection());
+            brushes.Add(VoxelBrushType.Select, new BrushVoxelSelection());
 
             input.AddHandler(new InputHandler()
             {
@@ -45,6 +46,12 @@ namespace stonevox
                 while (enumer.MoveNext())
                 {
                     string path = brushes[(VoxelBrushType)enumer.Current].CursorPath;
+
+                    if (string.IsNullOrEmpty(path))
+                    {
+                        brushes[(VoxelBrushType)enumer.Current].Cursor = OpenTK.MouseCursor.Default;
+                        continue;
+                    }
 
                     Bitmap bitmap = new Bitmap(path);
 
@@ -81,12 +88,12 @@ namespace stonevox
                 currentBrush.Disable();
 
                 //super super hacks
-                if (currentBrush.BrushType != VoxelBrushType.MatrixSelect || currentBrush.BrushType != VoxelBrushType.ColorSelect)
+                if (currentBrush.BrushType != VoxelBrushType.Select || currentBrush.BrushType != VoxelBrushType.MatrixSelect || currentBrush.BrushType != VoxelBrushType.ColorSelect)
                     previousBrush = currentBrush;
             }
             else
             {
-                if (currentBrush?.BrushType != VoxelBrushType.MatrixSelect || currentBrush.BrushType != VoxelBrushType.MatrixSelect)
+                if (currentBrush?.BrushType != VoxelBrushType.Select || currentBrush?.BrushType != VoxelBrushType.MatrixSelect || currentBrush?.BrushType != VoxelBrushType.MatrixSelect)
                     previousBrush = currentBrush;
             }
             currentBrush = brushes[type];
@@ -117,7 +124,7 @@ namespace stonevox
                         if (enumer.MoveNext())
                         {
                             // kinda hacky but so is the matrix selection tool...
-                            if ((VoxelBrushType)enumer.Current == VoxelBrushType.MatrixSelect || currentBrush.BrushType == VoxelBrushType.MatrixSelect)
+                            if ((VoxelBrushType)enumer.Current == VoxelBrushType.Select || (VoxelBrushType)enumer.Current == VoxelBrushType.MatrixSelect || currentBrush.BrushType == VoxelBrushType.MatrixSelect)
                                 continue;
                             SetCurrentBrush((VoxelBrushType)enumer.Current);
                             return;

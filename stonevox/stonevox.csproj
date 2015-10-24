@@ -141,6 +141,7 @@
   <ItemGroup>
     <Compile Include="brush\BrushColorSelection.cs" />
     <Compile Include="brush\BrushMatrixSelection.cs" />
+    <Compile Include="brush\BrushVoxelSelection.cs" />
     <Compile Include="brush\VoxelBrushType.cs" />
     <Compile Include="client\Broadcaster.cs" />
     <Compile Include="client\BrushManager.cs" />
@@ -169,6 +170,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="data\images\addmatrix_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\arrowSide.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\arrowSide_highlight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\arrowUp.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\images\arrowUp_highlight.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="data\images\backgroundcolor.png">

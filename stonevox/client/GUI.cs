@@ -8,6 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace stonevox
@@ -36,6 +37,7 @@ namespace stonevox
 
         public const int ACTIVE_MATRIX_NAME = 850;
 
+        public const int HACKYSELECTIONTOOL = 950;
     }
 
     public class GUI : Singleton<GUI>
@@ -130,7 +132,7 @@ namespace stonevox
                                 lastWidgetFocused.HandleFocusedLost();
 
                             lastWidgetFocusedID = lastWidgetOverIndex;
-                            lastWidgetOver.HandleFocusedGained();
+                            lastWidgetOver?.HandleFocusedGained();
                         }
 
                         lastWidgetOver.HandleMouseDown(e);
@@ -501,6 +503,104 @@ namespace stonevox
             Build_Screenshot();
             Build_ColorPicker();
             Build_IOWindow();
+            Build_HackySelectionTool();
+        }
+
+        void Build_HackySelectionTool()
+        {
+            EmptyWidget group = new EmptyWidget(GUIID.HACKYSELECTIONTOOL);
+            widgets.Add(group);
+
+            float yoffset = -.8f;
+
+            Button right = new Button("./data/images/arrowSide.png", "./data/images/arrowSide_highlight.png");
+            right.Parent = group;
+            right.SetBoundsNoScaling(.75f, yoffset);
+            right.StatusText = "Move Active Matrix - Right";
+            widgets.Add(right);
+
+            Button left = new Button("./data/images/arrowSide.png", "./data/images/arrowSide_highlight.png");
+            left.Parent = group;
+            left.SetBoundsNoScaling(.75f - left.size.X * 1.2f, yoffset);
+            left.StatusText = "Move Active Matrix - Left";
+            widgets.Add(left);
+            left.SetPictureRenderingOption(Picture.RenderOptions.FlipHorizontal);
+
+            Button forward = new Button("./data/images/arrowUp.png", "./data/images/arrowUp_highlight.png");
+            forward.Parent = group;
+            forward.SetBoundsNoScaling(.75f - forward.size.X * .60f, forward.size.Y * 1.1f + yoffset);
+            forward.StatusText = "Move Active Matrix - Forward";
+            widgets.Add(forward);
+
+            Button back = new Button("./data/images/arrowUp.png", "./data/images/arrowUp_highlight.png");
+            back.Parent = group;
+            back.SetBoundsNoScaling(.75f - forward.size.X * .60f, forward.size.Y * -1.1f + yoffset);
+            back.StatusText = "Move Active Matrix - Back";
+            widgets.Add(back);
+            back.SetPictureRenderingOption(Picture.RenderOptions.FlipVertical);
+
+            Button up = new Button("./data/images/arrowUp.png", "./data/images/arrowUp_highlight.png");
+            up.Parent = group;
+            up.SetBoundsNoScaling(.75f + up.size.X * 1.15f, forward.size.Y * 1.1f * .5f + yoffset);
+            up.StatusText = "Move Active Matrix - Up";
+            widgets.Add(up);
+
+            Button down = new Button("./data/images/arrowUp.png", "./data/images/arrowUp_highlight.png");
+            down.Parent = group;
+            down.SetBoundsNoScaling(.75f + up.size.X * 1.15f, forward.size.Y * -1.1f * .5f + yoffset);
+            down.StatusText = "Move Active Matrix - Down";
+            widgets.Add(down);
+            down.SetPictureRenderingOption(Picture.RenderOptions.FlipVertical);
+
+            Label warning = new Label("Selection and Moving Tool is very much a work in progress feature.", Color.White);
+            warning.TextAlignment = QuickFont.QFontAlignment.Centre;
+            warning.SetBoundsNoScaling(0, 1 - warning.size.Y * 5.25f);
+            warning.Parent = group;
+            widgets.Add(warning);
+
+            var handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed && mouse.Button == MouseButton.Left)
+                    {
+                        if (e.ID == left.ID)
+                        {
+                            Singleton<QbManager>.INSTANCE.ActiveMatrix.MoveRight();
+                        }
+                        else if (e.ID == right.ID)
+                        {
+                            Singleton<QbManager>.INSTANCE.ActiveMatrix.MoveLeft();
+                        }
+                        else if (e.ID == up.ID)
+                        {
+                            Singleton<QbManager>.INSTANCE.ActiveMatrix.MoveUp();
+                        }
+                        else if (e.ID == down.ID)
+                        {
+                            Singleton<QbManager>.INSTANCE.ActiveMatrix.MoveDown();
+                        }
+                        else if (e.ID == back.ID)
+                        {
+                            Singleton<QbManager>.INSTANCE.ActiveMatrix.MoveForward();
+                        }
+                        else if (e.ID == forward.ID)
+                        {
+                            Singleton<QbManager>.INSTANCE.ActiveMatrix.MoveBack();
+
+                        }
+                    }
+                }
+            };
+
+            right.handler = handler;
+            left.handler = handler;
+            up.handler = handler;
+            down.handler = handler;
+            forward.handler = handler;
+            back.handler = handler;
+
+            group.Enable = false;
         }
 
         void Build_IOWindow()
@@ -794,6 +894,18 @@ namespace stonevox
             Button selection = new Button("./data/images/selection.png",
                                                                 "./data/images/selection_highlight.png");
             selection.SetBoundsNoScaling(background.location.X + selection.size.X / 2.6f, -1);
+
+            selection.handler = new WidgetEventHandler()
+            {
+                mousedownhandler = (e, mouse) =>
+                {
+                    if (mouse.IsPressed &&  mouse.Button == MouseButton.Left)
+                    {
+                        Singleton<BrushManager>.INSTANCE.SetCurrentBrush(VoxelBrushType.Select);
+                    }
+                }
+            };
+
             widgets.Add(selection);
 
             Button recolor = new Button("./data/images/brush.png",
@@ -1302,7 +1414,7 @@ namespace stonevox
                             }
                         }
                     }
-                    return input_text;
+                    return "";
                 },
 
                 textboxtextchange = (e) =>
@@ -1331,6 +1443,15 @@ namespace stonevox
 
                         Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionUpdate, (float)hu, (float)sat, (float)vi);
                     }
+                },
+
+                textboxtextcommit = (e) =>
+                {
+                    (e as TextBox).HandleFocusedLost();
+                },
+                focuslost = (e) =>
+                {
+                    lastWidgetFocusedID = -1;
                 }
             };
 
@@ -2240,6 +2361,10 @@ namespace stonevox
                 },
                 textboxtextcommit = (e) =>
                 {
+                    (e as TextBox).HandleFocusedLost();
+                },
+                focuslost = (e) =>
+                {
                     QbMatrix m = manager.ActiveMatrix;
 
                     string text = textbox_setMatrixPosition.Text;
@@ -2278,10 +2403,8 @@ namespace stonevox
                     }
 
                     m.position = new Vector3(x, y, z);
-                },
-                focuslost = (e) =>
-                {
-                    (e as TextBox).HandleTextCommit();
+
+                    lastWidgetFocusedID = -1;
                 }
             };
 
@@ -2341,6 +2464,10 @@ namespace stonevox
                 },
                 textboxtextcommit = (e) =>
                 {
+                    (e as TextBox).HandleFocusedLost();
+                },
+                focuslost = (e) =>
+                {
                     QbMatrix m = manager.ActiveMatrix;
 
                     string text = textbox_setMatrixSize.Text;
@@ -2382,10 +2509,8 @@ namespace stonevox
                     m.size.Y = y;
                     m.size.Z = z;
                     m.MatchFloorToSize();
-                },
-                focuslost = (e) =>
-                {
-                    (e as TextBox).HandleTextCommit();
+
+                    lastWidgetFocusedID = -1;
                 }
             };
 
