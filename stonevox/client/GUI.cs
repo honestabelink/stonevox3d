@@ -552,9 +552,9 @@ namespace stonevox
             widgets.Add(down);
             down.SetPictureRenderingOption(Picture.RenderOptions.FlipVertical);
 
-            Label warning = new Label("Selection and Moving Tool is very much a work in progress feature.", Color.White);
+            Label warning = new Label("Selection and Moving Tool is very much a work in progress feature.\nIt's safe, but the undo list will be cleared. Srry :(", Color.White);
             warning.TextAlignment = QuickFont.QFontAlignment.Centre;
-            warning.SetBoundsNoScaling(0, 1 - warning.size.Y * 5.25f);
+            warning.SetBoundsNoScaling(0, 1 - warning.size.Y * 2.5f);
             warning.Parent = group;
             widgets.Add(warning);
 
@@ -587,8 +587,10 @@ namespace stonevox
                         else if (e.ID == forward.ID)
                         {
                             Singleton<QbManager>.INSTANCE.ActiveMatrix.MoveBack();
-
                         }
+
+                        Singleton<UndoRedo>.INSTANCE.undos.Clear();
+                        Singleton<UndoRedo>.INSTANCE.redos.Clear();
                     }
                 }
             };
