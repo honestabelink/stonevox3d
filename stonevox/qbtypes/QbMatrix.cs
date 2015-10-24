@@ -922,12 +922,13 @@ namespace stonevox
         {
             if (voxels.TryGetValue(GetHash(x, y, z), out voxel) && (ignoreDirt || !voxel.dirty))
             {
+                int currentColor = voxel.colorindex;
                 voxel.dirty = setDirty;
+                voxel.colorindex = colorindex;
                 if (voxel.alphamask > 1)
                 {
-                    if (voxel.colorindex != colorindex)
+                    if (currentColor != colorindex)
                     {
-                        voxel.colorindex = colorindex;
                         _color(x, y, z);
                     }
                 }
@@ -1015,6 +1016,233 @@ namespace stonevox
             }
 
             colorindexholes = unused;
+        }
+
+        public void MoveUp()
+        {
+            // for every voxel, starting top down
+            for (int x = minx; x < maxx+1; x++)
+                for (int z = minz; z < maxz+1; z++)
+                    for (int y = maxy+1; y > miny-2; y--)
+                    {
+                        double hash = GetHash(x, y, z);
+
+                        // if we have a voxel to move up...
+                        if (voxels.TryGetValue(hash, out voxel))
+                        {
+                            int newColor = voxel.colorindex;
+
+                            // if we have voxel above our current one, recolor instead of adding
+                            // recoloring = better performance
+                            if (voxels.TryGetValue(GetHash(x, y + 1, z), out voxel))
+                            {
+                                Color(x, y + 1, z, newColor);
+                            }
+                            else
+                                Add(x, y + 1, z, colors[newColor]);
+                        }
+                        else
+                        // we don't have a voxel to move up... so remove the one above
+                            if (voxels.TryGetValue(GetHash(x, y + 1, z), out voxel))
+                            {
+                                Remove(x, y + 1, z);
+                            }
+
+                        if (y == miny - 1)
+                            Remove(x, y, z);
+                    }
+
+            Clean();
+        }
+
+
+        public void MoveDown()
+        {
+            // for every voxel, starting bottom up
+            for (int x = minx; x < maxx + 1; x++)
+                for (int z = minz; z < maxz + 1; z++)
+                    for (int y = miny; y < maxy +2; y++)
+                    {
+                        double hash = GetHash(x, y, z);
+
+                        // if we have a voxel to move up...
+                        if (voxels.TryGetValue(hash, out voxel))
+                        {
+                            int newColor = voxel.colorindex;
+
+                            // if we have voxel above our current one, recolor instead of adding
+                            // recoloring = better performance
+                            if (voxels.TryGetValue(GetHash(x, y - 1, z), out voxel))
+                            {
+                                Color(x, y - 1, z, newColor);
+                            }
+                            else
+                                Add(x, y - 1, z, colors[newColor]);
+                        }
+                        else
+                        // we don't have a voxel to move up... so remove the one above
+                            if (voxels.TryGetValue(GetHash(x, y - 1, z), out voxel))
+                        {
+                            Remove(x, y - 1, z);
+                        }
+
+                        if (y == maxy + 2)
+                            Remove(x, y, z);
+                    }
+
+            Clean();
+        }
+
+        public void MoveLeft()
+        {
+            for (int y = miny; y < maxy + 1; y++)
+                for (int z = minz; z < maxz + 1; z++)
+                    for (int x = maxx+1; x > minx-2; x--)
+                    {
+                        double hash = GetHash(x, y, z);
+
+                        // if we have a voxel to move up...
+                        if (voxels.TryGetValue(hash, out voxel))
+                        {
+                            int newColor = voxel.colorindex;
+
+                            // if we have voxel above our current one, recolor instead of adding
+                            // recoloring = better performance
+                            if (voxels.TryGetValue(GetHash(x+1, y, z), out voxel))
+                            {
+                                Color(x+1, y, z, newColor);
+                            }
+                            else
+                                Add(x+1, y, z, colors[newColor]);
+                        }
+                        else
+                        // we don't have a voxel to move up... so remove the one above
+                            if (voxels.TryGetValue(GetHash(x+1, y, z), out voxel))
+                        {
+                            Remove(x+1, y, z);
+                        }
+
+                        if (x == minx - 1)
+                            Remove(x, y, z);
+                    }
+
+            Clean();
+        }
+
+        public void MoveRight()
+        {
+            for (int y = miny; y < maxy + 1; y++)
+                for (int z = minz; z < maxz + 1; z++)
+                    for (int x = minx -2; x < maxx +1; x++)
+                    {
+                        double hash = GetHash(x, y, z);
+
+                        // if we have a voxel to move up...
+                        if (voxels.TryGetValue(hash, out voxel))
+                        {
+                            int newColor = voxel.colorindex;
+
+                            // if we have voxel above our current one, recolor instead of adding
+                            // recoloring = better performance
+                            if (voxels.TryGetValue(GetHash(x - 1, y, z), out voxel))
+                            {
+                                Color(x - 1, y, z, newColor);
+                            }
+                            else
+                                Add(x - 1, y, z, colors[newColor]);
+                        }
+                        else
+                        // we don't have a voxel to move up... so remove the one above
+                            if (voxels.TryGetValue(GetHash(x - 1, y, z), out voxel))
+                        {
+                            Remove(x - 1, y, z);
+                        }
+
+                        if (x == maxx)
+                            Remove(x, y, z);
+                    }
+
+            Clean();
+        }
+
+        public void MoveBack()
+        {
+            for (int y = miny; y < maxy +1; y++)
+                for (int x = minx; x < maxx+1 ; x++)
+                    for (int z = minz-2; z < maxz+1; z++)
+                    {
+                        double hash = GetHash(x, y, z);
+
+                        // if we have a voxel to move up...
+                        if (voxels.TryGetValue(hash, out voxel))
+                        {
+                            int newColor = voxel.colorindex;
+
+                            // if we have voxel above our current one, recolor instead of adding
+                            // recoloring = better performance
+                            if (voxels.TryGetValue(GetHash(x, y, z - 1), out voxel))
+                            {
+                                Color(x, y, z - 1, newColor);
+                            }
+                            else
+                                Add(x, y, z - 1, colors[newColor]);
+                        }
+                        else
+                        {
+                            // we don't have a voxel to move up... so remove the one above
+                            if (voxels.TryGetValue(GetHash(x, y, z - 1), out voxel))
+                            {
+                                Remove(x, y, z - 1);
+                            }
+                        }
+
+                        if (z == maxz)
+                        {
+                            Remove(x, y, z);
+                        }
+                    }
+
+            Clean();
+        }
+
+        public void MoveForward()
+        {
+            for (int y = miny; y < maxy + 1; y++)
+                for (int x = minx; x < maxx + 1; x++)
+                    for (int z = maxz +1; z > minz -2; z--)
+                    {
+                        double hash = GetHash(x, y, z);
+
+                        // if we have a voxel to move up...
+                        if (voxels.TryGetValue(hash, out voxel))
+                        {
+                            int newColor = voxel.colorindex;
+
+                            // if we have voxel above our current one, recolor instead of adding
+                            // recoloring = better performance
+                            if (voxels.TryGetValue(GetHash(x, y, z + 1), out voxel))
+                            {
+                                Color(x, y, z + 1, newColor);
+                            }
+                            else
+                                Add(x, y, z + 1, colors[newColor]);
+                        }
+                        else
+                        {
+                            // we don't have a voxel to move up... so remove the one above
+                            if (voxels.TryGetValue(GetHash(x, y, z + 1), out voxel))
+                            {
+                                Remove(x, y, z + 1);
+                            }
+                        }
+
+                        if (z == minz -1)
+                        {
+                            Remove(x, y, z);
+                        }
+                    }
+
+            Clean();
         }
 
         #endregion
