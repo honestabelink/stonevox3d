@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stonevox", "stonevox\stonevox.csproj", "{916BBCED-A1A2-4A98-92FF-8E50B6DAE58F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoneVoxThumbnailer", "StoneVoxThumbnailer\StoneVoxThumbnailer\StoneVoxThumbnailer.csproj", "{67BB4BAE-2E53-4D24-8932-84DEBE055DDE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{916BBCED-A1A2-4A98-92FF-8E50B6DAE58F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{916BBCED-A1A2-4A98-92FF-8E50B6DAE58F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{916BBCED-A1A2-4A98-92FF-8E50B6DAE58F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{67BB4BAE-2E53-4D24-8932-84DEBE055DDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{67BB4BAE-2E53-4D24-8932-84DEBE055DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{67BB4BAE-2E53-4D24-8932-84DEBE055DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{67BB4BAE-2E53-4D24-8932-84DEBE055DDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
