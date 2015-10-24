@@ -8,6 +8,13 @@ namespace stonevox
     [GUIAppearenceDataType(typeof(PictureData))]
     public class Picture : Appearence
     {
+        public enum RenderOptions
+        {
+            None,
+            FlipHorizontal,
+            FlipVertical
+        }
+
         string filePath;
 
         public Texture2D texture;
@@ -15,6 +22,8 @@ namespace stonevox
         public bool AutoResizeWidget;
 
         public Color4 color = Color4.White;
+
+        public RenderOptions options;
 
         public Picture() { AutoResizeWidget = true; }
 
@@ -33,6 +42,7 @@ namespace stonevox
         {
             if (texture.TextureID == -1) return;
 
+
             GL.Enable(EnableCap.Texture2D);
 
             GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
@@ -40,18 +50,60 @@ namespace stonevox
             GL.Color4(color);
             GL.Begin(PrimitiveType.Quads);
 
-            GL.TexCoord2(0f, 1f);
-            GL.Vertex2(x, y);
+            switch (options)
+            {
+                case RenderOptions.None:
+                    /*
+                        
+                        3----2
+                        |    |
+                        0----1
 
-            GL.TexCoord2(1f, 1f);
-            GL.Vertex2(x + width, y);
+                    */
 
-            GL.TexCoord2(1f, 0f);
-            GL.Vertex2(x + width, y + height);
+                    GL.TexCoord2(0f, 1f);
+                    GL.Vertex2(x, y);
 
-            GL.TexCoord2(0f, 0f);
-            GL.Vertex2(x, y + height);
+                    GL.TexCoord2(1f, 1f);
+                    GL.Vertex2(x + width, y);
 
+                    GL.TexCoord2(1f, 0f);
+                    GL.Vertex2(x + width, y + height);
+
+                    GL.TexCoord2(0f, 0f);
+                    GL.Vertex2(x, y + height);
+                    break;
+                case RenderOptions.FlipHorizontal:
+
+                    GL.TexCoord2(1f, 1f);
+                    GL.Vertex2(x, y);
+
+                    GL.TexCoord2(0f, 1f);
+                    GL.Vertex2(x + width, y);
+
+                    GL.TexCoord2(0f, 0f);
+                    GL.Vertex2(x + width, y + height);
+
+                    GL.TexCoord2(1f, 0f);
+                    GL.Vertex2(x, y + height);
+
+                    break;
+                case RenderOptions.FlipVertical:
+
+                    GL.TexCoord2(0f, 0f);
+                    GL.Vertex2(x, y);
+
+                    GL.TexCoord2(1f, 0f);
+                    GL.Vertex2(x + width, y);
+
+                    GL.TexCoord2(1f, 1f);
+                    GL.Vertex2(x + width, y + height);
+
+                    GL.TexCoord2(0f, 1f);
+                    GL.Vertex2(x, y + height);
+
+                    break;
+            }
             GL.End();
 
             GL.Disable(EnableCap.Texture2D);

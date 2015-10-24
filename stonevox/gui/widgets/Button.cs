@@ -145,6 +145,12 @@ namespace stonevox
             base.HandleMouseLeave();
         }
 
+        public void SetPictureRenderingOption(Picture.RenderOptions option)
+        {
+            backgroundImage.options = option;
+            highlightBackgroundImage.options = option;
+        }
+
         public override Widget FromWidgetData(WidgetData data)
         {
             ButtonData _data = data as ButtonData;
