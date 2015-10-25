@@ -153,7 +153,6 @@ namespace stonevox
 
                 OnLoad(EventArgs.Empty);
                 OnResize(EventArgs.Empty);
-                SetForegroundWindow(GetConsoleWindow());
 
                 Stopwatch stopWatch = Stopwatch.StartNew();
 
