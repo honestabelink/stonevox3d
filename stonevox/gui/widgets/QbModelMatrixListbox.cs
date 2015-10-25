@@ -412,6 +412,11 @@ namespace stonevox
             {
                 Refresh();
             }
+            else if (message.messgae == Message.ActiveModelChanged)
+            {
+                offsetindex = 0;
+                lastActiveIndex = 0;
+            }
             else if (message.messgae == Message.ActiveMatrixChanged)
             {
                 Select((int)message.args[1]);
