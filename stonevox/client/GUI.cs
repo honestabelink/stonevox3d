@@ -897,6 +897,7 @@ namespace stonevox
                                                                 "./data/images/selection_highlight.png");
             selection.SetBoundsNoScaling(background.location.X + selection.size.X / 2.6f, -1);
 
+            selection.StatusText = StatusText.button_select;
             selection.handler = new WidgetEventHandler()
             {
                 mousedownhandler = (e, mouse) =>
@@ -1679,7 +1680,7 @@ namespace stonevox
                                                         "./data/images/colorpicker_ok_highlight.png");
             ok.Parent = background;
             ok.SetBoundsNoScaling(h.Absolute_X + h.size.X - ok.size.X, hue.Absolute_Y - ok.size.Y * 2.3f);
-
+            ok.StatusText = StatusText.button_colorpickker_ok;
             ok.handler = new WidgetEventHandler()
             {
                 mousedownhandler = (e, mouse) =>
@@ -1687,7 +1688,9 @@ namespace stonevox
                     if (mouse.Button == MouseButton.Left)
                     {
                         Singleton<Broadcaster>.INSTANCE.Broadcast(Message.ColorSelectionCommit, cur_bg.color);
-                        background.Enable = false;
+
+                        if (!input.Keydown(Key.AltLeft) && !input.Keydown(Key.AltRight))
+                            background.Enable = false;
                     }
                 }
             };
