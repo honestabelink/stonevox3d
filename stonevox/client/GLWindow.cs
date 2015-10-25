@@ -139,6 +139,7 @@ namespace stonevox
 
             Client.Initialized = true;
             base.OnLoad(e);
+            SetForegroundWindow(WindowInfo.Handle);
         }
         protected override void OnClosing(CancelEventArgs e)
         {
