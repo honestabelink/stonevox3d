@@ -12,7 +12,7 @@
         public const string button_select = "Select/Move Voxel Tool\nTab - cycle tools";
         public const string button_IO = "Open-Save-Import Files";
 
-        public const string button_colorpickker_ok = "Alt+Click : set color without closing";
+        public const string button_colorpickker_ok = "Alt+Click\nChange color without closing";
         public const string picture_colorpicker_header = "Click and Drag to move color picker";
         public const string button_colorpallete = "Click to Set Active Color\nClick again to open Color Picker";
 
