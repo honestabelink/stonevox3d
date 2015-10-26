@@ -11,4 +11,17 @@ namespace stonevox.Mod
         public string name;
         public FileReference file;
     }
+
+    public class FunctionAlias
+    {
+        public enum endpoint
+        {
+            client,
+            server
+        }
+
+        public string name;
+        public FileReference controller;
+        public endpoint enpoint;
+    }
 }
