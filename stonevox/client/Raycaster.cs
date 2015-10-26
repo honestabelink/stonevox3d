@@ -116,7 +116,10 @@ namespace stonevox
                     continue;
                 }
 
-                ScreenToMouseRay(input.mousex, input.mousey);
+                if (!camera.freecam)
+                    ScreenToMouseRay(input.mousex, input.mousey);
+                else
+                    ScreenToMouseRay(window.Width / 2, window.Height / 2);
                 RaycastHit hit = new RaycastHit();
                 hit.distance = 10000;
 

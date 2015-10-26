@@ -12,6 +12,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace stonevox
@@ -167,6 +169,15 @@ namespace stonevox
                 isfocused = true;
                 raycaster.Enabled = true;
             }
+
+            var handle = FindWindowByCaption(IntPtr.Zero, "StoneVox - Open File");
+            if (handle != IntPtr.Zero)
+                SetForegroundWindow(handle);
+
+            handle = FindWindowByCaption(IntPtr.Zero, "StoneVox - Save File");
+            if (handle != IntPtr.Zero)
+                SetForegroundWindow(handle);
+
             base.OnFocusedChanged(e);
         }
         protected override void OnWindowStateChanged(EventArgs e)
@@ -215,35 +226,40 @@ namespace stonevox
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
+            base.OnKeyDown(e);
             input.handleKeydown(e);
 
-            if (e.Modifiers == KeyModifiers.Control && e.Key == Key.O)
+            if (e.Control && e.Key == Key.O)
             {
                 var open = new OpenFileDialog();
                 open.Multiselect = false;
-                open.Title = "Open .qb File";
+                open.Title = "StoneVox - Open File";
                 open.DefaultExt = ".qb";
 
-                var result = open.ShowDialog();
-
-                if (result == DialogResult.OK)
+                open.FileOk += (s, o) =>
                 {
-                    Client.OpenGLContextThread.Add(() => 
+                    Client.OpenGLContextThread.Add(() =>
                     {
                         ImportExportUtil.Import(open.FileName);
                     });
-                }
+                };
+
+                Thread thread = new Thread(() => 
+                {
+                    open.ShowDialog();
+                });
+
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
             }
-            if (e.Modifiers == KeyModifiers.Control && e.Key == Key.S)
+            if (e.Control && e.Key == Key.S)
             {
                 var save = new SaveFileDialog();
-                save.Title = "Save File";
+                save.Title = "StoneVox - Save File";
                 save.Filter = "StoneVox Project (.svp)|*.svp|Qubicle Binary (.qb)|*.qb|Wavefront OBJ (.obj)|*.obj|All files (*.*)|*.*";
                 save.DefaultExt = ".svp";
 
-                var result = save.ShowDialog();
-
-                if (result == DialogResult.OK)
+                save.FileOk += (s, t) =>
                 {
                     QbModel model = manager.ActiveModel;
                     model.name = save.FileName.Split('\\').Last();
@@ -251,9 +267,17 @@ namespace stonevox
                         model.name = model.name.Split('.').First();
                     broadcaster.Broadcast(Message.ModelRenamed, model, model.name);
                     ImportExportUtil.Export(save.FileName.Split('\\').Last().Replace(model.name, ""), model.name, Path.GetDirectoryName(save.FileName), model);
-                }
+                };
+
+                Thread thread = new Thread(() =>
+                {
+                    save.ShowDialog();
+                });
+
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
             }
-            else if (e.Modifiers == KeyModifiers.Control && e.Key == Key.F12)
+            else if (e.Control && e.Key == Key.F12)
             {
                 GUIEditor editor = new GUIEditor();
                 editor.Show();
@@ -310,8 +334,6 @@ namespace stonevox
             //    w.Stop();
             //    Console.WriteLine("earse " + w.ElapsedMilliseconds.ToString());
             //}
-
-            base.OnKeyDown(e);
         }
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
@@ -399,7 +421,7 @@ namespace stonevox
             if (ee > 1)
             {
                 ee = 0;
-                Title = "StoneVox fps : " + fps.ToString();
+                //Title = "StoneVox fps : " + fps.ToString();
                 fps = 0;
             }
 

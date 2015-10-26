@@ -32,7 +32,6 @@ namespace stonevox
 
         public bool freecam;
 
-
         public Camera(GLWindow window, Input input, QbManager manager)
             : base()
         {
@@ -54,31 +53,62 @@ namespace stonevox
 
             InputHandler handler = new InputHandler()
             {
-                mousewheelhandler = (e) =>
+                Keydownhandler = (e) =>
+                {
+                    var gui = Singleton<GUI>.INSTANCE;
+
+                    if (gui.FocusingWidget)
                     {
-                        if (!Singleton<GUI>.INSTANCE.OverWidget)
+                        // OMG FIX THIS... NEED TO CENTERALIZE THIS TYPE OF CHECKING
+                        var possibletextbox = gui.lastWidgetFocused as TextBox;
+                        if (possibletextbox != null) return;
+
+                        Label possiblelabe = gui.lastWidgetFocused as Label;
+                        if (possiblelabe != null) return;
+                    }
+
+                    //freecam is super interesting... but need a bit of work
+                    //if (e.Key == Key.C)
+                    //{
+                    //    freecam = !freecam;
+
+                    //    if (freecam)
+                    //    {
+                    //        Client.window.CursorVisible = false;
+                    //    }
+                    //    else
+                    //    {
+                    //        Client.window.CursorVisible = true;
+                    //    }
+                    //}
+                },
+
+
+                mousewheelhandler = (e) =>
+                {
+                    if (!Singleton<GUI>.INSTANCE.OverWidget)
+                    {
+                        if (e.Delta < 0)
                         {
-                            if (e.Delta < 0)
-                            {
-                                position -= direction * 6 * 1f;
-                            }
-                            else if (e.Delta > 0)
-                            {
-                                position += direction * 6 * 1f;
-                            }
+                            position -= direction * 6 * 1f;
                         }
-                        else if (Singleton<GUI>.INSTANCE.lastWidgetOver.Drag)
+                        else if (e.Delta > 0)
                         {
-                            if (e.Delta < 0)
-                            {
-                                position -= direction * 6 * 1f;
-                            }
-                            else if (e.Delta > 0)
-                            {
-                                position += direction * 6 * 1f;
-                            }
+                            position += direction * 6 * 1f;
                         }
                     }
+                    else if (Singleton<GUI>.INSTANCE.lastWidgetOver.Drag)
+                    {
+                        if (e.Delta < 0)
+                        {
+                            position -= direction * 6 * 1f;
+                        }
+                        else if (e.Delta > 0)
+                        {
+                            position += direction * 6 * 1f;
+                        }
+                    }
+                }
             };
             input.AddHandler(handler);
         }
@@ -119,7 +149,7 @@ namespace stonevox
                 }
             }
 
-            if (input.mousedown(MouseButton.Right))
+            if (input.mousedown(MouseButton.Right) || freecam)
             {
                 Vector3 camright = cameraright;
                 Vector3 camup = cameraup;
