@@ -36,6 +36,25 @@ namespace stonevox
                     {
                         NextBrush();
                     }
+
+                    var gui = Singleton<GUI>.INSTANCE;
+
+                    if (gui.FocusingWidget)
+                    {
+                        // OMG FIX THIS... NEED TO CENTERALIZE THIS TYPE OF CHECKING
+                        var possibletextbox = gui.lastWidgetFocused as TextBox;
+                        if (possibletextbox != null) return;
+
+                        Label possiblelabe = gui.lastWidgetFocused as Label;
+                        if (possiblelabe != null) return;
+                    }
+
+                    if (e.Key == Key.B)
+                        SetCurrentBrush(VoxelBrushType.Add);
+                    else if (e.Key == Key.R)
+                        SetCurrentBrush(VoxelBrushType.Recolor);
+                    else if (e.Key == Key.F)
+                        SetCurrentBrush(VoxelBrushType.Remove);
                 }
             });
 

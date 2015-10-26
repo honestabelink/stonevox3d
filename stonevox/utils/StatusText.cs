@@ -6,9 +6,9 @@
         public const string button_eyedrop = "Drag over anything to color pick\nShortcut - Hold Shift & Click";
         public const string button_gridoptions = "Voxel Outlining : $(type)\nShortcut - Shift + G\nEnable/Disable - G";
 
-        public const string button_add = "Add Voxel Tool\nTab - cycle tools";
-        public const string button_remove= "Remove Voxel Tool\nTab - cycle tools";
-        public const string button_recolor= "Recolor Voxel Tool\nTab - cycle tools";
+        public const string button_add = "Add Voxel Tool\nShortcut - B";
+        public const string button_remove= "Remove Voxel Tool\nShortcut - F";
+        public const string button_recolor= "Recolor Voxel Tool\nShortcut - R";
         public const string button_select = "Select/Move Voxel Tool\nTab - cycle tools";
         public const string button_IO = "Open-Save-Import Files";
 
