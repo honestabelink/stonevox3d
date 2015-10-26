@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 
@@ -32,10 +33,12 @@ namespace stonevox
                 return false;
             }
 
-            foreach (var importer in importers)
+            try
             {
-                if (path.EndsWith(importer.extension))
+                foreach (var importer in importers)
                 {
+                    if (path.EndsWith(importer.extension))
+                    {
                         var model = importer.read(path);
                         //model.Sort();
 
@@ -48,8 +51,13 @@ namespace stonevox
                         {
                             Program.SetForegroundWindow(Client.window.WindowInfo.Handle);
                         }
-                    return true;
+                        return true;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                return false;
             }
             return false;
         }
@@ -61,13 +69,21 @@ namespace stonevox
                 return false;
             }
 
-            foreach (var exporter in exporters)
+            try
             {
-                if (extension.Contains(exporter.extension))
+                foreach (var exporter in exporters)
                 {
-                    exporter.write(path, name, model);
-                    return true;
+                    if (extension.Contains(exporter.extension))
+                    {
+                        exporter.write(path, name, model);
+                        return true;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("StoneVox had trouble trying to save. This could be because the folder you are saving to is protected. Try saving somewhere else, then re-running SV as Admin.", "StoneVox - Saving Error");
+                return false;
             }
             return false;
         }
