@@ -421,7 +421,7 @@ namespace stonevox
             if (ee > 1)
             {
                 ee = 0;
-                //Title = "StoneVox fps : " + fps.ToString();
+                Title = "StoneVox fps : " + fps.ToString();
                 fps = 0;
             }
 
