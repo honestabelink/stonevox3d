@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Windows.Forms;
 
 namespace stonevox
 {
@@ -19,22 +21,33 @@ namespace stonevox
 
         public static bool Import(string path, bool setActive = true)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                return false;
+            }
+
+            if (!File.Exists(path))
+            {
+                MessageBox.Show("File not found...", "StoneVox");
+                return false;
+            }
+
             foreach (var importer in importers)
             {
                 if (path.EndsWith(importer.extension))
                 {
-                    var model = importer.read(path);
-                    //model.Sort();
+                        var model = importer.read(path);
+                        //model.Sort();
 
-                    Singleton<QbManager>.INSTANCE.AddModel(model, setActive);
-                    if (setActive)
-                        Singleton<Camera>.INSTANCE.LookAtModel();
+                        Singleton<QbManager>.INSTANCE.AddModel(model, setActive);
+                        if (setActive)
+                            Singleton<Camera>.INSTANCE.LookAtModel();
 
-                    // hacks
-                    if (!Client.window.isfocused)
-                    {
-                        Program.SetForegroundWindow(Client.window.WindowInfo.Handle);
-                    }
+                        // hacks
+                        if (!Client.window.isfocused)
+                        {
+                            Program.SetForegroundWindow(Client.window.WindowInfo.Handle);
+                        }
                     return true;
                 }
             }
@@ -43,6 +56,11 @@ namespace stonevox
 
         public static bool Export(string extension, string name, string path, QbModel model)
         {
+            if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(name))
+            {
+                return false;
+            }
+
             foreach (var exporter in exporters)
             {
                 if (extension.Contains(exporter.extension))
